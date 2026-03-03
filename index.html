@@ -146,20 +146,18 @@
   .header-row {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #e8e4dc;
+    border-top: 2px solid #1a1a1a;
+    margin-top: 1rem;
     position: relative;
   }
-  .header-row:last-child { border-bottom: none; }
+  .header-row:first-child { margin-top: 0; border-top: none; }
   .header-row.dragging { opacity: 0.35; }
-  .header-row.drag-over { border-top: 2px solid #1a1a1a; }
 
   .header {
     font-family: 'Playfair Display', serif;
     font-size: 1.1rem;
     color: #1a1a1a;
-    padding: 1.25rem 0 0.25rem;
-    border-bottom: 2px solid #1a1a1a;
-    margin-bottom: 0.25rem;
+    padding: 0.5rem 0;
     flex: 1;
     min-width: 0;
   }
@@ -169,12 +167,11 @@
     font-size: 1.1rem;
     color: #1a1a1a;
     border: none;
-    border-bottom: 2px solid #1a1a1a;
     background: transparent;
     outline: none;
     flex: 1;
     min-width: 0;
-    padding: 1.25rem 0 0.25rem;
+    padding: 0.5rem 0;
   }
 
   /* add-item row */
