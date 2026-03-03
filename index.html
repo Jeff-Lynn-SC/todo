@@ -281,6 +281,8 @@
 </div>
 
 <script>
+  const DB = 'https://todo-e6d14-default-rtdb.europe-west1.firebasedatabase.app/tasks.json';
+
   const defaults = [
     { label: 'Monday', done: null },
     { label: 'Wash dishes', done: true },
@@ -299,11 +301,25 @@
     { label: 'Tidy', done: false },
   ];
 
-  const saved = localStorage.getItem('jeff-todo');
-  let tasks = saved ? JSON.parse(saved) : defaults;
+  let tasks = [];
+
+  async function load() {
+    try {
+      const res = await fetch(DB);
+      const data = await res.json();
+      tasks = Array.isArray(data) && data.length ? data : defaults;
+    } catch(e) {
+      tasks = defaults;
+    }
+    render();
+  }
 
   function save() {
-    localStorage.setItem('jeff-todo', JSON.stringify(tasks));
+    fetch(DB, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tasks)
+    });
   }
 
   function reloadList() {
@@ -482,7 +498,7 @@
 
   addHeaderBtn.addEventListener('click', () => addItem(true));
 
-  render();
+  load();
 </script>
 </body>
 </html>
