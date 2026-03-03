@@ -62,6 +62,9 @@
     padding: 0.75rem 0.5rem 0.75rem 0;
     flex-shrink: 0;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
     line-height: 1;
   }
   .handle:hover { color: #999; }
@@ -326,6 +329,60 @@ const list        = document.getElementById('list');
   // ── drag state ──────────────────────────────────────────────────────────
   let dragSrcIndex = null;
 
+  // ── touch drag state (iOS) ───────────────────────────────────────────────
+  let touchSrc = null;
+  let touchDragging = false;
+
+  // Suppress page scroll while a drag is in progress (must be on document, non-passive)
+  document.addEventListener('touchmove', e => {
+    if (touchDragging) e.preventDefault();
+  }, { passive: false });
+
+  function attachTouchDrag(triggerEl, rowEl, idx) {
+    triggerEl.addEventListener('touchstart', e => {
+      e.preventDefault();
+      touchSrc = idx;
+      touchDragging = true;
+      setTimeout(() => rowEl.classList.add('dragging'), 0);
+    }, { passive: false });
+
+    triggerEl.addEventListener('touchmove', e => {
+      if (!touchDragging) return;
+      const touch = e.touches[0];
+      // Use bounding rects — more reliable on iOS than elementFromPoint
+      let targetRow = null;
+      list.querySelectorAll('[data-task-index]').forEach(r => {
+        if (r === rowEl) return;
+        const rect = r.getBoundingClientRect();
+        if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) targetRow = r;
+      });
+      list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      if (targetRow) targetRow.classList.add('drag-over');
+    }, { passive: false });
+
+    function onTouchEnd() {
+      if (!touchDragging) return;
+      touchDragging = false;
+      rowEl.classList.remove('dragging');
+      const overEl = list.querySelector('.drag-over');
+      list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      if (overEl) {
+        const targetIdx = parseInt(overEl.dataset.taskIndex);
+        if (!isNaN(targetIdx) && targetIdx !== touchSrc) {
+          const moved = tasks.splice(touchSrc, 1)[0];
+          const insertAt = touchSrc < targetIdx ? targetIdx - 1 : targetIdx;
+          tasks.splice(insertAt, 0, moved);
+          save();
+          render();
+        }
+      }
+      touchSrc = null;
+    }
+
+    triggerEl.addEventListener('touchend', onTouchEnd, { passive: true });
+    triggerEl.addEventListener('touchcancel', onTouchEnd, { passive: true });
+  }
+
   // ── inline rename ────────────────────────────────────────────────────────
   function startRename(i, labelEl, isHeader) {
     const inp = document.createElement('input');
@@ -362,15 +419,15 @@ const list        = document.getElementById('list');
         ? 'header-row' + (i === firstHeaderIndex ? ' first-section' : '')
         : 'row';
       row.draggable = true;
+      row.dataset.taskIndex = i;
 
-      // drag handle (tasks only)
-      if (!isHeader) {
-        const handle = document.createElement('span');
-        handle.className = 'handle';
-        handle.textContent = '⠿';
-        handle.title = 'Drag to reorder';
-        row.appendChild(handle);
-      }
+      // drag handle
+      const handle = document.createElement('span');
+      handle.className = 'handle';
+      handle.textContent = '⠿';
+      handle.title = 'Drag to reorder';
+      row.appendChild(handle);
+      attachTouchDrag(handle, row, i);
 
       if (isHeader) {
         const h = document.createElement('div');
