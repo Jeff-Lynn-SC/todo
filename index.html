@@ -146,32 +146,38 @@
   .header-row {
     display: flex;
     align-items: center;
-    border-top: 2px solid #1a1a1a;
-    margin-top: 1rem;
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #d8d4cc;
     position: relative;
   }
-  .header-row:first-child { margin-top: 0; border-top: none; }
+  .header-row.first-section { margin-top: 0; padding-top: 0; border-top: none; }
   .header-row.dragging { opacity: 0.35; }
 
   .header {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: #1a1a1a;
-    padding: 0.5rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #999;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0;
     flex: 1;
     min-width: 0;
   }
 
   .header-input {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: #1a1a1a;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999;
     border: none;
     background: transparent;
     outline: none;
     flex: 1;
     min-width: 0;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
   }
 
   /* add-item row */
@@ -347,10 +353,14 @@ const list        = document.getElementById('list');
   function render() {
     list.innerHTML = '';
 
+    const firstHeaderIndex = tasks.findIndex(t => t.done === null);
+
     tasks.forEach((t, i) => {
       const isHeader = t.done === null;
       const row = document.createElement('div');
-      row.className = isHeader ? 'header-row' : 'row';
+      row.className = isHeader
+        ? 'header-row' + (i === firstHeaderIndex ? ' first-section' : '')
+        : 'row';
       row.draggable = true;
 
       // drag handle (tasks only)
@@ -460,8 +470,8 @@ const list        = document.getElementById('list');
   // ── add item ─────────────────────────────────────────────────────────────
   function addItem(asHeader) {
     const val = addInput.value.trim();
-    if (!val) return;
-    tasks.push({ label: val, done: asHeader ? null : false });
+    if (!val && !asHeader) return;
+    tasks.push({ label: val || 'New Section', done: asHeader ? null : false });
     addInput.value = '';
     save();
     render();
