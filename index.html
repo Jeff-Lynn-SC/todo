@@ -42,19 +42,42 @@
     letter-spacing: 0.05em;
   }
 
+  /* ── rows ── */
+  .row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e8e4dc;
+    position: relative;
+  }
+  .row:last-child { border-bottom: none; }
+  .row.dragging { opacity: 0.35; }
+  .row.drag-over { border-top: 2px solid #1a1a1a; }
+
+  /* drag handle */
+  .handle {
+    cursor: grab;
+    color: #d8d4cc;
+    font-size: 0.95rem;
+    padding: 0.75rem 0.5rem 0.75rem 0;
+    flex-shrink: 0;
+    user-select: none;
+    line-height: 1;
+  }
+  .handle:hover { color: #999; }
+  .handle:active { cursor: grabbing; }
+
+  /* task item */
   .item {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     padding: 0.75rem 0;
-    border-bottom: 1px solid #e8e4dc;
     cursor: pointer;
     transition: opacity 0.2s;
+    flex: 1;
+    min-width: 0;
   }
-
-  .item:last-child { border-bottom: none; }
-
-  .item:hover { opacity: 0.75; }
+  .item:hover { opacity: 0.7; }
 
   .checkbox {
     width: 20px;
@@ -66,11 +89,7 @@
     justify-content: center;
     transition: background 0.15s;
   }
-
-  .item.done .checkbox {
-    background: #1a1a1a;
-  }
-
+  .item.done .checkbox { background: #1a1a1a; }
   .item.done .checkbox::after {
     content: '✓';
     color: #fffef9;
@@ -82,28 +101,143 @@
     font-size: 0.9rem;
     letter-spacing: 0.03em;
     color: #1a1a1a;
-    transition: color 0.2s;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .item.done .label { text-decoration: line-through; color: #aaa; }
+
+  /* inline rename inputs */
+  .label-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    color: #1a1a1a;
+    border: none;
+    border-bottom: 1px solid #1a1a1a;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    padding: 0;
   }
 
-  .item.done .label {
-    text-decoration: line-through;
-    color: #aaa;
+  /* delete button (appears on row hover) */
+  .del {
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: #ddd;
+    cursor: pointer;
+    padding: 0.75rem 0 0.75rem 0.5rem;
+    flex-shrink: 0;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .row:hover .del { opacity: 1; }
+  .del:hover { color: #c0392b !important; }
+
+  /* section header row */
+  .header-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e8e4dc;
+    position: relative;
+  }
+  .header-row:last-child { border-bottom: none; }
+  .header-row.dragging { opacity: 0.35; }
+  .header-row.drag-over { border-top: 2px solid #1a1a1a; }
+
+  .header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    padding: 1.25rem 0 0.25rem;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0.25rem;
+    flex: 1;
+    min-width: 0;
   }
 
+  .header-input {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    border: none;
+    border-bottom: 2px solid #1a1a1a;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+    padding: 1.25rem 0 0.25rem;
+  }
+
+  /* add-item row */
+  .add-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0 0;
+    margin-top: 0.5rem;
+    border-top: 1px dashed #d8d4cc;
+  }
+  .add-plus {
+    color: #ccc;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .add-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    color: #1a1a1a;
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    min-width: 0;
+  }
+  .add-input::placeholder { color: #ccc; }
+  .add-header-btn {
+    background: none;
+    border: 1px solid #ddd;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: #bbb;
+    cursor: pointer;
+    padding: 0.2rem 0.45rem;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .add-header-btn:hover { border-color: #999; color: #777; }
+
+  /* hint text */
+  .hint {
+    font-size: 0.65rem;
+    color: #ccc;
+    letter-spacing: 0.04em;
+    margin-top: 0.35rem;
+  }
+
+  /* progress */
   .progress {
-    margin-top: 2rem;
+    margin-top: 1.75rem;
     font-size: 0.7rem;
     color: #888;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-
   .bar {
     height: 3px;
     background: #e8e4dc;
     margin-top: 0.5rem;
   }
-
   .bar-fill {
     height: 100%;
     background: #1a1a1a;
@@ -121,17 +255,7 @@
     letter-spacing: 0.05em;
     padding: 0;
   }
-
   .reset:hover { color: #888; }
-
-  .header {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    color: #1a1a1a;
-    padding: 1.25rem 0 0.25rem;
-    border-bottom: 2px solid #1a1a1a;
-    margin-bottom: 0.25rem;
-  }
 </style>
 </head>
 <body>
@@ -141,8 +265,15 @@
 
   <div id="list"></div>
 
+  <div class="add-row">
+    <span class="add-plus">+</span>
+    <input class="add-input" id="addInput" placeholder="add item…" autocomplete="off" />
+    <button class="add-header-btn" id="addHeaderBtn" title="Add as section header">+ header</button>
+  </div>
+  <div class="hint">press enter to add · double-click any item to rename</div>
+
   <div class="progress">
-    <span id="progressText">0 / 7 done</span>
+    <span id="progressText">0 / 0 done</span>
     <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
   </div>
   <button class="reset" onclick="reloadList()">sync new items</button>
@@ -154,21 +285,21 @@
     { label: 'Wash dishes', done: true },
     { label: 'Shower', done: true },
     { label: 'Walk', done: true },
-      { label: 'Wash dishes II', done: true },
-      { label: 'Rice', done: true },
-      { label: 'Wash dishes III', done: true },
-      { label: 'Invoice', done: true },
-      { label: 'Tuesday', done: null },
-      { label: 'Wash dishes I', done: false },
+    { label: 'Wash dishes II', done: true },
+    { label: 'Rice', done: true },
+    { label: 'Wash dishes III', done: true },
+    { label: 'Invoice', done: true },
+    { label: 'Tuesday', done: null },
+    { label: 'Wash dishes I', done: false },
     { label: 'Prep English', done: false },
-      { label: 'Order salt', done: false },
-      { label: 'Patient Files', done: true },
-      { label: 'Walk', done: true },
+    { label: 'Order salt', done: false },
+    { label: 'Patient Files', done: true },
+    { label: 'Walk', done: true },
     { label: 'Tidy', done: false },
   ];
 
   const saved = localStorage.getItem('jeff-todo');
-  const tasks = saved ? JSON.parse(saved) : defaults;
+  let tasks = saved ? JSON.parse(saved) : defaults;
 
   function save() {
     localStorage.setItem('jeff-todo', JSON.stringify(tasks));
@@ -177,40 +308,180 @@
   function reloadList() {
     defaults.forEach(d => {
       if (!tasks.find(t => t.label === d.label)) {
-        tasks.push({ label: d.label, done: false });
+        tasks.push({ label: d.label, done: d.done === null ? null : false });
       }
     });
     save();
     render();
   }
 
-  const list = document.getElementById('list');
+  const list        = document.getElementById('list');
   const progressText = document.getElementById('progressText');
-  const barFill = document.getElementById('barFill');
-  const dateLabel = document.getElementById('dateLabel');
+  const barFill     = document.getElementById('barFill');
+  const dateLabel   = document.getElementById('dateLabel');
+  const addInput    = document.getElementById('addInput');
+  const addHeaderBtn = document.getElementById('addHeaderBtn');
 
-  dateLabel.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  dateLabel.textContent = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
 
+  // ── drag state ──────────────────────────────────────────────────────────
+  let dragSrcIndex = null;
+
+  // ── inline rename ────────────────────────────────────────────────────────
+  function startRename(i, labelEl, isHeader) {
+    const inp = document.createElement('input');
+    inp.className = isHeader ? 'header-input' : 'label-input';
+    inp.value = tasks[i].label;
+    labelEl.replaceWith(inp);
+    inp.focus();
+    inp.select();
+
+    function commit() {
+      const v = inp.value.trim();
+      if (v) tasks[i].label = v;
+      save();
+      render();
+    }
+
+    inp.addEventListener('blur', commit);
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+      if (e.key === 'Escape') { render(); } // cancel without saving
+    });
+  }
+
+  // ── render ───────────────────────────────────────────────────────────────
   function render() {
     list.innerHTML = '';
+
     tasks.forEach((t, i) => {
-      const el = document.createElement('div');
-      if (t.done === null) {
-        el.className = 'header';
-        el.textContent = t.label;
+      const isHeader = t.done === null;
+      const row = document.createElement('div');
+      row.className = isHeader ? 'header-row' : 'row';
+      row.draggable = true;
+
+      // drag handle
+      const handle = document.createElement('span');
+      handle.className = 'handle';
+      handle.textContent = '⠿';
+      handle.title = 'Drag to reorder';
+      row.appendChild(handle);
+
+      if (isHeader) {
+        const h = document.createElement('div');
+        h.className = 'header';
+        h.textContent = t.label;
+        h.title = 'Double-click to rename';
+        h.addEventListener('dblclick', e => { e.stopPropagation(); startRename(i, h, true); });
+        row.appendChild(h);
       } else {
-        el.className = 'item' + (t.done ? ' done' : '');
-        el.innerHTML = `<div class="checkbox"></div><span class="label">${t.label}</span>`;
-        el.onclick = () => { tasks[i].done = !tasks[i].done; save(); render(); };
+        const item = document.createElement('div');
+        item.className = 'item' + (t.done ? ' done' : '');
+
+        const cb = document.createElement('div');
+        cb.className = 'checkbox';
+        item.appendChild(cb);
+
+        const lbl = document.createElement('span');
+        lbl.className = 'label';
+        lbl.textContent = t.label;
+        lbl.title = 'Double-click to rename';
+        item.appendChild(lbl);
+
+        // toggle done on item click (but not on label dblclick)
+        item.addEventListener('click', () => {
+          tasks[i].done = !tasks[i].done;
+          save();
+          render();
+        });
+
+        lbl.addEventListener('dblclick', e => {
+          e.stopPropagation();
+          startRename(i, lbl, false);
+        });
+
+        row.appendChild(item);
       }
-      list.appendChild(el);
+
+      // delete button (shown on hover via CSS)
+      const del = document.createElement('button');
+      del.className = 'del';
+      del.textContent = '×';
+      del.title = 'Delete';
+      del.addEventListener('click', e => {
+        e.stopPropagation();
+        tasks.splice(i, 1);
+        save();
+        render();
+      });
+      row.appendChild(del);
+
+      // ── drag-and-drop events ──
+      row.addEventListener('dragstart', e => {
+        dragSrcIndex = i;
+        setTimeout(() => row.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      row.addEventListener('dragend', () => {
+        row.classList.remove('dragging');
+        list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      });
+
+      row.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        if (dragSrcIndex !== i) row.classList.add('drag-over');
+      });
+
+      row.addEventListener('dragleave', () => {
+        row.classList.remove('drag-over');
+      });
+
+      row.addEventListener('drop', e => {
+        e.preventDefault();
+        row.classList.remove('drag-over');
+        if (dragSrcIndex === null || dragSrcIndex === i) return;
+        const moved = tasks.splice(dragSrcIndex, 1)[0];
+        // adjust target index after removal
+        const insertAt = dragSrcIndex < i ? i - 1 : i;
+        tasks.splice(insertAt, 0, moved);
+        dragSrcIndex = null;
+        save();
+        render();
+      });
+
+      list.appendChild(row);
     });
+
+    // progress
     const items = tasks.filter(t => t.done !== null);
-    const done = items.filter(t => t.done).length;
+    const done  = items.filter(t => t.done).length;
     progressText.textContent = `${done} / ${items.length} done`;
     barFill.style.width = items.length ? (done / items.length * 100) + '%' : '0%';
   }
 
+  // ── add item ─────────────────────────────────────────────────────────────
+  function addItem(asHeader) {
+    const val = addInput.value.trim();
+    if (!val) return;
+    tasks.push({ label: val, done: asHeader ? null : false });
+    addInput.value = '';
+    save();
+    render();
+    addInput.focus();
+  }
+
+  addInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addItem(false);
+  });
+
+  addHeaderBtn.addEventListener('click', () => addItem(true));
+
   render();
 </script>
-</body></html>
+</body>
+</html>
