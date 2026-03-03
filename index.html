@@ -353,10 +353,10 @@ const list        = document.getElementById('list');
   function render() {
     list.innerHTML = '';
 
-    const firstHeaderIndex = tasks.findIndex(t => t.done === null);
+    const firstHeaderIndex = tasks.findIndex(t => t.done == null);
 
     tasks.forEach((t, i) => {
-      const isHeader = t.done === null;
+      const isHeader = t.done == null;
       const row = document.createElement('div');
       row.className = isHeader
         ? 'header-row' + (i === firstHeaderIndex ? ' first-section' : '')
@@ -461,7 +461,7 @@ const list        = document.getElementById('list');
     });
 
     // progress
-    const items = tasks.filter(t => t.done !== null);
+    const items = tasks.filter(t => t.done != null);
     const done  = items.filter(t => t.done).length;
     progressText.textContent = `${done} / ${items.length} done`;
     barFill.style.width = items.length ? (done / items.length * 100) + '%' : '0%';
