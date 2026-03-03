@@ -245,18 +245,6 @@
     transition: width 0.3s ease;
   }
 
-  .reset {
-    margin-top: 1.5rem;
-    background: none;
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: #ccc;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    padding: 0;
-  }
-  .reset:hover { color: #888; }
 </style>
 </head>
 <body>
@@ -277,7 +265,6 @@
     <span id="progressText">0 / 0 done</span>
     <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
   </div>
-  <button class="reset" onclick="reloadList()">sync new items</button>
 </div>
 
 <script>
@@ -322,17 +309,7 @@
     });
   }
 
-  function reloadList() {
-    defaults.forEach(d => {
-      if (!tasks.find(t => t.label === d.label)) {
-        tasks.push({ label: d.label, done: d.done === null ? null : false });
-      }
-    });
-    save();
-    render();
-  }
-
-  const list        = document.getElementById('list');
+const list        = document.getElementById('list');
   const progressText = document.getElementById('progressText');
   const barFill     = document.getElementById('barFill');
   const dateLabel   = document.getElementById('dateLabel');
