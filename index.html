@@ -385,25 +385,23 @@ const list        = document.getElementById('list');
 
         const cb = document.createElement('div');
         cb.className = 'checkbox';
+        cb.addEventListener('click', e => {
+          e.stopPropagation();
+          tasks[i].done = !tasks[i].done;
+          save();
+          render();
+        });
         item.appendChild(cb);
 
         const lbl = document.createElement('span');
         lbl.className = 'label';
         lbl.textContent = t.label;
         lbl.title = 'Double-click to rename';
-        item.appendChild(lbl);
-
-        // toggle done on item click (but not on label dblclick)
-        item.addEventListener('click', () => {
-          tasks[i].done = !tasks[i].done;
-          save();
-          render();
-        });
-
         lbl.addEventListener('dblclick', e => {
           e.stopPropagation();
           startRename(i, lbl, false);
         });
+        item.appendChild(lbl);
 
         row.appendChild(item);
       }
