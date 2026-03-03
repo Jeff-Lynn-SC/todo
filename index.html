@@ -356,12 +356,14 @@ const list        = document.getElementById('list');
       row.className = isHeader ? 'header-row' : 'row';
       row.draggable = true;
 
-      // drag handle
-      const handle = document.createElement('span');
-      handle.className = 'handle';
-      handle.textContent = '⠿';
-      handle.title = 'Drag to reorder';
-      row.appendChild(handle);
+      // drag handle (tasks only)
+      if (!isHeader) {
+        const handle = document.createElement('span');
+        handle.className = 'handle';
+        handle.textContent = '⠿';
+        handle.title = 'Drag to reorder';
+        row.appendChild(handle);
+      }
 
       if (isHeader) {
         const h = document.createElement('div');
