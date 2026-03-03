@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To Do</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    padding: 2rem;
+  }
+
+  .card {
+    background: #fffef9;
+    border: 2px solid #1a1a1a;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 6px 6px 0 #1a1a1a;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    color: #1a1a1a;
+  }
+
+  .date {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e8e4dc;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .item:last-child { border-bottom: none; }
+
+  .item:hover { opacity: 0.75; }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1a1a1a;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .item.done .checkbox {
+    background: #1a1a1a;
+  }
+
+  .item.done .checkbox::after {
+    content: '✓';
+    color: #fffef9;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .label {
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    color: #1a1a1a;
+    transition: color 0.2s;
+  }
+
+  .item.done .label {
+    text-decoration: line-through;
+    color: #aaa;
+  }
+
+  .progress {
+    margin-top: 2rem;
+    font-size: 0.7rem;
+    color: #888;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bar {
+    height: 3px;
+    background: #e8e4dc;
+    margin-top: 0.5rem;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: #1a1a1a;
+    transition: width 0.3s ease;
+  }
+
+  .reset {
+    margin-top: 1.5rem;
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: #ccc;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    padding: 0;
+  }
+
+  .reset:hover { color: #888; }
+
+  .header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    padding: 1.25rem 0 0.25rem;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 0.25rem;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Today</h1>
+  <div class="date" id="dateLabel"></div>
+
+  <div id="list"></div>
+
+  <div class="progress">
+    <span id="progressText">0 / 7 done</span>
+    <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  </div>
+  <button class="reset" onclick="reloadList()">sync new items</button>
+</div>
+
+<script>
+  const defaults = [
+    { label: 'Monday', done: null },
+    { label: 'Wash dishes', done: true },
+    { label: 'Shower', done: false },
+    { label: 'Walk', done: false },
+    { label: 'Wash dishes II', done: false },
+    { label: 'Rice', done: false },
+    { label: 'Wash dishes III', done: false },
+    { label: 'Invoice', done: false },
+    { label: 'Tuesday', done: null },
+    { label: 'Prep English', done: false },
+    { label: 'Order salt', done: false },
+    { label: 'Tidy', done: false },
+  ];
+
+  const saved = localStorage.getItem('jeff-todo');
+  const tasks = saved ? JSON.parse(saved) : defaults;
+
+  function save() {
+    localStorage.setItem('jeff-todo', JSON.stringify(tasks));
+  }
+
+  function reloadList() {
+    defaults.forEach(d => {
+      if (!tasks.find(t => t.label === d.label)) {
+        tasks.push({ label: d.label, done: false });
+      }
+    });
+    save();
+    render();
+  }
+
+  const list = document.getElementById('list');
+  const progressText = document.getElementById('progressText');
+  const barFill = document.getElementById('barFill');
+  const dateLabel = document.getElementById('dateLabel');
+
+  dateLabel.textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  function render() {
+    list.innerHTML = '';
+    tasks.forEach((t, i) => {
+      const el = document.createElement('div');
+      if (t.done === null) {
+        el.className = 'header';
+        el.textContent = t.label;
+      } else {
+        el.className = 'item' + (t.done ? ' done' : '');
+        el.innerHTML = `<div class="checkbox"></div><span class="label">${t.label}</span>`;
+        el.onclick = () => { tasks[i].done = !tasks[i].done; save(); render(); };
+      }
+      list.appendChild(el);
+    });
+    const items = tasks.filter(t => t.done !== null);
+    const done = items.filter(t => t.done).length;
+    progressText.textContent = `${done} / ${items.length} done`;
+    barFill.style.width = items.length ? (done / items.length * 100) + '%' : '0%';
+  }
+
+  render();
+</script>
+</body></html>
