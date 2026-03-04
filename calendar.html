@@ -422,11 +422,7 @@
     const s  = start <= end ? start : end;
     const e2 = start <= end ? end   : start;
 
-    if (!hasCrossedDay) {
-      // plain click → inline single-day add
-      const cell = document.querySelector(`[data-key="${s}"]`);
-      if (cell) openInlineAdd(cell, s);
-    } else {
+    if (hasCrossedDay) {
       // drag across days → multi-day span
       showSpanPrompt(s, e2, e.clientX, e.clientY);
     }
@@ -652,6 +648,13 @@
           removePreviewBars();
           renderPreview(s, e2);
         });
+
+        // click (not drag) → open inline add
+        // skip when clicking an existing chip so dblclick-to-edit doesn't conflict
+        cell.addEventListener('click', e => {
+          if (e.target.closest('.event-chip')) return;
+          openInlineAdd(cell, k);
+        });
       }
 
       layer.appendChild(cell);
@@ -792,7 +795,7 @@
     inp.addEventListener('blur', commit);
 
     list.appendChild(inp);
-    setTimeout(() => inp.focus(), 0);
+    inp.focus();
   }
 
   // ── span name prompt ──────────────────────────────────────────────────────
