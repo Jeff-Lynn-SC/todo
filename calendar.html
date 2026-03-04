@@ -254,6 +254,54 @@
     letter-spacing: 0.04em;
     text-align: right;
   }
+
+  /* ── mobile: horizontal scroll so cells stay a readable size ── */
+  .cal-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* negative margin so scroll shadow bleeds to card edge */
+    margin: 0 -0.25rem;
+    padding: 0 0.25rem;
+  }
+  .cal-body { min-width: 560px; }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem 0.75rem; }
+    .cal-card { padding: 1.25rem 1rem 1rem; }
+    .cal-title { font-size: 1.8rem; }
+    .nav-btn { font-size: 0.68rem; padding: 0.3rem 0.55rem; }
+  }
+
+  /* ── print ── */
+  @media print {
+    /* force background colours through (Chrome/Safari) */
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body { background: #fff !important; padding: 0 !important; }
+    .page { max-width: 100% !important; }
+
+    /* strip card shadow & padding */
+    .cal-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+
+    /* hide interactive chrome */
+    .nav-group, .hint-bar, .del-event, .del-span, .span-prompt { display: none !important; }
+
+    /* span bars: black border + black text on white — readable on any printer */
+    .span-bar {
+      background: #fff !important;
+      color: #000 !important;
+      border: 1.5px solid #000 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .span-bar:hover { background: #fff !important; }
+
+    /* keep event chips legible */
+    .event-chip { background: #eee !important; color: #000 !important; }
+
+    /* ensure page breaks between months if ever needed */
+    .week-row { break-inside: avoid; }
+  }
 </style>
 </head>
 <body>
@@ -267,7 +315,9 @@
       </div>
       <div class="cal-title" id="calTitle"></div>
     </div>
-    <div class="cal-body" id="calBody"></div>
+    <div class="cal-scroll">
+      <div class="cal-body" id="calBody"></div>
+    </div>
     <div class="hint-bar">click a day to add event · drag across days to mark a multi-day event · hover × to delete</div>
   </div>
 </div>
