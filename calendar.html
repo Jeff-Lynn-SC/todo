@@ -201,6 +201,41 @@
   .event-chip:hover .del-event { color: #ccc; }
   .event-chip:hover .del-event:hover { color: #c0392b; }
 
+  /* cursor hint on editable text */
+  .event-text { cursor: text; }
+  .span-label  { cursor: text; }
+
+  /* inline edit input inside an event chip */
+  .edit-chip-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.66rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #1a1a1a;
+    outline: none;
+    color: #1a1a1a;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    letter-spacing: 0.01em;
+  }
+
+  /* inline edit input inside a span bar */
+  .edit-span-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,254,249,0.6);
+    outline: none;
+    color: #fffef9;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    letter-spacing: 0.04em;
+    width: 100%;
+  }
+
   /* inline add-event input */
   .add-event-input {
     font-family: 'DM Mono', monospace;
@@ -318,7 +353,7 @@
     <div class="cal-scroll">
       <div class="cal-body" id="calBody"></div>
     </div>
-    <div class="hint-bar">click a day to add event · drag across days to mark a multi-day event · hover × to delete</div>
+    <div class="hint-bar">click day to add · drag across days for a span · double-click to edit · hover × to delete</div>
   </div>
 </div>
 
@@ -511,7 +546,33 @@
     const lbl = document.createElement('span');
     lbl.className   = 'span-label';
     lbl.textContent = sp.label;
+    lbl.title       = 'double-click to edit';
     bar.appendChild(lbl);
+
+    if (!isPreview) {
+      lbl.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        const inp = document.createElement('input');
+        inp.className = 'edit-span-input';
+        inp.value     = sp.label;
+        lbl.replaceWith(inp);
+        inp.focus();
+        inp.select();
+
+        function commit() {
+          const v = inp.value.trim();
+          if (v) { sp.label = v; save(); }
+          render();
+        }
+        inp.addEventListener('keydown', e => {
+          if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+          if (e.key === 'Escape') { render(); }
+        });
+        inp.addEventListener('blur',      commit);
+        inp.addEventListener('click',     e => e.stopPropagation());
+        inp.addEventListener('mousedown', e => e.stopPropagation());
+      });
+    }
 
     if (!isPreview) {
       const del = document.createElement('span');
@@ -659,7 +720,33 @@
     const txt = document.createElement('span');
     txt.className   = 'event-text';
     txt.textContent = ev;
+    txt.title       = 'double-click to edit';
     chip.appendChild(txt);
+
+    txt.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      const inp = document.createElement('input');
+      inp.className = 'edit-chip-input';
+      inp.value     = ev;
+      txt.replaceWith(inp);
+      inp.focus();
+      inp.select();
+
+      function commit() {
+        const v = inp.value.trim();
+        if (v) { store.days[k][ei] = v; }
+        else   { store.days[k].splice(ei, 1); if (!store.days[k].length) delete store.days[k]; }
+        save();
+        render();
+      }
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter')  { e.preventDefault(); commit(); }
+        if (e.key === 'Escape') { render(); }
+      });
+      inp.addEventListener('blur',      commit);
+      inp.addEventListener('click',     e => e.stopPropagation());
+      inp.addEventListener('mousedown', e => e.stopPropagation());
+    });
 
     const del = document.createElement('span');
     del.className   = 'del-event';
