@@ -3,455 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jeff's Planner</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<title>Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --ink: #1a1a18;
-    --paper: #f5f0e8;
-    --cream: #ede8dc;
-    --accent: #c8401a;
-    --muted: #8a8478;
-    --border: #d4cfc4;
-    --done: #b5b0a8;
-  }
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
-    min-height: 100vh;
-    padding: 2rem 1.5rem;
-  }
-  header {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-    border-bottom: 2px solid var(--ink);
-    padding-bottom: 0.75rem;
-  }
-  header h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  header .date {
-    color: var(--muted);
-    font-size: 12px;
-    letter-spacing: 0.05em;
-  }
-  .status-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    letter-spacing: 0.04em;
-  }
-  .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--muted);
-  }
-  .dot.ok { background: #5a9a5a; }
-  .dot.err { background: var(--accent); }
-  .dot.loading { background: #c8a01a; animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-  @media (max-width: 700px) {
-    .layout { grid-template-columns: 1fr; }
-  }
-  .panel h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 1.1rem;
-    font-weight: 300;
-    font-style: italic;
-    color: var(--muted);
-    margin-bottom: 1rem;
-    letter-spacing: 0.02em;
-  }
-  .add-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
-  }
-  .add-row input, .add-row select {
-    flex: 1;
-    background: var(--cream);
-    border: 1px solid var(--border);
-    color: var(--ink);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 0.5rem 0.75rem;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .add-row input:focus { border-color: var(--ink); }
-  button {
-    background: var(--ink);
-    color: var(--paper);
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    padding: 0.5rem 0.9rem;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  button:hover { background: var(--accent); }
-  button:disabled { background: var(--border); cursor: default; }
-  .task-list { list-style: none; }
-  .task-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--border);
-    transition: opacity 0.2s;
-  }
-  .task-item:last-child { border-bottom: none; }
-  .task-item input[type="checkbox"] {
-    margin-top: 2px;
-    accent-color: var(--accent);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .task-label {
-    flex: 1;
-    line-height: 1.4;
-    cursor: pointer;
-    transition: color 0.15s;
-  }
-  .task-item.done .task-label {
-    color: var(--done);
-    text-decoration: line-through;
-  }
-  .task-delete {
-    background: none;
-    color: var(--border);
-    padding: 0 0.25rem;
-    font-size: 16px;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .task-delete:hover { background: none; color: var(--accent); }
-  /* Calendar */
-  .date-row {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .date-row input[type="date"] {
-    flex: 1;
-    background: var(--cream);
-    border: 1px solid var(--border);
-    color: var(--ink);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    padding: 0.5rem 0.75rem;
-    outline: none;
-  }
-  .cal-day {
-    margin-bottom: 1.25rem;
-  }
-  .cal-day-header {
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .cal-day-header .day-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .cal-event {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0;
-    border-bottom: 1px solid var(--cream);
-    font-size: 13px;
-  }
-  .cal-event:last-child { border-bottom: none; }
-  .event-delete {
-    background: none;
-    color: var(--border);
-    padding: 0 0.25rem;
-    font-size: 14px;
-    line-height: 1;
-    margin-left: auto;
-  }
-  .event-delete:hover { background: none; color: var(--accent); }
-  .empty {
-    color: var(--muted);
-    font-style: italic;
-    font-size: 13px;
-    padding: 0.5rem 0;
-  }
-  .saving {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.04em;
-    margin-top: 0.5rem;
-    min-height: 1rem;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1a18; --paper: #f5f0e8; --cream: #ede8dc;
+  --accent: #c8401a; --muted: #8a8478; --border: #d4cfc4; --done: #b5b0a8;
+  --green: #4a8a4a;
+}
+body { background: var(--paper); color: var(--ink); font-family: 'DM Mono', monospace; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
+/* Header */
+header { padding: 1.5rem 2rem 1rem; border-bottom: 2px solid var(--ink); display: flex; align-items: baseline; justify-content: space-between; }
+header h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; }
+.status { display: flex; align-items: center; gap: 0.4rem; font-size: 11px; color: var(--muted); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.dot.ok { background: var(--green); }
+.dot.err { background: var(--accent); }
+.dot.spin { background: #c8a01a; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* Main layout */
+main { display: flex; flex: 1; overflow: hidden; }
+/* Chat panel */
+.chat-panel { width: 340px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.msg { max-width: 90%; padding: 0.5rem 0.75rem; font-size: 13px; line-height: 1.5; }
+.msg.user { background: var(--ink); color: var(--paper); align-self: flex-end; }
+.msg.assistant { background: var(--cream); color: var(--ink); align-self: flex-start; border-left: 2px solid var(--accent); }
+.msg.system { color: var(--muted); font-size: 11px; align-self: center; font-style: italic; }
+.chat-input-row { display: flex; border-top: 1px solid var(--border); }
+.chat-input-row input { flex: 1; background: transparent; border: none; padding: 0.85rem 1rem; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--ink); outline: none; }
+.chat-input-row input::placeholder { color: var(--muted); }
+.chat-input-row button { background: var(--ink); color: var(--paper); border: none; padding: 0 1rem; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; letter-spacing: 0.05em; transition: background 0.15s; }
+.chat-input-row button:hover { background: var(--accent); }
+.chat-input-row button:disabled { background: var(--border); cursor: default; }
+/* Data panel */
+.data-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.tabs { display: flex; border-bottom: 1px solid var(--border); }
+.tab { padding: 0.75rem 1.5rem; font-size: 12px; letter-spacing: 0.06em; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.tab-content { flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem; display: none; }
+.tab-content.active { display: block; }
+/* Tasks */
+.task-add { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+.task-add input { flex: 1; background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'DM Mono', monospace; font-size: 13px; padding: 0.45rem 0.75rem; outline: none; }
+.task-add input:focus { border-color: var(--ink); }
+.task-add button { background: var(--ink); color: var(--paper); border: none; font-family: 'DM Mono', monospace; font-size: 12px; padding: 0.45rem 0.9rem; cursor: pointer; }
+.task-add button:hover { background: var(--accent); }
+.task-list { list-style: none; }
+.task-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
+.task-item:last-child { border-bottom: none; }
+.task-item input[type=checkbox] { margin-top: 2px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+.task-label { flex: 1; line-height: 1.4; cursor: pointer; font-size: 13px; }
+.task-item.done .task-label { color: var(--done); text-decoration: line-through; }
+.task-del { background: none; border: none; color: var(--border); font-size: 16px; cursor: pointer; padding: 0 0.2rem; line-height: 1; }
+.task-del:hover { color: var(--accent); }
+/* Calendar */
+.cal-add { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.cal-add input { background: var(--cream); border: 1px solid var(--border); color: var(--ink); font-family: 'DM Mono', monospace; font-size: 13px; padding: 0.45rem 0.75rem; outline: none; }
+.cal-add input[type=date] { flex: 0 0 auto; }
+.cal-add input[type=text] { flex: 1; min-width: 120px; }
+.cal-add input:focus { border-color: var(--ink); }
+.cal-add button { background: var(--ink); color: var(--paper); border: none; font-family: 'DM Mono', monospace; font-size: 12px; padding: 0.45rem 0.9rem; cursor: pointer; }
+.cal-add button:hover { background: var(--accent); }
+.cal-day { margin-bottom: 1.25rem; }
+.cal-day-hdr { font-size: 11px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem; }
+.cal-day-hdr .line { flex: 1; height: 1px; background: var(--border); }
+.cal-event { display: flex; align-items: center; padding: 0.3rem 0; border-bottom: 1px solid var(--cream); font-size: 13px; gap: 0.5rem; }
+.cal-event:last-child { border-bottom: none; }
+.evt-del { background: none; border: none; color: var(--border); font-size: 14px; cursor: pointer; margin-left: auto; padding: 0 0.2rem; line-height: 1; }
+.evt-del:hover { color: var(--accent); }
+.empty { color: var(--muted); font-style: italic; font-size: 13px; padding: 0.5rem 0; }
+.saving { font-size: 11px; color: var(--muted); margin-top: 0.5rem; min-height: 1rem; }
+@media (max-width: 640px) {
+  main { flex-direction: column; }
+  .chat-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); height: 320px; }
+}
 </style>
 </head>
 <body>
 <header>
   <h1>Planner</h1>
-  <span class="date" id="todayLabel"></span>
+  <div class="status">
+    <div class="dot spin" id="dot"></div>
+    <span id="statusTxt">connecting…</span>
+  </div>
 </header>
-<div class="status-bar">
-  <div class="dot" id="statusDot"></div>
-  <span id="statusText">connecting…</span>
-</div>
-<div class="layout">
-  <div class="panel" id="tasksPanel">
-    <h2>tasks</h2>
-    <div class="add-row">
-      <input type="text" id="newTask" placeholder="new task…" />
-      <button onclick="addTask()">add</button>
+<main>
+  <!-- Chat -->
+  <div class="chat-panel">
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg system">Ask me to add tasks or events in plain English.</div>
     </div>
-    <ul class="task-list" id="taskList"></ul>
-    <div class="saving" id="taskSaving"></div>
-  </div>
-  <div class="panel" id="calPanel">
-    <h2>calendar</h2>
-    <div class="date-row">
-      <input type="date" id="newEventDate" />
-      <input type="text" id="newEventText" placeholder="event…" style="flex:2" />
-      <button onclick="addEvent()">add</button>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="add event: test at 3pm today…" />
+      <button id="sendBtn" onclick="sendChat()">send</button>
     </div>
-    <div id="calList"></div>
-    <div class="saving" id="calSaving"></div>
   </div>
-</div>
+  <!-- Data -->
+  <div class="data-panel">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tasks')">tasks</div>
+      <div class="tab" onclick="switchTab('cal')">calendar</div>
+    </div>
+    <div class="tab-content active" id="tab-tasks">
+      <div class="task-add">
+        <input type="text" id="newTask" placeholder="new task…" />
+        <button onclick="addTaskManual()">add</button>
+      </div>
+      <ul class="task-list" id="taskList"></ul>
+      <div class="saving" id="taskSaving"></div>
+    </div>
+    <div class="tab-content" id="tab-cal">
+      <div class="cal-add">
+        <input type="date" id="newEvtDate" />
+        <input type="text" id="newEvtText" placeholder="event…" />
+        <button onclick="addEventManual()">add</button>
+      </div>
+      <div id="calList"></div>
+      <div class="saving" id="calSaving"></div>
+    </div>
+  </div>
+</main>
 <script>
-const GIST_URL = 'https://gist.githubusercontent.com/Jeff-Lynn-SC/02f7745d0bf9c73f9db21490ef9f2de9/raw/boring.txt';
+const GIST = 'https://gist.githubusercontent.com/Jeff-Lynn-SC/02f7745d0bf9c73f9db21490ef9f2de9/raw/boring.txt';
 const REPO = 'Jeff-Lynn-SC/todo';
-const API = 'https://api.github.com/repos/' + REPO + '/contents/';
-let PAT = '';
-let tasksSHA = '';
-let eventsSHA = '';
-let tasks = [];
-let events = {};
-
+const API  = `https://api.github.com/repos/${REPO}/contents/`;
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+let PAT = '', tasksSHA = '', eventsSHA = '', tasks = [], events = {};
 const today = new Date();
-document.getElementById('todayLabel').textContent = today.toLocaleDateString('en-IE', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-document.getElementById('newEventDate').value = today.toISOString().slice(0,10);
-
-function setStatus(state, text) {
-  const dot = document.getElementById('statusDot');
-  dot.className = 'dot ' + state;
-  document.getElementById('statusText').textContent = text;
+const todayStr = today.toISOString().slice(0,10);
+document.getElementById('newEvtDate').value = todayStr;
+// Status
+function setStatus(state, txt) {
+  document.getElementById('dot').className = 'dot ' + state;
+  document.getElementById('statusTxt').textContent = txt;
 }
-
+// Init
 async function init() {
-  setStatus('loading', 'fetching token…');
+  setStatus('spin', 'fetching token…');
   try {
-    const r = await fetch(GIST_URL);
+    const r = await fetch(GIST);
     PAT = (await r.text()).trim();
   } catch(e) {
-    setStatus('err', 'could not fetch token — check Gist URL');
+    setStatus('err', 'token fetch failed');
+    addMsg('system', 'Could not fetch PAT from Gist. CORS issue if running locally — use GitHub Pages.');
     return;
   }
-  setStatus('loading', 'loading data…');
+  setStatus('spin', 'loading…');
   try {
     await Promise.all([loadTasks(), loadEvents()]);
-    setStatus('ok', 'connected · ' + REPO);
+    setStatus('ok', 'ready');
   } catch(e) {
-    setStatus('err', 'GitHub error: ' + e.message);
+    setStatus('err', 'load error: ' + e.message);
   }
 }
-
+// GitHub helpers
 async function ghGet(file) {
-  const r = await fetch(API + file, {
-    headers: { Authorization: 'token ' + PAT }
-  });
-  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  const r = await fetch(API + file, { headers: { Authorization: 'token ' + PAT }});
+  if (!r.ok) throw new Error(r.status);
   return r.json();
 }
-
 async function ghPut(file, content, sha) {
   const r = await fetch(API + file, {
     method: 'PUT',
     headers: { Authorization: 'token ' + PAT, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: 'update ' + file,
-      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
-      sha
-    })
+    body: JSON.stringify({ message: 'update ' + file, content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))), sha })
   });
-  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  if (!r.ok) throw new Error(r.status);
   return r.json();
 }
-
 async function loadTasks() {
-  const data = await ghGet('tasks.json');
-  tasksSHA = data.sha;
-  tasks = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g,'')))));
+  const d = await ghGet('tasks.json');
+  tasksSHA = d.sha;
+  tasks = JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\s/g,'')))));
   renderTasks();
 }
-
 async function loadEvents() {
-  const data = await ghGet('events.json');
-  eventsSHA = data.sha;
-  events = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g,'')))));
+  const d = await ghGet('events.json');
+  eventsSHA = d.sha;
+  events = JSON.parse(decodeURIComponent(escape(atob(d.content.replace(/\s/g,'')))));
   renderEvents();
 }
-
+// Render
 function renderTasks() {
   const ul = document.getElementById('taskList');
   ul.innerHTML = '';
-  if (!tasks.length) {
-    ul.innerHTML = '<li class="empty">no tasks</li>';
-    return;
-  }
+  if (!tasks.length) { ul.innerHTML = '<li class="empty">no tasks</li>'; return; }
   tasks.forEach((t, i) => {
     const li = document.createElement('li');
     li.className = 'task-item' + (t.done ? ' done' : '');
-    li.innerHTML = `
-      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})">
-      <span class="task-label" onclick="toggleTask(${i})">${escHtml(t.label)}</span>
-      <button class="task-delete" onclick="deleteTask(${i})">×</button>
-    `;
+    li.innerHTML = `<input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})">
+      <span class="task-label" onclick="toggleTask(${i})">${esc(t.label)}</span>
+      <button class="task-del" onclick="deleteTask(${i})">×</button>`;
     ul.appendChild(li);
   });
 }
-
 function renderEvents() {
   const el = document.getElementById('calList');
   const days = events.days || {};
   const sorted = Object.keys(days).sort();
-  const upcoming = sorted.filter(d => d >= today.toISOString().slice(0,10));
-  const past = sorted.filter(d => d < today.toISOString().slice(0,10));
-  const display = [...upcoming, ...past].slice(0, 30);
-  if (!display.length) {
-    el.innerHTML = '<div class="empty">no events</div>';
-    return;
-  }
+  const display = [...sorted.filter(d=>d>=todayStr), ...sorted.filter(d=>d<todayStr)].slice(0,40);
+  if (!display.length) { el.innerHTML = '<div class="empty">no events</div>'; return; }
   el.innerHTML = '';
-  display.forEach(dateStr => {
-    const evts = days[dateStr];
-    if (!evts || !evts.length) return;
-    const d = new Date(dateStr + 'T00:00:00');
-    const label = d.toLocaleDateString('en-IE', {weekday:'short', day:'numeric', month:'short'});
-    const isToday = dateStr === today.toISOString().slice(0,10);
-    const block = document.createElement('div');
-    block.className = 'cal-day';
-    block.innerHTML = `<div class="cal-day-header">${isToday?'<strong>today</strong>':label}<div class="day-line"></div></div>`;
-    evts.forEach((ev, i) => {
-      const row = document.createElement('div');
-      row.className = 'cal-event';
-      row.innerHTML = `<span>${escHtml(ev)}</span><button class="event-delete" onclick="deleteEvent('${dateStr}', ${i})">×</button>`;
+  display.forEach(ds => {
+    const evts = days[ds]; if (!evts?.length) return;
+    const d = new Date(ds+'T00:00:00');
+    const lbl = d.toLocaleDateString('en-IE', {weekday:'short',day:'numeric',month:'short'});
+    const isT = ds === todayStr;
+    const block = document.createElement('div'); block.className = 'cal-day';
+    block.innerHTML = `<div class="cal-day-hdr">${isT?'<strong>today</strong>':lbl}<div class="line"></div></div>`;
+    evts.forEach((ev,i) => {
+      const row = document.createElement('div'); row.className = 'cal-event';
+      row.innerHTML = `<span>${esc(ev)}</span><button class="evt-del" onclick="deleteEvent('${ds}',${i})">×</button>`;
       block.appendChild(row);
     });
     el.appendChild(block);
   });
 }
-
-async function addTask() {
-  const input = document.getElementById('newTask');
-  const label = input.value.trim();
-  if (!label) return;
-  input.value = '';
-  tasks.push({ label, done: false });
-  renderTasks();
-  await saveTasks();
+// Task actions
+async function addTaskManual() {
+  const inp = document.getElementById('newTask');
+  const l = inp.value.trim(); if (!l) return;
+  inp.value = '';
+  tasks.push({label:l, done:false}); renderTasks(); await saveTasks();
 }
-
-async function toggleTask(i) {
-  tasks[i].done = !tasks[i].done;
-  renderTasks();
-  await saveTasks();
-}
-
-async function deleteTask(i) {
-  tasks.splice(i, 1);
-  renderTasks();
-  await saveTasks();
-}
-
+async function toggleTask(i) { tasks[i].done = !tasks[i].done; renderTasks(); await saveTasks(); }
+async function deleteTask(i) { tasks.splice(i,1); renderTasks(); await saveTasks(); }
 async function saveTasks() {
   document.getElementById('taskSaving').textContent = 'saving…';
-  try {
-    const res = await ghPut('tasks.json', tasks, tasksSHA);
-    tasksSHA = res.content.sha;
-    document.getElementById('taskSaving').textContent = 'saved ✓';
-    setTimeout(() => document.getElementById('taskSaving').textContent = '', 2000);
-  } catch(e) {
-    document.getElementById('taskSaving').textContent = 'error: ' + e.message;
-  }
+  try { const r = await ghPut('tasks.json', tasks, tasksSHA); tasksSHA = r.content.sha; document.getElementById('taskSaving').textContent = 'saved ✓'; setTimeout(()=>document.getElementById('taskSaving').textContent='',2000); }
+  catch(e) { document.getElementById('taskSaving').textContent = 'error: '+e.message; }
 }
-
-async function addEvent() {
-  const dateVal = document.getElementById('newEventDate').value;
-  const textVal = document.getElementById('newEventText').value.trim();
-  if (!dateVal || !textVal) return;
-  document.getElementById('newEventText').value = '';
+// Event actions
+async function addEventManual() {
+  const dv = document.getElementById('newEvtDate').value;
+  const tv = document.getElementById('newEvtText').value.trim();
+  if (!dv||!tv) return;
+  document.getElementById('newEvtText').value = '';
+  await pushEvent(dv, tv);
+}
+async function pushEvent(dateStr, text) {
   if (!events.days) events.days = {};
-  if (!events.days[dateVal]) events.days[dateVal] = [];
-  events.days[dateVal].push(textVal);
-  renderEvents();
-  await saveEvents();
+  if (!events.days[dateStr]) events.days[dateStr] = [];
+  events.days[dateStr].push(text);
+  renderEvents(); await saveEvents();
 }
-
-async function deleteEvent(dateStr, i) {
-  events.days[dateStr].splice(i, 1);
-  if (!events.days[dateStr].length) delete events.days[dateStr];
-  renderEvents();
-  await saveEvents();
+async function pushTask(label) {
+  tasks.push({label, done:false}); renderTasks(); await saveTasks();
 }
-
+async function deleteEvent(ds, i) {
+  events.days[ds].splice(i,1);
+  if (!events.days[ds].length) delete events.days[ds];
+  renderEvents(); await saveEvents();
+}
 async function saveEvents() {
   document.getElementById('calSaving').textContent = 'saving…';
+  try { const r = await ghPut('events.json', events, eventsSHA); eventsSHA = r.content.sha; document.getElementById('calSaving').textContent = 'saved ✓'; setTimeout(()=>document.getElementById('calSaving').textContent='',2000); }
+  catch(e) { document.getElementById('calSaving').textContent = 'error: '+e.message; }
+}
+// Tabs
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', ['tasks','cal'][i]===name));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.toggle('active', t.id==='tab-'+name));
+}
+// Chat
+function addMsg(role, text) {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.textContent = text;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+async function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const msg = inp.value.trim(); if (!msg) return;
+  inp.value = '';
+  addMsg('user', msg);
+  document.getElementById('sendBtn').disabled = true;
+  const systemPrompt = `You are a planner assistant. Today is ${today.toLocaleDateString('en-IE', {weekday:'long', year:'numeric', month:'long', day:'numeric'})} (${todayStr}).
+The user wants to add tasks or calendar events. Parse their request and respond with a JSON object only — no markdown, no explanation, just raw JSON.
+Format:
+{
+  "action": "add_event" | "add_task" | "unclear",
+  "date": "YYYY-MM-DD",       // for events only
+  "text": "event or task label",
+  "reply": "short confirmation message to show the user"
+}
+Rules:
+- "this afternoon" = today after 12:00, keep time info in the text label if given
+- "tomorrow" = ${new Date(today.getTime()+86400000).toISOString().slice(0,10)}
+- If unclear whether task or event, ask in reply and set action to "unclear"
+- Keep labels concise but include time if given (e.g. "Test – 3pm")
+- reply should be casual, brief, no fuss`;
   try {
-    const res = await ghPut('events.json', events, eventsSHA);
-    eventsSHA = res.content.sha;
-    document.getElementById('calSaving').textContent = 'saved ✓';
-    setTimeout(() => document.getElementById('calSaving').textContent = '', 2000);
-  } catch(e) {
-    document.getElementById('calSaving').textContent = 'error: ' + e.message;
-  }
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-document.getElementById('newTask').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
-document.getElementById('newEventText').addEventListener('keydown', e => { if(e.key==='Enter') addEvent(); });
-
-async function ensureFiles() {
-  for (const [file, def] of [['tasks.json', []], ['events.json', {days:{},spans:[]}]]) {
-    try {
-      await ghGet(file);
-    } catch(e) {
-      if (e.message.startsWith('404')) {
-        await fetch(API + file, {
-          method: 'PUT',
-          headers: { Authorization: 'token ' + PAT, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'init ' + file, content: btoa(JSON.stringify(def, null, 2)) })
-        });
-      }
+    const r = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: msg }]
+      })
+    });
+    const data = await r.json();
+    const raw = data.content?.[0]?.text || '';
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e) { addMsg('assistant', raw); document.getElementById('sendBtn').disabled=false; return; }
+    addMsg('assistant', parsed.reply || 'Done.');
+    if (parsed.action === 'add_event' && parsed.date && parsed.text) {
+      await pushEvent(parsed.date, parsed.text);
+      switchTab('cal');
+    } else if (parsed.action === 'add_task' && parsed.text) {
+      await pushTask(parsed.text);
+      switchTab('tasks');
     }
+  } catch(e) {
+    addMsg('assistant', 'Error: ' + e.message);
   }
+  document.getElementById('sendBtn').disabled = false;
 }
-
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+document.getElementById('chatInput').addEventListener('keydown', e => { if(e.key==='Enter') sendChat(); });
+document.getElementById('newTask').addEventListener('keydown', e => { if(e.key==='Enter') addTaskManual(); });
+document.getElementById('newEvtText').addEventListener('keydown', e => { if(e.key==='Enter') addEventManual(); });
 init();
 </script>
 </body>
