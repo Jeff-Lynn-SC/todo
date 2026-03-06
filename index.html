@@ -3,659 +3,456 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>To Do</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231a1a1a'/><rect x='7' y='9' width='11' height='11' rx='1' fill='none' stroke='%23fffef9' stroke-width='2'/><rect x='10.5' y='12.5' width='4' height='4' fill='%23fffef9'/><line x1='21' y1='13' x2='26' y2='13' stroke='%23fffef9' stroke-width='2' stroke-linecap='round'/><line x1='21' y1='19' x2='26' y2='19' stroke='%23888' stroke-width='2' stroke-linecap='round'/><line x1='7' y1='25' x2='26' y2='25' stroke='%23444' stroke-width='1.5' stroke-linecap='round'/></svg>">
+<title>Jeff's Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --accent: #c8401a;
+    --muted: #8a8478;
+    --border: #d4cfc4;
+    --done: #b5b0a8;
+  }
   body {
-    background: #f5f0e8;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--paper);
+    color: var(--ink);
     font-family: 'DM Mono', monospace;
-    padding: 2rem;
+    font-size: 14px;
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
   }
-
-  .card {
-    background: #fffef9;
-    border: 2px solid #1a1a1a;
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 6px 6px 0 #1a1a1a;
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.75rem;
   }
-
-  h1 {
-    font-family: 'Playfair Display', serif;
+  header h1 {
+    font-family: 'Fraunces', serif;
     font-size: 2rem;
-    margin-bottom: 0.25rem;
-    color: #1a1a1a;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
-
-  .date {
-    font-size: 0.75rem;
-    color: #888;
-    margin-bottom: 2rem;
+  header .date {
+    color: var(--muted);
+    font-size: 12px;
     letter-spacing: 0.05em;
   }
-
-  /* ── rows ── */
-  .row {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e8e4dc;
-    position: relative;
-  }
-  .row:last-child { border-bottom: none; }
-  .row.dragging { opacity: 0.35; }
-  .row.drag-over { border-top: 2px solid #1a1a1a; }
-
-  /* drag handle */
-  .handle {
-    cursor: grab;
-    color: #d8d4cc;
-    font-size: 0.95rem;
-    padding: 0.75rem 0.5rem 0.75rem 0;
-    flex-shrink: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    touch-action: none;
-    line-height: 1;
-  }
-  .handle:hover { color: #999; }
-  .handle:active { cursor: grabbing; }
-
-  /* task item */
-  .item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0;
-    cursor: pointer;
-    transition: opacity 0.2s;
-    flex: 1;
-    min-width: 0;
-  }
-  .item:hover { opacity: 0.7; }
-
-  .checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #1a1a1a;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s;
-  }
-  .item.done .checkbox { background: #1a1a1a; }
-  .item.done .checkbox::after {
-    content: '✓';
-    color: #fffef9;
-    font-size: 12px;
-    font-weight: bold;
-  }
-
-  .label {
-    font-size: 0.9rem;
-    letter-spacing: 0.03em;
-    color: #1a1a1a;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .item.done .label { text-decoration: line-through; color: #aaa; }
-
-  /* inline rename inputs */
-  .label-input {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.9rem;
-    letter-spacing: 0.03em;
-    color: #1a1a1a;
-    border: none;
-    border-bottom: 1px solid #1a1a1a;
-    background: transparent;
-    outline: none;
-    flex: 1;
-    min-width: 0;
-    padding: 0;
-  }
-
-  /* delete button (appears on row hover) */
-  .del {
-    background: none;
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 1rem;
-    color: #ddd;
-    cursor: pointer;
-    padding: 0.75rem 0 0.75rem 0.5rem;
-    flex-shrink: 0;
-    line-height: 1;
-    opacity: 0;
-    transition: opacity 0.15s, color 0.15s;
-  }
-  .row:hover .del { opacity: 1; }
-  .del:hover { color: #c0392b !important; }
-
-  /* section header row */
-  .header-row {
-    display: flex;
-    align-items: center;
-    margin-top: 1.25rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #d8d4cc;
-    position: relative;
-  }
-  .header-row.first-section { margin-top: 0; padding-top: 0; border-top: none; }
-  .header-row.dragging { opacity: 0.35; }
-
-  .header {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 500;
-    color: #999;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 0.25rem 0;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .header-input {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #999;
-    border: none;
-    background: transparent;
-    outline: none;
-    flex: 1;
-    min-width: 0;
-    padding: 0.25rem 0;
-  }
-
-  /* add-item row */
-  .add-row {
+  .status-bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 0 0;
-    margin-top: 0.5rem;
-    border-top: 1px dashed #d8d4cc;
-  }
-  .add-plus {
-    color: #ccc;
-    font-size: 0.85rem;
-    flex-shrink: 0;
-    user-select: none;
-  }
-  .add-input {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    letter-spacing: 0.03em;
-    color: #1a1a1a;
-    border: none;
-    background: transparent;
-    outline: none;
-    flex: 1;
-    min-width: 0;
-  }
-  .add-input::placeholder { color: #ccc; }
-  .add-header-btn {
-    background: none;
-    border: 1px solid #ddd;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: #bbb;
-    cursor: pointer;
-    padding: 0.2rem 0.45rem;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 2rem;
     letter-spacing: 0.04em;
-    flex-shrink: 0;
-    white-space: nowrap;
   }
-  .add-header-btn:hover { border-color: #999; color: #777; }
-
-  /* ── PAT modal ── */
-  #pat-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(245,240,232,0.88);
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .dot.ok { background: #5a9a5a; }
+  .dot.err { background: var(--accent); }
+  .dot.loading { background: #c8a01a; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+  .panel h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+  }
+  .add-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
   }
-  #pat-box {
-    background: #fffef9;
-    border: 2px solid #1a1a1a;
-    box-shadow: 6px 6px 0 #1a1a1a;
-    padding: 2rem;
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  #pat-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: #1a1a1a;
-  }
-  #pat-msg {
-    font-size: 0.72rem;
-    color: #c0392b;
-    letter-spacing: 0.03em;
-    min-height: 1em;
-  }
-  #pat-input {
+  .add-row input, .add-row select {
+    flex: 1;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    color: var(--ink);
     font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    border: 2px solid #1a1a1a;
-    background: #f5f0e8;
-    padding: 0.5rem 0.65rem;
+    font-size: 13px;
+    padding: 0.5rem 0.75rem;
     outline: none;
-    color: #1a1a1a;
-    width: 100%;
-    letter-spacing: 0.03em;
+    transition: border-color 0.15s;
   }
-  #pat-hint {
-    font-size: 0.65rem;
-    color: #999;
-    letter-spacing: 0.03em;
-  }
-  #pat-save {
+  .add-row input:focus { border-color: var(--ink); }
+  button {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
     font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    background: #1a1a1a;
-    color: #fffef9;
-    border: 2px solid #1a1a1a;
-    padding: 0.55rem 1.2rem;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 0.9rem;
     cursor: pointer;
-    letter-spacing: 0.05em;
-    align-self: flex-start;
     transition: background 0.15s;
   }
-  #pat-save:hover { background: #333; }
-
-  /* hint text */
-  .hint {
-    font-size: 0.65rem;
-    color: #ccc;
-    letter-spacing: 0.04em;
-    margin-top: 0.35rem;
+  button:hover { background: var(--accent); }
+  button:disabled { background: var(--border); cursor: default; }
+  .task-list { list-style: none; }
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: opacity 0.2s;
   }
-
-  /* progress */
-  .progress {
-    margin-top: 1.75rem;
-    font-size: 0.7rem;
-    color: #888;
+  .task-item:last-child { border-bottom: none; }
+  .task-item input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .task-label {
+    flex: 1;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .task-item.done .task-label {
+    color: var(--done);
+    text-decoration: line-through;
+  }
+  .task-delete {
+    background: none;
+    color: var(--border);
+    padding: 0 0.25rem;
+    font-size: 16px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .task-delete:hover { background: none; color: var(--accent); }
+  /* Calendar */
+  .date-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .date-row input[type="date"] {
+    flex: 1;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+  }
+  .cal-day {
+    margin-bottom: 1.25rem;
+  }
+  .cal-day-header {
+    font-size: 11px;
     letter-spacing: 0.08em;
+    color: var(--muted);
     text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
-  .bar {
-    height: 3px;
-    background: #e8e4dc;
+  .cal-day-header .day-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .cal-event {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--cream);
+    font-size: 13px;
+  }
+  .cal-event:last-child { border-bottom: none; }
+  .event-delete {
+    background: none;
+    color: var(--border);
+    padding: 0 0.25rem;
+    font-size: 14px;
+    line-height: 1;
+    margin-left: auto;
+  }
+  .event-delete:hover { background: none; color: var(--accent); }
+  .empty {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 13px;
+    padding: 0.5rem 0;
+  }
+  .saving {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
     margin-top: 0.5rem;
+    min-height: 1rem;
   }
-  .bar-fill {
-    height: 100%;
-    background: #1a1a1a;
-    transition: width 0.3s ease;
-  }
-
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>Today</h1>
-  <div class="date" id="dateLabel"></div>
-
-  <div id="list"></div>
-
-  <div class="add-row">
-    <span class="add-plus">+</span>
-    <input class="add-input" id="addInput" placeholder="add item…" autocomplete="off" />
-    <button class="add-header-btn" id="addHeaderBtn" title="Add as section header">+ header</button>
+<header>
+  <h1>Planner</h1>
+  <span class="date" id="todayLabel"></span>
+</header>
+<div class="status-bar">
+  <div class="dot" id="statusDot"></div>
+  <span id="statusText">connecting…</span>
+</div>
+<div class="layout">
+  <div class="panel" id="tasksPanel">
+    <h2>tasks</h2>
+    <div class="add-row">
+      <input type="text" id="newTask" placeholder="new task…" />
+      <button onclick="addTask()">add</button>
+    </div>
+    <ul class="task-list" id="taskList"></ul>
+    <div class="saving" id="taskSaving"></div>
   </div>
-  <div class="hint">press enter to add · double-click any item to rename</div>
-
-  <div class="progress">
-    <span id="progressText">0 / 0 done</span>
-    <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  <div class="panel" id="calPanel">
+    <h2>calendar</h2>
+    <div class="date-row">
+      <input type="date" id="newEventDate" />
+      <input type="text" id="newEventText" placeholder="event…" style="flex:2" />
+      <button onclick="addEvent()">add</button>
+    </div>
+    <div id="calList"></div>
+    <div class="saving" id="calSaving"></div>
   </div>
 </div>
-
 <script>
-  const REPO    = 'Jeff-Lynn-SC/todo';
-  const FILE    = 'tasks.json';
-  const API_URL = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+const GIST_URL = 'https://gist.githubusercontent.com/Jeff-Lynn-SC/02f7745d0bf9c73f9db21490ef9f2de9/raw/boring.txt';
+const REPO = 'Jeff-Lynn-SC/todo';
+const API = 'https://api.github.com/repos/' + REPO + '/contents/';
+let PAT = '';
+let tasksSHA = '';
+let eventsSHA = '';
+let tasks = [];
+let events = {};
 
-  const defaults = [
-    { label: 'Monday', done: null },
-    { label: 'Wash dishes', done: true },
-    { label: 'Shower', done: true },
-    { label: 'Walk', done: true },
-    { label: 'Wash dishes II', done: true },
-    { label: 'Rice', done: true },
-    { label: 'Wash dishes III', done: true },
-    { label: 'Invoice', done: true },
-    { label: 'Tuesday', done: null },
-    { label: 'Wash dishes I', done: false },
-    { label: 'Prep English', done: false },
-    { label: 'Order salt', done: false },
-    { label: 'Patient Files', done: true },
-    { label: 'Walk', done: true },
-    { label: 'Tidy', done: false },
-  ];
+const today = new Date();
+document.getElementById('todayLabel').textContent = today.toLocaleDateString('en-IE', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+document.getElementById('newEventDate').value = today.toISOString().slice(0,10);
 
-  let tasks   = [];
-  let fileSha = null;
+function setStatus(state, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'dot ' + state;
+  document.getElementById('statusText').textContent = text;
+}
 
-  function getPat() { return localStorage.getItem('gh_pat'); }
-
-  async function load() {
-    const pat = getPat();
-    if (!pat) { showPatModal(); return; }
-    try {
-      const res = await fetch(API_URL, {
-        headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json' }
-      });
-      if (res.status === 401) { showPatModal('Token rejected — please re-enter your PAT.'); return; }
-      if (res.ok) {
-        const meta = await res.json();
-        fileSha = meta.sha;
-        const data = JSON.parse(atob(meta.content.replace(/\n/g, '')));
-        tasks = Array.isArray(data) && data.length ? data : defaults;
-      } else {
-        tasks = defaults;
-      }
-    } catch(e) {
-      tasks = defaults;
-    }
-    render();
+async function init() {
+  setStatus('loading', 'fetching token…');
+  try {
+    const r = await fetch(GIST_URL);
+    PAT = (await r.text()).trim();
+  } catch(e) {
+    setStatus('err', 'could not fetch token — check Gist URL');
+    return;
   }
-
-  function save() {
-    const pat = getPat();
-    if (!pat) { showPatModal(); return; }
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(tasks))));
-    const body    = { message: 'update tasks', content };
-    if (fileSha) body.sha = fileSha;
-    fetch(API_URL, {
-      method:  'PUT',
-      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-      body:    JSON.stringify(body)
-    }).then(r => r.ok ? r.json() : null)
-      .then(d => { if (d && d.content) fileSha = d.content.sha; })
-      .catch(() => {});
+  setStatus('loading', 'loading data…');
+  try {
+    await Promise.all([loadTasks(), loadEvents()]);
+    setStatus('ok', 'connected · ' + REPO);
+  } catch(e) {
+    setStatus('err', 'GitHub error: ' + e.message);
   }
+}
 
-  // ── PAT modal ─────────────────────────────────────────────────────────────
-
-  function showPatModal(msg) {
-    let modal = document.getElementById('pat-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'pat-modal';
-      modal.innerHTML = `
-        <div id="pat-box">
-          <div id="pat-title">GitHub Token</div>
-          <div id="pat-msg"></div>
-          <input id="pat-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
-          <div id="pat-hint">Create a PAT with <b>repo</b> scope at github.com/settings/tokens</div>
-          <button id="pat-save">Save token</button>
-        </div>`;
-      document.body.appendChild(modal);
-      document.getElementById('pat-save').addEventListener('click', () => {
-        const v = document.getElementById('pat-input').value.trim();
-        if (!v) return;
-        localStorage.setItem('gh_pat', v);
-        modal.remove();
-        load();
-      });
-      document.getElementById('pat-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('pat-save').click();
-      });
-    }
-    document.getElementById('pat-msg').textContent = msg || '';
-    setTimeout(() => document.getElementById('pat-input').focus(), 0);
-  }
-
-const list        = document.getElementById('list');
-  const progressText = document.getElementById('progressText');
-  const barFill     = document.getElementById('barFill');
-  const dateLabel   = document.getElementById('dateLabel');
-  const addInput    = document.getElementById('addInput');
-  const addHeaderBtn = document.getElementById('addHeaderBtn');
-
-  dateLabel.textContent = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long', day: 'numeric', month: 'long'
+async function ghGet(file) {
+  const r = await fetch(API + file, {
+    headers: { Authorization: 'token ' + PAT }
   });
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.json();
+}
 
-  // ── drag state ──────────────────────────────────────────────────────────
-  let dragSrcIndex = null;
+async function ghPut(file, content, sha) {
+  const r = await fetch(API + file, {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + PAT, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: 'update ' + file,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      sha
+    })
+  });
+  if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+  return r.json();
+}
 
-  // ── touch drag state (iOS) ───────────────────────────────────────────────
-  let touchSrc = null;
-  let touchDragging = false;
+async function loadTasks() {
+  const data = await ghGet('tasks.json');
+  tasksSHA = data.sha;
+  tasks = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g,'')))));
+  renderTasks();
+}
 
-  // Suppress page scroll while a drag is in progress (must be on document, non-passive)
-  document.addEventListener('touchmove', e => {
-    if (touchDragging) e.preventDefault();
-  }, { passive: false });
+async function loadEvents() {
+  const data = await ghGet('events.json');
+  eventsSHA = data.sha;
+  events = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\s/g,'')))));
+  renderEvents();
+}
 
-  function attachTouchDrag(triggerEl, rowEl, idx) {
-    triggerEl.addEventListener('touchstart', e => {
-      e.preventDefault();
-      touchSrc = idx;
-      touchDragging = true;
-      setTimeout(() => rowEl.classList.add('dragging'), 0);
-    }, { passive: false });
-
-    triggerEl.addEventListener('touchmove', e => {
-      if (!touchDragging) return;
-      const touch = e.touches[0];
-      // Use bounding rects — more reliable on iOS than elementFromPoint
-      let targetRow = null;
-      list.querySelectorAll('[data-task-index]').forEach(r => {
-        if (r === rowEl) return;
-        const rect = r.getBoundingClientRect();
-        if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) targetRow = r;
-      });
-      list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-      if (targetRow) targetRow.classList.add('drag-over');
-    }, { passive: false });
-
-    function onTouchEnd() {
-      if (!touchDragging) return;
-      touchDragging = false;
-      rowEl.classList.remove('dragging');
-      const overEl = list.querySelector('.drag-over');
-      list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-      if (overEl) {
-        const targetIdx = parseInt(overEl.dataset.taskIndex);
-        if (!isNaN(targetIdx) && targetIdx !== touchSrc) {
-          const moved = tasks.splice(touchSrc, 1)[0];
-          const insertAt = touchSrc < targetIdx ? targetIdx - 1 : targetIdx;
-          tasks.splice(insertAt, 0, moved);
-          save();
-          render();
-        }
-      }
-      touchSrc = null;
-    }
-
-    triggerEl.addEventListener('touchend', onTouchEnd, { passive: true });
-    triggerEl.addEventListener('touchcancel', onTouchEnd, { passive: true });
+function renderTasks() {
+  const ul = document.getElementById('taskList');
+  ul.innerHTML = '';
+  if (!tasks.length) {
+    ul.innerHTML = '<li class="empty">no tasks</li>';
+    return;
   }
+  tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = 'task-item' + (t.done ? ' done' : '');
+    li.innerHTML = `
+      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${i})">
+      <span class="task-label" onclick="toggleTask(${i})">${escHtml(t.label)}</span>
+      <button class="task-delete" onclick="deleteTask(${i})">×</button>
+    `;
+    ul.appendChild(li);
+  });
+}
 
-  // ── inline rename ────────────────────────────────────────────────────────
-  function startRename(i, labelEl, isHeader) {
-    const inp = document.createElement('input');
-    inp.className = isHeader ? 'header-input' : 'label-input';
-    inp.value = tasks[i].label;
-    labelEl.replaceWith(inp);
-    inp.focus();
-    inp.select();
-
-    function commit() {
-      const v = inp.value.trim();
-      if (v) tasks[i].label = v;
-      save();
-      render();
-    }
-
-    inp.addEventListener('blur', commit);
-    inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
-      if (e.key === 'Escape') { render(); } // cancel without saving
-    });
+function renderEvents() {
+  const el = document.getElementById('calList');
+  const days = events.days || {};
+  const sorted = Object.keys(days).sort();
+  const upcoming = sorted.filter(d => d >= today.toISOString().slice(0,10));
+  const past = sorted.filter(d => d < today.toISOString().slice(0,10));
+  const display = [...upcoming, ...past].slice(0, 30);
+  if (!display.length) {
+    el.innerHTML = '<div class="empty">no events</div>';
+    return;
   }
-
-  // ── render ───────────────────────────────────────────────────────────────
-  function render() {
-    list.innerHTML = '';
-
-    const firstHeaderIndex = tasks.findIndex(t => t.header === true);
-
-    tasks.forEach((t, i) => {
-      const isHeader = t.header === true;
+  el.innerHTML = '';
+  display.forEach(dateStr => {
+    const evts = days[dateStr];
+    if (!evts || !evts.length) return;
+    const d = new Date(dateStr + 'T00:00:00');
+    const label = d.toLocaleDateString('en-IE', {weekday:'short', day:'numeric', month:'short'});
+    const isToday = dateStr === today.toISOString().slice(0,10);
+    const block = document.createElement('div');
+    block.className = 'cal-day';
+    block.innerHTML = `<div class="cal-day-header">${isToday?'<strong>today</strong>':label}<div class="day-line"></div></div>`;
+    evts.forEach((ev, i) => {
       const row = document.createElement('div');
-      row.className = isHeader
-        ? 'header-row' + (i === firstHeaderIndex ? ' first-section' : '')
-        : 'row';
-      row.draggable = true;
-      row.dataset.taskIndex = i;
-
-      // drag handle
-      const handle = document.createElement('span');
-      handle.className = 'handle';
-      handle.textContent = '⠿';
-      handle.title = 'Drag to reorder';
-      row.appendChild(handle);
-      attachTouchDrag(handle, row, i);
-
-      if (isHeader) {
-        const h = document.createElement('div');
-        h.className = 'header';
-        h.textContent = t.label;
-        h.title = 'Double-click to rename';
-        h.addEventListener('dblclick', e => { e.stopPropagation(); startRename(i, h, true); });
-        row.appendChild(h);
-      } else {
-        const item = document.createElement('div');
-        item.className = 'item' + (t.done ? ' done' : '');
-
-        const cb = document.createElement('div');
-        cb.className = 'checkbox';
-        cb.addEventListener('click', e => {
-          e.stopPropagation();
-          tasks[i].done = !tasks[i].done;
-          save();
-          render();
-        });
-        item.appendChild(cb);
-
-        const lbl = document.createElement('span');
-        lbl.className = 'label';
-        lbl.textContent = t.label;
-        lbl.title = 'Double-click to rename';
-        lbl.addEventListener('dblclick', e => {
-          e.stopPropagation();
-          startRename(i, lbl, false);
-        });
-        item.appendChild(lbl);
-
-        row.appendChild(item);
-      }
-
-      // delete button (shown on hover via CSS)
-      const del = document.createElement('button');
-      del.className = 'del';
-      del.textContent = '×';
-      del.title = 'Delete';
-      del.addEventListener('click', e => {
-        e.stopPropagation();
-        tasks.splice(i, 1);
-        save();
-        render();
-      });
-      row.appendChild(del);
-
-      // ── drag-and-drop events ──
-      row.addEventListener('dragstart', e => {
-        dragSrcIndex = i;
-        setTimeout(() => row.classList.add('dragging'), 0);
-        e.dataTransfer.effectAllowed = 'move';
-      });
-
-      row.addEventListener('dragend', () => {
-        row.classList.remove('dragging');
-        list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-      });
-
-      row.addEventListener('dragover', e => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-        if (dragSrcIndex !== i) row.classList.add('drag-over');
-      });
-
-      row.addEventListener('dragleave', () => {
-        row.classList.remove('drag-over');
-      });
-
-      row.addEventListener('drop', e => {
-        e.preventDefault();
-        row.classList.remove('drag-over');
-        if (dragSrcIndex === null || dragSrcIndex === i) return;
-        const moved = tasks.splice(dragSrcIndex, 1)[0];
-        // adjust target index after removal
-        const insertAt = dragSrcIndex < i ? i - 1 : i;
-        tasks.splice(insertAt, 0, moved);
-        dragSrcIndex = null;
-        save();
-        render();
-      });
-
-      list.appendChild(row);
+      row.className = 'cal-event';
+      row.innerHTML = `<span>${escHtml(ev)}</span><button class="event-delete" onclick="deleteEvent('${dateStr}', ${i})">×</button>`;
+      block.appendChild(row);
     });
-
-    // progress
-    const items = tasks.filter(t => !t.header);
-    const done  = items.filter(t => t.done).length;
-    progressText.textContent = `${done} / ${items.length} done`;
-    barFill.style.width = items.length ? (done / items.length * 100) + '%' : '0%';
-  }
-
-  // ── add item ─────────────────────────────────────────────────────────────
-  function addItem(asHeader) {
-    const val = addInput.value.trim();
-    if (!val && !asHeader) return;
-    tasks.push(asHeader ? { label: val || 'New Section', header: true } : { label: val, done: false });
-    addInput.value = '';
-    save();
-    render();
-    addInput.focus();
-  }
-
-  addInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') addItem(false);
+    el.appendChild(block);
   });
+}
 
-  addHeaderBtn.addEventListener('click', () => addItem(true));
+async function addTask() {
+  const input = document.getElementById('newTask');
+  const label = input.value.trim();
+  if (!label) return;
+  input.value = '';
+  tasks.push({ label, done: false });
+  renderTasks();
+  await saveTasks();
+}
 
-  load();
+async function toggleTask(i) {
+  tasks[i].done = !tasks[i].done;
+  renderTasks();
+  await saveTasks();
+}
+
+async function deleteTask(i) {
+  tasks.splice(i, 1);
+  renderTasks();
+  await saveTasks();
+}
+
+async function saveTasks() {
+  document.getElementById('taskSaving').textContent = 'saving…';
+  try {
+    const res = await ghPut('tasks.json', tasks, tasksSHA);
+    tasksSHA = res.content.sha;
+    document.getElementById('taskSaving').textContent = 'saved ✓';
+    setTimeout(() => document.getElementById('taskSaving').textContent = '', 2000);
+  } catch(e) {
+    document.getElementById('taskSaving').textContent = 'error: ' + e.message;
+  }
+}
+
+async function addEvent() {
+  const dateVal = document.getElementById('newEventDate').value;
+  const textVal = document.getElementById('newEventText').value.trim();
+  if (!dateVal || !textVal) return;
+  document.getElementById('newEventText').value = '';
+  if (!events.days) events.days = {};
+  if (!events.days[dateVal]) events.days[dateVal] = [];
+  events.days[dateVal].push(textVal);
+  renderEvents();
+  await saveEvents();
+}
+
+async function deleteEvent(dateStr, i) {
+  events.days[dateStr].splice(i, 1);
+  if (!events.days[dateStr].length) delete events.days[dateStr];
+  renderEvents();
+  await saveEvents();
+}
+
+async function saveEvents() {
+  document.getElementById('calSaving').textContent = 'saving…';
+  try {
+    const res = await ghPut('events.json', events, eventsSHA);
+    eventsSHA = res.content.sha;
+    document.getElementById('calSaving').textContent = 'saved ✓';
+    setTimeout(() => document.getElementById('calSaving').textContent = '', 2000);
+  } catch(e) {
+    document.getElementById('calSaving').textContent = 'error: ' + e.message;
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('newTask').addEventListener('keydown', e => { if(e.key==='Enter') addTask(); });
+document.getElementById('newEventText').addEventListener('keydown', e => { if(e.key==='Enter') addEvent(); });
+
+async function ensureFiles() {
+  for (const [file, def] of [['tasks.json', []], ['events.json', {days:{},spans:[]}]]) {
+    try {
+      await ghGet(file);
+    } catch(e) {
+      if (e.message.startsWith('404')) {
+        await fetch(API + file, {
+          method: 'PUT',
+          headers: { Authorization: 'token ' + PAT, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'init ' + file, content: btoa(JSON.stringify(def, null, 2)) })
+        });
+      }
+    }
+  }
+}
+
+init();
 </script>
 </body>
 </html>
