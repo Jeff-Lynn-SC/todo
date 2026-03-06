@@ -307,6 +307,68 @@
     .nav-btn { font-size: 0.68rem; padding: 0.3rem 0.55rem; }
   }
 
+  /* ── PAT modal ── */
+  #pat-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(245,240,232,0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  #pat-box {
+    background: #fffef9;
+    border: 2px solid #1a1a1a;
+    box-shadow: 6px 6px 0 #1a1a1a;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  #pat-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+  }
+  #pat-msg {
+    font-size: 0.72rem;
+    color: #c0392b;
+    letter-spacing: 0.03em;
+    min-height: 1em;
+  }
+  #pat-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    border: 2px solid #1a1a1a;
+    background: #f5f0e8;
+    padding: 0.5rem 0.65rem;
+    outline: none;
+    color: #1a1a1a;
+    width: 100%;
+    letter-spacing: 0.03em;
+  }
+  #pat-hint {
+    font-size: 0.65rem;
+    color: #999;
+    letter-spacing: 0.03em;
+  }
+  #pat-save {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    background: #1a1a1a;
+    color: #fffef9;
+    border: 2px solid #1a1a1a;
+    padding: 0.55rem 1.2rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+    transition: background 0.15s;
+  }
+  #pat-save:hover { background: #333; }
+
   /* ── print ── */
   @media print {
     /* force background colours through (Chrome/Safari) */
@@ -358,7 +420,10 @@
 </div>
 
 <script>
-  const DB     = 'https://todo-e6d14-default-rtdb.europe-west1.firebasedatabase.app/calendar.json';
+  const REPO    = 'Jeff-Lynn-SC/todo';
+  const FILE    = 'events.json';
+  const API_URL = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
+
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June','July',
                   'August','September','October','November','December'];
@@ -372,14 +437,26 @@
   // store.days  = { "2026-03-15": ["Dentist 2pm", "Walk"] }
   // store.spans = [ { label: "Visitor", start: "2026-03-15", end: "2026-03-18" } ]
   let store = { days: {}, spans: [] };
+  let fileSha = null;
 
-  // ── Firebase ────────────────────────────────────────────────────────────
+  // ── GitHub Contents API ───────────────────────────────────────────────────
+
+  function getPat() { return localStorage.getItem('gh_pat'); }
 
   async function load() {
+    const pat = getPat();
+    if (!pat) { showPatModal(); return; }
     try {
-      const res = await fetch(DB);
-      const d   = await res.json();
-      if (d && typeof d === 'object' && !Array.isArray(d)) store = d;
+      const res = await fetch(API_URL, {
+        headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json' }
+      });
+      if (res.status === 401) { showPatModal('Token rejected — please re-enter your PAT.'); return; }
+      if (res.ok) {
+        const meta = await res.json();
+        fileSha = meta.sha;
+        const data = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+        if (data && typeof data === 'object' && !Array.isArray(data)) store = data;
+      }
     } catch(e) {}
     if (!store.days)  store.days  = {};
     if (!store.spans) store.spans = [];
@@ -387,11 +464,49 @@
   }
 
   function save() {
-    fetch(DB, {
+    const pat = getPat();
+    if (!pat) { showPatModal(); return; }
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(store))));
+    const body    = { message: 'update calendar', content };
+    if (fileSha) body.sha = fileSha;
+    fetch(API_URL, {
       method:  'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(store)
-    });
+      headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body)
+    }).then(r => r.ok ? r.json() : null)
+      .then(d => { if (d && d.content) fileSha = d.content.sha; })
+      .catch(() => {});
+  }
+
+  // ── PAT modal ─────────────────────────────────────────────────────────────
+
+  function showPatModal(msg) {
+    let modal = document.getElementById('pat-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'pat-modal';
+      modal.innerHTML = `
+        <div id="pat-box">
+          <div id="pat-title">GitHub Token</div>
+          <div id="pat-msg"></div>
+          <input id="pat-input" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
+          <div id="pat-hint">Create a PAT with <b>repo</b> scope at github.com/settings/tokens</div>
+          <button id="pat-save">Save token</button>
+        </div>`;
+      document.body.appendChild(modal);
+      document.getElementById('pat-save').addEventListener('click', () => {
+        const v = document.getElementById('pat-input').value.trim();
+        if (!v) return;
+        localStorage.setItem('gh_pat', v);
+        modal.remove();
+        load();
+      });
+      document.getElementById('pat-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('pat-save').click();
+      });
+    }
+    document.getElementById('pat-msg').textContent = msg || '';
+    setTimeout(() => document.getElementById('pat-input').focus(), 0);
   }
 
   // ── date helpers ─────────────────────────────────────────────────────────
