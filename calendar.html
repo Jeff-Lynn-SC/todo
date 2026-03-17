@@ -363,7 +363,7 @@
   const FILE    = 'events.json';
   const API_URL = `https://api.github.com/repos/${REPO}/contents/${FILE}`;
 
-  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const DAYS   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const MONTHS = ['January','February','March','April','May','June','July',
                   'August','September','October','November','December'];
 
@@ -485,7 +485,8 @@
     });
     body.appendChild(hRow);
 
-    const firstDay    = new Date(viewYear, viewMonth, 1).getDay();
+    const firstDaySun = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+    const firstDay    = (firstDaySun + 6) % 7; // shift so Mon=0
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const today       = new Date();
 
@@ -729,13 +730,11 @@
   }
 
   function buildWeekArray(nonNullDays) {
-    // Reconstruct a 7-element week array from non-null days
-    // We know it starts on a Sunday-aligned week
+    // Reconstruct a 7-element week array from non-null days (Mon=0)
     if (!nonNullDays.length) return Array(7).fill(null);
-    const firstDay = new Date(viewYear, viewMonth, nonNullDays[0]).getDay();
     const week = Array(7).fill(null);
     nonNullDays.forEach(d => {
-      const dow = new Date(viewYear, viewMonth, d).getDay();
+      const dow = (new Date(viewYear, viewMonth, d).getDay() + 6) % 7;
       week[dow] = d;
     });
     return week;
