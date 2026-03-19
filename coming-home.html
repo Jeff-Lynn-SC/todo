@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coming Home</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1rem 3rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: #1a1a1a;
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.01em;
+  }
+  .sub {
+    font-size: 0.72rem;
+    color: #aaa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: #fffef9;
+    border: 2px solid #1a1a1a;
+    box-shadow: 7px 7px 0 #1a1a1a;
+    padding: 2rem 1.5rem 1.5rem;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .mermaid {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ── keyword legend ── */
+  .legend {
+    margin-top: 1.75rem;
+    background: #1a1a1a;
+    color: #fffef9;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  .legend-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .legend-body {}
+  .legend-kw {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.01em;
+  }
+  .legend-meaning {
+    font-size: 0.72rem;
+    color: #ccc;
+    line-height: 1.9;
+    letter-spacing: 0.03em;
+  }
+  .legend-meaning span {
+    display: block;
+    padding-left: 0.5rem;
+    border-left: 2px solid #444;
+  }
+
+  /* ── print ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card { box-shadow: none; border: none; max-width: 100%; }
+  }
+
+  @media (max-width: 500px) {
+    h1 { font-size: 1.8rem; }
+    .card { padding: 1.25rem 0.75rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Coming Home</h1>
+<div class="sub">a guide for getting settled</div>
+
+<div class="card">
+  <div class="mermaid">
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor":       "#fffef9",
+    "primaryTextColor":   "#1a1a1a",
+    "primaryBorderColor": "#1a1a1a",
+    "lineColor":          "#1a1a1a",
+    "secondaryColor":     "#f5f0e8",
+    "tertiaryColor":      "#f5f0e8",
+    "edgeLabelBackground":"#f5f0e8",
+    "fontFamily":         "DM Mono, monospace",
+    "fontSize":           "14px",
+    "clusterBkg":         "#f5f0e8"
+  }
+}}%%
+flowchart TD
+
+  Start(["🏠  I come home"])
+
+  Q1{"Q1 · Do I need my\nspace right now?"}
+
+  Nutella["🍫  Dad says the keyword\nafter 1 hour"]
+
+  Q2{"Q2 · Do I need to do\nanything today?"}
+
+  FeetUp(["🛋️  Put my feet up"])
+
+  Todo["✏️  Write it into the\nordered to-do list"]
+
+  Q3{"Q3 · Can I start\nstraight away?"}
+
+  GoStart(["✅  Start!"])
+
+  Q4["Q4 · How can I make\nit easier to start now?"]
+
+  Q5["Q5 · When can I start?\nSchedule it"]
+
+  Start --> Q1
+  Q1 -- No --> Q2
+  Q1 -- Yes --> Nutella
+  Nutella -. "after 1 hour" .-> Q1
+  Q2 -- No --> FeetUp
+  Q2 -- Yes --> Todo
+  Todo --> Q3
+  Q3 -- Yes --> GoStart
+  Q3 -- No --> Q4
+  Q4 -- "try again" --> Q3
+  Q4 -- "not yet" --> Q5
+
+  classDef startEnd  fill:#1a1a1a,stroke:#1a1a1a,color:#fffef9,rx:30
+  classDef done      fill:#4a7c59,stroke:#4a7c59,color:#fffef9,rx:30
+  classDef action    fill:#f5f0e8,stroke:#1a1a1a,color:#1a1a1a
+  classDef nutella   fill:#c8a96e,stroke:#1a1a1a,color:#1a1a1a
+
+  class Start startEnd
+  class FeetUp,GoStart done
+  class Todo,Q4,Q5 action
+  class Nutella nutella
+  </div>
+
+  <div class="legend">
+    <div class="legend-icon">🍫</div>
+    <div class="legend-body">
+      <div class="legend-kw">"Nutella"</div>
+      <div class="legend-meaning">
+        <span>I love you</span>
+        <span>I see that you are struggling</span>
+        <span>I just want to help</span>
+        <span>Friendly reminder</span>
+        <span>Do you want help?</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
