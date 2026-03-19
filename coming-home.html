@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coming Home</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,161 +21,277 @@
 
   h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 2.4rem;
+    font-size: 2.2rem;
     color: #1a1a1a;
     margin-bottom: 0.2rem;
-    letter-spacing: -0.01em;
   }
   .sub {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: #aaa;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
   }
 
   .card {
-    background: #fffef9;
+    background: #fff;
     border: 2px solid #1a1a1a;
-    box-shadow: 7px 7px 0 #1a1a1a;
-    padding: 2rem 1.5rem 1.5rem;
+    box-shadow: 6px 6px 0 #1a1a1a;
+    padding: 1.5rem;
     width: 100%;
     max-width: 680px;
   }
 
-  .mermaid {
-    display: flex;
-    justify-content: center;
-  }
+  svg { display: block; width: 100%; height: auto; }
 
-  /* ── keyword legend ── */
+  /* legend */
   .legend {
-    margin-top: 1.75rem;
-    background: #1a1a1a;
-    color: #fffef9;
-    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+    border-top: 2px solid #1a1a1a;
+    padding-top: 1.25rem;
     display: flex;
-    gap: 1.25rem;
+    gap: 1rem;
     align-items: flex-start;
   }
-  .legend-icon {
-    font-size: 2rem;
-    line-height: 1;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .legend-body {}
-  .legend-kw {
+  .leg-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 1px; }
+  .leg-kw {
     font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     margin-bottom: 0.4rem;
-    letter-spacing: 0.01em;
+    color: #1a1a1a;
   }
-  .legend-meaning {
-    font-size: 0.72rem;
-    color: #ccc;
-    line-height: 1.9;
-    letter-spacing: 0.03em;
-  }
-  .legend-meaning span {
+  .leg-lines { font-size: 0.72rem; color: #555; line-height: 1.9; }
+  .leg-lines span {
     display: block;
-    padding-left: 0.5rem;
-    border-left: 2px solid #444;
-  }
-
-  /* ── print ── */
-  @media print {
-    body { background: #fff; padding: 0; }
-    .card { box-shadow: none; border: none; max-width: 100%; }
+    padding-left: 0.6rem;
+    border-left: 2px solid #ccc;
   }
 
   @media (max-width: 500px) {
-    h1 { font-size: 1.8rem; }
-    .card { padding: 1.25rem 0.75rem 1rem; }
+    h1 { font-size: 1.6rem; }
+    .card { padding: 1rem 0.75rem; }
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .card { box-shadow: none; border: none; max-width: 100%; }
   }
 </style>
 </head>
 <body>
 
 <h1>Coming Home</h1>
-<div class="sub">a guide for getting settled</div>
+<p class="sub">a guide for getting settled</p>
 
 <div class="card">
-  <div class="mermaid">
-%%{init: {
-  "theme": "base",
-  "themeVariables": {
-    "primaryColor":       "#fffef9",
-    "primaryTextColor":   "#1a1a1a",
-    "primaryBorderColor": "#1a1a1a",
-    "lineColor":          "#1a1a1a",
-    "secondaryColor":     "#f5f0e8",
-    "tertiaryColor":      "#f5f0e8",
-    "edgeLabelBackground":"#f5f0e8",
-    "fontFamily":         "DM Mono, monospace",
-    "fontSize":           "14px",
-    "clusterBkg":         "#f5f0e8"
-  }
-}}%%
-flowchart TD
+<svg viewBox="0 0 660 970" xmlns="http://www.w3.org/2000/svg"
+     style="font-family:'DM Mono',monospace;">
+<defs>
+  <!-- standard arrowhead -->
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+          markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/>
+  </marker>
+</defs>
 
-  Start(["🏠  I come home"])
+<!-- ══════════════════════════════════════════
+     BACKGROUND
+═══════════════════════════════════════════ -->
+<rect width="660" height="970" fill="white"/>
 
-  Q1{"Q1 · Do I need my\nspace right now?"}
+<!-- ══════════════════════════════════════════
+     SHAPES
+═══════════════════════════════════════════ -->
 
-  Nutella["🍫  Dad says the keyword\nafter 1 hour"]
+<!-- 1 ─ START (terminal oval) ─────────────
+     cx=330, cy=62, rx=110, ry=26           -->
+<ellipse cx="330" cy="62" rx="110" ry="26"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text x="330" y="67" text-anchor="middle"
+      dominant-baseline="middle" font-size="13">I come home</text>
 
-  Q2{"Q2 · Do I need to do\nanything today?"}
 
-  FeetUp(["🛋️  Put my feet up"])
+<!-- 2 ─ Q1 DIAMOND ─────────────────────────
+     cx=330, cy=190
+     top(330,140) right(480,190) bot(330,240) left(180,190) -->
+<polygon points="330,140 480,190 330,240 180,190"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11">
+  <tspan x="330" y="183">Do I need my</tspan>
+  <tspan x="330" dy="14">space right now?</tspan>
+</text>
+<!-- Q1 label -->
+<text x="258" y="183" font-size="9" fill="#999">Q1</text>
 
-  Todo["✏️  Write it into the\nordered to-do list"]
 
-  Q3{"Q3 · Can I start\nstraight away?"}
+<!-- 3 ─ NUTELLA BOX ─────────────────────────
+     left=500, top=162, w=148, h=72
+     cx=574, cy=198                          -->
+<rect x="500" y="162" width="148" height="72"
+      fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11.5">
+  <tspan x="574" y="186">Dad says</tspan>
+  <tspan x="574" dy="14" font-style="italic" font-weight="500">"Nutella"</tspan>
+  <tspan x="574" dy="14">after 1 hour</tspan>
+</text>
 
-  GoStart(["✅  Start!"])
 
-  Q4["Q4 · How can I make\nit easier to start now?"]
+<!-- 4 ─ Q2 DIAMOND ─────────────────────────
+     cx=330, cy=360
+     top(330,308) right(495,360) bot(330,412) left(165,360) -->
+<polygon points="330,308 495,360 330,412 165,360"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11">
+  <tspan x="330" y="353">Do I need to do</tspan>
+  <tspan x="330" dy="14">anything today?</tspan>
+</text>
+<text x="245" y="353" font-size="9" fill="#999">Q2</text>
 
-  Q5["Q5 · When can I start?\nSchedule it"]
 
-  Start --> Q1
-  Q1 -- No --> Q2
-  Q1 -- Yes --> Nutella
-  Nutella -. "after 1 hour" .-> Q1
-  Q2 -- No --> FeetUp
-  Q2 -- Yes --> Todo
-  Todo --> Q3
-  Q3 -- Yes --> GoStart
-  Q3 -- No --> Q4
-  Q4 -- "try again" --> Q3
-  Q4 -- "not yet" --> Q5
+<!-- 5 ─ FEET UP (terminal oval) ─────────────
+     cx=78, cy=360, rx=68, ry=26             -->
+<ellipse cx="78" cy="360" rx="68" ry="26"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text x="78" y="360" text-anchor="middle"
+      dominant-baseline="middle" font-size="12">Put my feet up</text>
 
-  classDef startEnd  fill:#1a1a1a,stroke:#1a1a1a,color:#fffef9,rx:30
-  classDef done      fill:#4a7c59,stroke:#4a7c59,color:#fffef9,rx:30
-  classDef action    fill:#f5f0e8,stroke:#1a1a1a,color:#1a1a1a
-  classDef nutella   fill:#c8a96e,stroke:#1a1a1a,color:#1a1a1a
 
-  class Start startEnd
-  class FeetUp,GoStart done
-  class Todo,Q4,Q5 action
-  class Nutella nutella
-  </div>
+<!-- 6 ─ TO-DO LIST BOX ──────────────────────
+     cx=330, cy=490, w=220, h=62
+     left=220, top=459, right=440, bot=521   -->
+<rect x="220" y="459" width="220" height="62"
+      fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11.5">
+  <tspan x="330" y="483">Write it into the</tspan>
+  <tspan x="330" dy="15">ordered to-do list</tspan>
+</text>
 
-  <div class="legend">
-    <div class="legend-icon">🍫</div>
-    <div class="legend-body">
-      <div class="legend-kw">"Nutella"</div>
-      <div class="legend-meaning">
-        <span>I love you</span>
-        <span>I see that you are struggling</span>
-        <span>I just want to help</span>
-        <span>Friendly reminder</span>
-        <span>Do you want help?</span>
-      </div>
+
+<!-- 7 ─ Q3 DIAMOND ─────────────────────────
+     cx=330, cy=620
+     top(330,568) right(475,620) bot(330,672) left(185,620) -->
+<polygon points="330,568 475,620 330,672 185,620"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11">
+  <tspan x="330" y="613">Can I start</tspan>
+  <tspan x="330" dy="14">straight away?</tspan>
+</text>
+<text x="250" y="613" font-size="9" fill="#999">Q3</text>
+
+
+<!-- 8 ─ START! (terminal oval) ──────────────
+     cx=566, cy=620, rx=74, ry=26            -->
+<ellipse cx="566" cy="620" rx="74" ry="26"
+         fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text x="566" y="620" text-anchor="middle"
+      dominant-baseline="middle" font-size="13" font-weight="500">Start!</text>
+
+
+<!-- 9 ─ Q4 BOX ──────────────────────────────
+     cx=330, cy=768, w=228, h=62
+     left=216, top=737, right=444, bot=799   -->
+<rect x="216" y="737" width="228" height="62"
+      fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11.5">
+  <tspan x="330" y="761">How can I make it</tspan>
+  <tspan x="330" dy="15">easier to start now?</tspan>
+</text>
+<text x="226" y="754" font-size="9" fill="#999">Q4</text>
+
+
+<!-- 10 ─ Q5 BOX ─────────────────────────────
+     cx=330, cy=898, w=228, h=62
+     left=216, top=867, right=444, bot=929   -->
+<rect x="216" y="867" width="228" height="62"
+      fill="white" stroke="#1a1a1a" stroke-width="2"/>
+<text text-anchor="middle" font-size="11.5">
+  <tspan x="330" y="891">When can I start?</tspan>
+  <tspan x="330" dy="15">Schedule it</tspan>
+</text>
+<text x="226" y="884" font-size="9" fill="#999">Q5</text>
+
+
+<!-- ══════════════════════════════════════════
+     ARROWS
+═══════════════════════════════════════════ -->
+
+<!-- A ─ Start → Q1 -->
+<line x1="330" y1="88" x2="330" y2="138"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- B ─ Q1 "No" (bottom) → Q2 -->
+<line x1="330" y1="241" x2="330" y2="306"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="337" y="277" font-size="11" fill="#555">No</text>
+
+<!-- C ─ Q1 "Yes" (right) → Nutella -->
+<line x1="481" y1="190" x2="498" y2="190"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="483" y="183" font-size="11" fill="#555">Yes</text>
+
+<!-- D ─ Nutella loop → Q1 left
+     Route: right edge → far right → up above START → far left → down → Q1 left -->
+<polyline
+  points="648,198  636,198  636,28  24,28  24,190  178,190"
+  fill="none" stroke="#1a1a1a" stroke-width="1.5"
+  stroke-dasharray="5,3"
+  marker-end="url(#arr)"/>
+
+<!-- E ─ Q2 "No" (left) → Feet up -->
+<line x1="164" y1="360" x2="147" y2="360"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="151" y="352" font-size="11" fill="#555">No</text>
+
+<!-- F ─ Q2 "Yes" (bottom) → To-do -->
+<line x1="330" y1="413" x2="330" y2="457"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="337" y="439" font-size="11" fill="#555">Yes</text>
+
+<!-- G ─ To-do → Q3 -->
+<line x1="330" y1="521" x2="330" y2="566"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- H ─ Q3 "Yes" (right) → Start! -->
+<line x1="476" y1="620" x2="490" y2="620"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="477" y="612" font-size="11" fill="#555">Yes</text>
+
+<!-- I ─ Q3 "No" (bottom) → Q4 -->
+<line x1="330" y1="673" x2="330" y2="735"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="337" y="708" font-size="11" fill="#555">No</text>
+
+<!-- J ─ Q4 "try again" → Q3 left
+     Route: Q4 left edge → far left → up → Q3 left -->
+<polyline
+  points="216,768  148,768  148,620  183,620"
+  fill="none" stroke="#1a1a1a" stroke-width="1.5"
+  marker-end="url(#arr)"/>
+<text x="160" y="762" font-size="10" fill="#555"
+      transform="rotate(-90,148,718)">try again</text>
+
+<!-- K ─ Q4 "not yet" (bottom) → Q5 -->
+<line x1="330" y1="799" x2="330" y2="865"
+      stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="337" y="836" font-size="11" fill="#555">not yet</text>
+
+</svg>
+
+<!-- Nutella legend -->
+<div class="legend">
+  <div class="leg-icon">🍫</div>
+  <div>
+    <div class="leg-kw">"Nutella"</div>
+    <div class="leg-lines">
+      <span>I love you</span>
+      <span>I see that you are struggling</span>
+      <span>I just want to help</span>
+      <span>Friendly reminder</span>
+      <span>Do you want help?</span>
     </div>
   </div>
 </div>
 
+</div><!-- /card -->
 </body>
 </html>
