@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f0e8">
+<title>Home</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="app-icon.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:    #1a1a1a;
+  --paper:  #fffef9;
+  --bg:     #f5f0e8;
+  --muted:  #888;
+  --border: #d8d4cc;
+  --accent: #4a7c59;
+  --nav-h:  58px;
+  --hdr-h:  52px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top,    0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); font-family: 'DM Mono', monospace; color: var(--ink); }
+
+/* ── fixed header ── */
+.app-hdr {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--safe-t) + var(--hdr-h));
+  padding-top: var(--safe-t);
+  background: var(--paper);
+  border-bottom: 2px solid var(--ink);
+  display: flex; align-items: center;
+  padding-left: 1rem; padding-right: 0.6rem; gap: 0.6rem;
+}
+.hdr-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; flex: 1; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.hdr-views { display: flex; }
+.view-btn {
+  background: none; border: none; border-left: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.68rem;
+  color: var(--muted); padding: 0.4rem 0.65rem; cursor: pointer;
+  letter-spacing: 0.04em; line-height: 1;
+}
+.view-btn:first-child { border-left: 1.5px solid var(--ink); }
+.view-btn.active { background: var(--ink); color: var(--paper); }
+
+/* ── screens ── */
+.screen {
+  display: none; position: fixed;
+  top: calc(var(--safe-t) + var(--hdr-h));
+  bottom: calc(var(--safe-b) + var(--nav-h));
+  left: 0; right: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+}
+.screen.active { display: block; }
+
+/* ── bottom nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--safe-b) + var(--nav-h));
+  padding-bottom: var(--safe-b);
+  background: var(--paper); border-top: 2px solid var(--ink);
+  display: grid; grid-template-columns: repeat(3, 1fr);
+}
+.nav-tab {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px;
+  background: none; border: none; border-right: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.06em; color: var(--muted); cursor: pointer;
+  padding-bottom: 2px;
+}
+.nav-tab:last-child { border-right: none; }
+.nav-tab.active { color: var(--ink); background: #f0ece4; }
+.nav-tab svg { width: 22px; height: 22px; stroke: currentColor; }
+
+/* ─────────────────────────────────────────────
+   CALENDAR
+───────────────────────────────────────────── */
+
+/* nav strip below header */
+.cal-nav {
+  display: flex; border-bottom: 1.5px solid var(--border);
+  background: var(--paper); position: sticky; top: 0; z-index: 10;
+}
+.cal-nav-btn {
+  flex: 1; background: none; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  color: var(--ink); padding: 0.55rem 0; cursor: pointer;
+  border-right: 1px solid var(--border);
+  letter-spacing: 0.03em;
+}
+.cal-nav-btn:last-child { border-right: none; }
+.cal-nav-btn:active { background: var(--bg); }
+
+/* ── month view ── */
+.month-wrap { padding: 0.25rem 0.5rem 1rem; }
+.month-dow-row {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 4px; padding: 0 1px;
+}
+.month-dow {
+  text-align: center; font-size: 0.58rem; color: var(--muted);
+  letter-spacing: 0.06em; padding: 0.3rem 0;
+}
+.month-weeks { display: flex; flex-direction: column; gap: 2px; }
+.month-week  { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.month-cell {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 5px 2px 4px; gap: 3px; cursor: pointer;
+  border-radius: 6px; min-height: 48px; position: relative;
+  transition: background 0.1s;
+}
+.month-cell:active    { background: var(--border); }
+.month-cell.other-mo  { opacity: 0.35; }
+.month-cell .mn { font-size: 0.78rem; line-height: 1; }
+.month-cell.today .mn {
+  background: var(--ink); color: var(--paper);
+  border-radius: 50%; width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+}
+.month-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
+.month-dot  { width: 5px; height: 5px; border-radius: 50%; background: var(--ink); }
+.month-dot.span { background: var(--accent); }
+
+/* ── week view ── */
+.week-wrap {
+  padding: 0.5rem 0.4rem 1rem;
+}
+.week-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.week-cols {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  min-width: 340px;
+}
+.week-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.week-col-hdr {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 2px 6px; cursor: pointer; width: 100%;
+  border-bottom: 1.5px solid var(--border); margin-bottom: 2px;
+}
+.week-dow  { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.05em; }
+.week-dnum {
+  font-size: 1rem; font-weight: 500; color: var(--ink);
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.week-dnum.today { background: var(--ink); color: var(--paper); }
+.week-event {
+  width: 100%; background: var(--ink); color: var(--paper);
+  font-size: 0.55rem; padding: 3px 4px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  border-radius: 2px; cursor: pointer;
+}
+.week-span {
+  width: 100%; height: 5px; background: var(--accent);
+  border-radius: 2px; opacity: 0.7;
+}
+.week-add {
+  width: 100%; background: none;
+  border: 1px dashed var(--border);
+  font-size: 0.7rem; color: var(--muted);
+  padding: 3px 0; cursor: pointer; border-radius: 2px; margin-top: 2px;
+  font-family: 'DM Mono', monospace;
+}
+.week-add:active { background: var(--bg); }
+
+/* ── day view ── */
+.day-wrap { padding: 0.75rem 1rem 2rem; }
+.day-span-pill {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--accent); color: var(--paper);
+  padding: 0.5rem 0.75rem; margin-bottom: 6px; border-radius: 4px;
+  font-size: 0.78rem;
+}
+.day-event-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 0; border-bottom: 1px solid #eee;
+}
+.day-event-dot {
+  width: 8px; height: 8px; background: var(--ink);
+  border-radius: 50%; flex-shrink: 0;
+}
+.day-event-txt { flex: 1; font-size: 0.88rem; cursor: pointer; }
+.day-del {
+  background: none; border: none; font-size: 1.1rem; color: #ccc;
+  cursor: pointer; padding: 0.2rem; line-height: 1; flex-shrink: 0;
+}
+.day-del:active { color: #c0392b; }
+.day-empty { color: var(--muted); font-size: 0.78rem; padding: 0.75rem 0; }
+.day-add-row {
+  display: flex; align-items: center; gap: 0.6rem; margin-top: 1rem;
+  padding-top: 0.75rem; border-top: 1.5px dashed var(--border);
+}
+.day-add-inp {
+  flex: 1; background: none; border: none;
+  border-bottom: 1.5px solid var(--ink);
+  font-family: 'DM Mono', monospace; font-size: 0.88rem;
+  color: var(--ink); outline: none; padding: 0.25rem 0;
+}
+.day-add-inp::placeholder { color: #ccc; }
+.day-add-btn {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.45rem 0.9rem; cursor: pointer; border-radius: 2px;
+}
+
+/* ── span add sheet ── */
+.span-sheet {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(26,26,26,0.5);
+  display: flex; align-items: flex-end;
+}
+.span-sheet-box {
+  width: 100%; background: var(--paper);
+  border-top: 2px solid var(--ink);
+  padding: 1.25rem 1.25rem calc(1.25rem + var(--safe-b));
+  display: flex; flex-direction: column; gap: 0.85rem;
+}
+.span-sheet-title { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.06em; }
+.span-sheet-inp {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem;
+  border: none; border-bottom: 1.5px solid var(--ink);
+  background: transparent; outline: none; padding: 0.25rem 0; width: 100%;
+}
+.span-sheet-btns { display: flex; gap: 0.5rem; }
+.sheet-ok {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  padding: 0.55rem 1.2rem; cursor: pointer; border-radius: 2px;
+}
+.sheet-cancel {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: var(--muted); padding: 0.55rem 1rem; cursor: pointer; border-radius: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   TODO
+───────────────────────────────────────────── */
+.todo-prog {
+  padding: 0.6rem 1rem 0.3rem;
+  font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em;
+}
+.todo-bar { height: 2px; background: var(--border); margin: 0 1rem 0.25rem; }
+.todo-bar-fill { height: 100%; background: var(--ink); transition: width 0.3s; }
+.todo-list { padding: 0 1rem 0.5rem; }
+.todo-sec-hdr {
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); padding: 0.9rem 0 0.4rem;
+  border-top: 1px solid var(--border); margin-top: 0.5rem;
+}
+.todo-sec-hdr:first-child { margin-top: 0; }
+.todo-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 0; border-bottom: 1px solid #eee;
+}
+.todo-cb {
+  width: 22px; height: 22px; border: 2px solid var(--ink);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border-radius: 3px; flex-shrink: 0;
+}
+.todo-cb.done { background: var(--ink); }
+.todo-cb.done::after { content: '✓'; color: var(--paper); font-size: 11px; font-weight: bold; }
+.todo-lbl { flex: 1; font-size: 0.85rem; color: var(--ink); min-width: 0; }
+.todo-lbl.done { text-decoration: line-through; color: #aaa; }
+.todo-del {
+  background: none; border: none; font-size: 1.1rem; color: #ddd;
+  cursor: pointer; padding: 0.2rem; flex-shrink: 0; line-height: 1;
+}
+.todo-del:active { color: #c0392b; }
+.todo-add-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-top: 1.5px dashed var(--border);
+  position: sticky; bottom: 0; background: var(--bg);
+}
+.todo-add-inp {
+  flex: 1; background: none; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.85rem;
+  color: var(--ink); outline: none;
+}
+.todo-add-inp::placeholder { color: #ccc; }
+.todo-add-btn {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.45rem 0.85rem; cursor: pointer; border-radius: 2px; flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   PAT MODAL
+───────────────────────────────────────────── */
+#pat-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(245,240,232,0.96);
+  align-items: center; justify-content: center;
+  z-index: 9999; padding: 1.5rem;
+}
+#pat-modal.show { display: flex; }
+#pat-box {
+  background: var(--paper); border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 1.75rem; width: 100%; max-width: 360px;
+  display: flex; flex-direction: column; gap: 0.85rem;
+}
+#pat-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+#pat-msg   { font-size: 0.72rem; color: #c0392b; min-height: 1em; }
+#pat-input {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: 2px solid var(--ink); background: var(--bg);
+  padding: 0.5rem 0.65rem; outline: none; width: 100%;
+}
+#pat-hint  { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+#pat-save  {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  background: var(--ink); color: var(--paper); border: none;
+  padding: 0.6rem 1.2rem; cursor: pointer; align-self: flex-start; border-radius: 2px;
+}
+
+/* ── edit overlay ── */
+.edit-overlay {
+  position: fixed; inset: 0; background: rgba(26,26,26,0.5);
+  z-index: 500; display: flex; align-items: flex-end;
+}
+.edit-box {
+  width: 100%; background: var(--paper); border-top: 2px solid var(--ink);
+  padding: 1.25rem 1.25rem calc(1.25rem + var(--safe-b));
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.edit-box input {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem;
+  border: none; border-bottom: 1.5px solid var(--ink);
+  background: transparent; outline: none; padding: 0.3rem 0; width: 100%;
+}
+.edit-btns { display: flex; gap: 0.5rem; }
+.edit-ok {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  padding: 0.55rem 1.1rem; cursor: pointer; border-radius: 2px;
+}
+.edit-cancel {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: var(--muted); padding: 0.55rem 1rem; cursor: pointer; border-radius: 2px;
+}
+</style>
+</head>
+<body>
+
+<!-- PAT modal -->
+<div id="pat-modal">
+  <div id="pat-box">
+    <div id="pat-title">GitHub Token</div>
+    <div id="pat-msg"></div>
+    <input id="pat-input" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+    <div id="pat-hint">Create at <b>github.com → Settings → Developer settings → Personal access tokens</b> with <b>repo</b> scope and <b>No expiration</b></div>
+    <button id="pat-save">Save token</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="app-hdr">
+  <div class="hdr-title" id="hdrTitle">Calendar</div>
+  <div class="hdr-views" id="hdrViews"></div>
+</header>
+
+<!-- Calendar screen -->
+<div class="screen active" id="screen-cal">
+  <div class="cal-nav" id="calNav"></div>
+  <div id="calContent"></div>
+</div>
+
+<!-- Jeff todo screen -->
+<div class="screen" id="screen-jeff">
+  <div class="todo-prog"><span id="jeffProg">0 / 0 done</span></div>
+  <div class="todo-bar"><div class="todo-bar-fill" id="jeffBarFill" style="width:0%"></div></div>
+  <div class="todo-list" id="jeffList"></div>
+  <div class="todo-add-row">
+    <span style="color:#ccc">+</span>
+    <input class="todo-add-inp" id="jeffAddInp" placeholder="add item…" autocomplete="off">
+    <button class="todo-add-btn" id="jeffAddBtn">add</button>
+  </div>
+</div>
+
+<!-- Maryam todo screen -->
+<div class="screen" id="screen-maryam">
+  <div class="todo-prog"><span id="maryamProg">0 / 0 done</span></div>
+  <div class="todo-bar"><div class="todo-bar-fill" id="maryamBarFill" style="width:0%"></div></div>
+  <div class="todo-list" id="maryamList"></div>
+  <div class="todo-add-row">
+    <span style="color:#ccc">+</span>
+    <input class="todo-add-inp" id="maryamAddInp" placeholder="add item…" autocomplete="off">
+    <button class="todo-add-btn" id="maryamAddBtn">add</button>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-tab active" id="tabCal" onclick="switchTab('cal')">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Calendar
+  </button>
+  <button class="nav-tab" id="tabJeff" onclick="switchTab('jeff')">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="1.5"/><polyline points="9,8 11,10 15,6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+    Jeff
+  </button>
+  <button class="nav-tab" id="tabMaryam" onclick="switchTab('maryam')">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="1.5"/><polyline points="9,8 11,10 15,6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+    Maryam
+  </button>
+</nav>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────
+const REPO = 'Jeff-Lynn-SC/todo';
+const ghUrl = p => `https://api.github.com/repos/${REPO}/contents/${p}`;
+
+const MONTHS  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MSHORT  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DSHORT  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DLONG   = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let calView   = 'month';     // 'day' | 'week' | 'month'
+let viewDate  = new Date();
+let viewYear  = viewDate.getFullYear();
+let viewMonth = viewDate.getMonth();
+
+let calStore    = { days: {}, spans: [] };
+let jeffTasks   = [];
+let maryamTasks = [];
+let calSha = null, jeffSha = null, maryamSha = null;
+let currentTab  = 'cal';
+
+// Drag-to-select state (week/month)
+let selStart = null, selEnd = null, selActive = false;
+
+// ─────────────────────────────────────────────
+//  PAT
+// ─────────────────────────────────────────────
+const getPat = () => localStorage.getItem('gh_pat');
+
+function showPat(msg) {
+  document.getElementById('pat-modal').classList.add('show');
+  document.getElementById('pat-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('pat-input').focus(), 120);
+}
+
+document.getElementById('pat-save').addEventListener('click', () => {
+  const v = document.getElementById('pat-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('gh_pat', v);
+  document.getElementById('pat-modal').classList.remove('show');
+  loadAll();
+});
+document.getElementById('pat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pat-save').click();
+});
+
+// ─────────────────────────────────────────────
+//  GITHUB API
+// ─────────────────────────────────────────────
+async function ghGet(path) {
+  const pat = getPat();
+  if (!pat) { showPat(); return null; }
+  const res = await fetch(ghUrl(path), {
+    headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (res.status === 401) { localStorage.removeItem('gh_pat'); showPat('Token rejected — please re-enter.'); return null; }
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function ghPut(path, data, sha, msg) {
+  const pat = getPat();
+  if (!pat) return null;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const body = { message: msg, content };
+  if (sha) body.sha = sha;
+  const res = await fetch(ghUrl(path), {
+    method: 'PUT',
+    headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+function parseFile(meta) {
+  if (!meta) return null;
+  try { return JSON.parse(atob(meta.content.replace(/\n/g, ''))); } catch { return null; }
+}
+
+// ─────────────────────────────────────────────
+//  LOAD / SAVE
+// ─────────────────────────────────────────────
+async function loadAll() {
+  if (!getPat()) { showPat(); return; }
+
+  const [cm, jm, mm] = await Promise.all([
+    ghGet('events.json'),
+    ghGet('tasks.json'),
+    ghGet('maryam-tasks.json')
+  ]);
+
+  if (cm) {
+    calSha = cm.sha;
+    const d = parseFile(cm);
+    if (d && typeof d === 'object' && !Array.isArray(d)) calStore = d;
+  }
+  if (!calStore.days)  calStore.days  = {};
+  if (!calStore.spans) calStore.spans = [];
+
+  if (jm) { jeffSha = jm.sha; const d = parseFile(jm); if (Array.isArray(d)) jeffTasks = d; }
+  if (mm) { maryamSha = mm.sha; const d = parseFile(mm); if (Array.isArray(d)) maryamTasks = d; }
+
+  renderAll();
+}
+
+function saveCal()    { ghPut('events.json',      calStore,    calSha,    'update calendar').then(d => { if (d?.content) calSha    = d.content.sha; }); }
+function saveJeff()   { ghPut('tasks.json',        jeffTasks,   jeffSha,   'update jeff').then(d    => { if (d?.content) jeffSha   = d.content.sha; }); }
+function saveMaryam() { ghPut('maryam-tasks.json', maryamTasks, maryamSha, 'update maryam').then(d  => { if (d?.content) maryamSha = d.content.sha; }); }
+
+function renderAll() { renderCal(); renderJeff(); renderMaryam(); }
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function dk(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function dkFromDate(dt) { return dk(dt.getFullYear(), dt.getMonth(), dt.getDate()); }
+function isToday(y, m, d) {
+  const t = new Date();
+  return t.getFullYear()===y && t.getMonth()===m && t.getDate()===d;
+}
+function getWeekStart(dt) {
+  const d = new Date(dt);
+  const dow = (d.getDay()+6)%7;
+  d.setDate(d.getDate()-dow);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); return d; }
+
+// ─────────────────────────────────────────────
+//  TAB SWITCHING
+// ─────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-'+tab).classList.add('active');
+  document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+  updateHdr();
+  if (tab === 'cal') renderCal();
+}
+
+function updateHdr() {
+  const views = document.getElementById('hdrViews');
+  views.innerHTML = '';
+  if (currentTab === 'cal') {
+    ['day','week','month'].forEach(v => {
+      const b = document.createElement('button');
+      b.className = 'view-btn' + (calView===v ? ' active' : '');
+      b.textContent = v;
+      b.onclick = () => { calView = v; renderCal(); };
+      views.appendChild(b);
+    });
+  }
+}
+
+// ─────────────────────────────────────────────
+//  CALENDAR RENDER DISPATCHER
+// ─────────────────────────────────────────────
+function renderCal() {
+  updateHdr();
+  const nav     = document.getElementById('calNav');
+  const content = document.getElementById('calContent');
+  nav.innerHTML = content.innerHTML = '';
+
+  const makeNavBtn = (lbl, fn) => {
+    const b = document.createElement('button');
+    b.className   = 'cal-nav-btn';
+    b.textContent = lbl;
+    b.onclick     = fn;
+    nav.appendChild(b);
+  };
+
+  if (calView === 'month') {
+    makeNavBtn('← prev', () => { if (--viewMonth < 0) { viewMonth=11; viewYear--; } renderCal(); });
+    makeNavBtn('today',   () => { const n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); renderCal(); });
+    makeNavBtn('next →',  () => { if (++viewMonth > 11) { viewMonth=0; viewYear++; } renderCal(); });
+    document.getElementById('hdrTitle').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+    content.appendChild(buildMonth());
+
+  } else if (calView === 'week') {
+    makeNavBtn('← prev', () => { viewDate = addDays(viewDate, -7); renderCal(); });
+    makeNavBtn('today',   () => { viewDate = new Date(); renderCal(); });
+    makeNavBtn('next →',  () => { viewDate = addDays(viewDate,  7); renderCal(); });
+    const ws = getWeekStart(viewDate);
+    const we = addDays(ws, 6);
+    document.getElementById('hdrTitle').textContent =
+      ws.getMonth()===we.getMonth()
+        ? `${MSHORT[ws.getMonth()]} ${ws.getFullYear()}`
+        : `${MSHORT[ws.getMonth()]}–${MSHORT[we.getMonth()]} ${ws.getFullYear()}`;
+    content.appendChild(buildWeek());
+
+  } else { // day
+    makeNavBtn('← prev', () => { viewDate = addDays(viewDate, -1); renderCal(); });
+    makeNavBtn('today',   () => { viewDate = new Date(); renderCal(); });
+    makeNavBtn('next →',  () => { viewDate = addDays(viewDate,  1); renderCal(); });
+    const dow = (viewDate.getDay()+6)%7;
+    document.getElementById('hdrTitle').textContent =
+      `${DLONG[dow]} ${viewDate.getDate()} ${MSHORT[viewDate.getMonth()]}`;
+    content.appendChild(buildDay());
+  }
+}
+
+// ─────────────────────────────────────────────
+//  MONTH VIEW
+// ─────────────────────────────────────────────
+function buildMonth() {
+  const wrap = document.createElement('div');
+  wrap.className = 'month-wrap';
+
+  // DOW header
+  const dowRow = document.createElement('div');
+  dowRow.className = 'month-dow-row';
+  DSHORT.forEach(d => {
+    const el = document.createElement('div');
+    el.className   = 'month-dow';
+    el.textContent = d;
+    dowRow.appendChild(el);
+  });
+  wrap.appendChild(dowRow);
+
+  const firstDaySun = new Date(viewYear, viewMonth, 1).getDay();
+  const firstDay    = (firstDaySun+6)%7;
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate();
+
+  // Build flat cells
+  const cells = [];
+  for (let i=firstDay-1; i>=0; i--) {
+    const m = viewMonth-1, y = m<0 ? viewYear-1 : viewYear;
+    const rm = ((m%12)+12)%12;
+    cells.push({ d: prevMonthDays-i, y, m: rm, other: true });
+  }
+  for (let d=1; d<=daysInMonth; d++) cells.push({ d, y: viewYear, m: viewMonth });
+  let nextD = 1;
+  while (cells.length%7 !== 0) {
+    const m = viewMonth+1, y = m>11 ? viewYear+1 : viewYear;
+    const rm = m>11 ? 0 : m;
+    cells.push({ d: nextD++, y, m: rm, other: true });
+  }
+
+  const weeksEl = document.createElement('div');
+  weeksEl.className = 'month-weeks';
+
+  for (let wi=0; wi<cells.length; wi+=7) {
+    const weekEl = document.createElement('div');
+    weekEl.className = 'month-week';
+
+    cells.slice(wi, wi+7).forEach(c => {
+      const key = dk(c.y, c.m, c.d);
+      const el  = document.createElement('div');
+      el.className = 'month-cell' +
+        (c.other ? ' other-mo' : '') +
+        (isToday(c.y, c.m, c.d) ? ' today' : '');
+
+      const numEl = document.createElement('div');
+      numEl.className   = 'mn';
+      numEl.textContent = c.d;
+      el.appendChild(numEl);
+
+      // Event dots
+      const dayEvs  = (calStore.days[key] || []).length;
+      const spanEvs = (calStore.spans||[]).filter(s => s.start<=key && s.end>=key).length;
+      if (dayEvs+spanEvs > 0) {
+        const dots = document.createElement('div');
+        dots.className = 'month-dots';
+        for (let i=0; i<Math.min(dayEvs,3); i++) {
+          const dot = document.createElement('div'); dot.className='month-dot'; dots.appendChild(dot);
+        }
+        for (let i=0; i<Math.min(spanEvs,2); i++) {
+          const dot = document.createElement('div'); dot.className='month-dot span'; dots.appendChild(dot);
+        }
+        el.appendChild(dots);
+      }
+
+      el.addEventListener('click', () => {
+        viewDate = new Date(c.y, c.m, c.d);
+        calView  = 'day';
+        renderCal();
+      });
+
+      weekEl.appendChild(el);
+    });
+    weeksEl.appendChild(weekEl);
+  }
+
+  wrap.appendChild(weeksEl);
+  return wrap;
+}
+
+// ─────────────────────────────────────────────
+//  WEEK VIEW
+// ─────────────────────────────────────────────
+function buildWeek() {
+  const wrap = document.createElement('div');
+  wrap.className = 'week-wrap';
+
+  const ws   = getWeekStart(viewDate);
+  const cols = document.createElement('div');
+  cols.className = 'week-cols';
+
+  for (let i=0; i<7; i++) {
+    const dt  = addDays(ws, i);
+    const y=dt.getFullYear(), m=dt.getMonth(), d=dt.getDate();
+    const key = dk(y,m,d);
+    const tod = isToday(y,m,d);
+
+    const col = document.createElement('div');
+    col.className = 'week-col';
+
+    // Column header (tap → day view)
+    const hdr = document.createElement('div');
+    hdr.className = 'week-col-hdr';
+    const dw  = document.createElement('div'); dw.className='week-dow'; dw.textContent=DSHORT[i];
+    const dn  = document.createElement('div'); dn.className='week-dnum'+(tod?' today':''); dn.textContent=d;
+    hdr.appendChild(dw); hdr.appendChild(dn);
+    hdr.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+    col.appendChild(hdr);
+
+    // Span bars
+    (calStore.spans||[]).filter(s => s.start<=key && s.end>=key).forEach(sp => {
+      const bar = document.createElement('div');
+      bar.className = 'week-span';
+      bar.title     = sp.label;
+      col.appendChild(bar);
+    });
+
+    // Day events
+    (calStore.days[key]||[]).forEach(ev => {
+      const chip = document.createElement('div');
+      chip.className   = 'week-event';
+      chip.textContent = ev;
+      chip.title       = ev;
+      chip.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+      col.appendChild(chip);
+    });
+
+    // Add button
+    const add = document.createElement('button');
+    add.className   = 'week-add';
+    add.textContent = '+';
+    add.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+    col.appendChild(add);
+
+    cols.appendChild(col);
+  }
+
+  wrap.appendChild(cols);
+  return wrap;
+}
+
+// ─────────────────────────────────────────────
+//  DAY VIEW
+// ─────────────────────────────────────────────
+function buildDay() {
+  const wrap = document.createElement('div');
+  wrap.className = 'day-wrap';
+
+  const y=viewDate.getFullYear(), m=viewDate.getMonth(), d=viewDate.getDate();
+  const key = dk(y,m,d);
+
+  // Span pills
+  (calStore.spans||[]).filter(s => s.start<=key && s.end>=key).forEach(sp => {
+    const pill = document.createElement('div');
+    pill.className   = 'day-span-pill';
+    pill.textContent = sp.label;
+    wrap.appendChild(pill);
+  });
+
+  // Events
+  const evs = calStore.days[key] || [];
+  if (evs.length === 0 && !(calStore.spans||[]).some(s=>s.start<=key&&s.end>=key)) {
+    const empty = document.createElement('div');
+    empty.className   = 'day-empty';
+    empty.textContent = 'No events today';
+    wrap.appendChild(empty);
+  }
+
+  evs.forEach((ev, i) => {
+    const row = document.createElement('div');
+    row.className = 'day-event-row';
+
+    const dot = document.createElement('div'); dot.className='day-event-dot';
+    const txt = document.createElement('div'); txt.className='day-event-txt'; txt.textContent=ev;
+    const del = document.createElement('button');
+    del.className   = 'day-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      calStore.days[key].splice(i,1);
+      if (!calStore.days[key].length) delete calStore.days[key];
+      saveCal(); renderCal();
+    });
+
+    // Tap to edit
+    txt.addEventListener('click', () => openEditOverlay(ev, v => {
+      if (v) { calStore.days[key][i]=v; saveCal(); }
+      renderCal();
+    }));
+
+    row.appendChild(dot); row.appendChild(txt); row.appendChild(del);
+    wrap.appendChild(row);
+  });
+
+  // Add row
+  const addRow = document.createElement('div');
+  addRow.className = 'day-add-row';
+
+  const inp = document.createElement('input');
+  inp.className    = 'day-add-inp';
+  inp.placeholder  = 'add event…';
+  inp.autocomplete = 'off';
+
+  const btn = document.createElement('button');
+  btn.className   = 'day-add-btn';
+  btn.textContent = 'add';
+
+  const addEv = () => {
+    const v = inp.value.trim();
+    if (!v) return;
+    if (!calStore.days[key]) calStore.days[key] = [];
+    calStore.days[key].push(v);
+    saveCal();
+    inp.value = '';
+    renderCal();
+    // re-focus after render
+    setTimeout(() => {
+      const newInp = document.querySelector('.day-add-inp');
+      if (newInp) newInp.focus();
+    }, 80);
+  };
+
+  inp.addEventListener('keydown', e => { if (e.key==='Enter') addEv(); });
+  btn.addEventListener('click', addEv);
+  addRow.appendChild(inp); addRow.appendChild(btn);
+  wrap.appendChild(addRow);
+
+  setTimeout(() => inp.focus(), 100);
+  return wrap;
+}
+
+// ─────────────────────────────────────────────
+//  EDIT OVERLAY (day events)
+// ─────────────────────────────────────────────
+function openEditOverlay(value, onSave) {
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-overlay';
+
+  const box = document.createElement('div');
+  box.className = 'edit-box';
+
+  const label = document.createElement('div');
+  label.style.cssText = 'font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:2px;';
+  label.textContent   = 'EDIT EVENT';
+
+  const inp = document.createElement('input');
+  inp.value = value;
+
+  const btns = document.createElement('div');
+  btns.className = 'edit-btns';
+
+  const ok = document.createElement('button');
+  ok.className   = 'edit-ok';
+  ok.textContent = 'save';
+  ok.onclick = () => { overlay.remove(); onSave(inp.value.trim()); };
+
+  const cancel = document.createElement('button');
+  cancel.className   = 'edit-cancel';
+  cancel.textContent = 'cancel';
+  cancel.onclick     = () => overlay.remove();
+
+  inp.addEventListener('keydown', e => {
+    if (e.key==='Enter')  ok.click();
+    if (e.key==='Escape') overlay.remove();
+  });
+
+  btns.appendChild(ok); btns.appendChild(cancel);
+  box.appendChild(label); box.appendChild(inp); box.appendChild(btns);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  setTimeout(() => inp.focus(), 50);
+}
+
+// ─────────────────────────────────────────────
+//  TODO
+// ─────────────────────────────────────────────
+function renderTodo(tasks, listId, progId, barId) {
+  const listEl = document.getElementById(listId);
+  const progEl = document.getElementById(progId);
+  const barEl  = document.getElementById(barId);
+  listEl.innerHTML = '';
+
+  tasks.forEach((t, i) => {
+    if (t.header) {
+      const hdr = document.createElement('div');
+      hdr.className   = 'todo-sec-hdr';
+      hdr.textContent = t.label;
+      listEl.appendChild(hdr);
+      return;
+    }
+
+    const item = document.createElement('div');
+    item.className = 'todo-item';
+
+    const cb = document.createElement('div');
+    cb.className = 'todo-cb' + (t.done ? ' done' : '');
+    cb.addEventListener('click', () => {
+      tasks[i].done = !tasks[i].done;
+      listId.startsWith('jeff') ? saveJeff() : saveMaryam();
+      renderTodo(tasks, listId, progId, barId);
+    });
+
+    const lbl = document.createElement('div');
+    lbl.className   = 'todo-lbl' + (t.done ? ' done' : '');
+    lbl.textContent = t.label;
+
+    const del = document.createElement('button');
+    del.className   = 'todo-del';
+    del.textContent = '×';
+    del.addEventListener('click', () => {
+      tasks.splice(i,1);
+      listId.startsWith('jeff') ? saveJeff() : saveMaryam();
+      renderTodo(tasks, listId, progId, barId);
+    });
+
+    item.appendChild(cb); item.appendChild(lbl); item.appendChild(del);
+    listEl.appendChild(item);
+  });
+
+  const items = tasks.filter(t => !t.header);
+  const done  = items.filter(t => t.done).length;
+  progEl.textContent  = `${done} / ${items.length} done`;
+  barEl.style.width   = items.length ? (done/items.length*100)+'%' : '0%';
+}
+
+function renderJeff()   { renderTodo(jeffTasks,   'jeffList',   'jeffProg',   'jeffBarFill'); }
+function renderMaryam() { renderTodo(maryamTasks, 'maryamList', 'maryamProg', 'maryamBarFill'); }
+
+function wireAddTodo(inpId, btnId, tasks, saveFn, renderFn) {
+  const inp = document.getElementById(inpId);
+  const btn = document.getElementById(btnId);
+  const add = () => {
+    const v = inp.value.trim();
+    if (!v) return;
+    tasks.push({ label: v, done: false });
+    inp.value = '';
+    saveFn(); renderFn();
+  };
+  btn.addEventListener('click', add);
+  inp.addEventListener('keydown', e => { if (e.key==='Enter') add(); });
+}
+
+wireAddTodo('jeffAddInp',   'jeffAddBtn',   jeffTasks,   saveJeff,   renderJeff);
+wireAddTodo('maryamAddInp', 'maryamAddBtn', maryamTasks, saveMaryam, renderMaryam);
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+switchTab('cal');
+loadAll();
+</script>
+</body>
+</html>
