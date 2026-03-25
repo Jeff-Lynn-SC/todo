@@ -619,6 +619,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <span class="hs-label">Train Alert</span>
     </div>
 
+    <div class="hs-icon" onclick="openApp('travel')">
+      <div class="hs-icon-bg" style="--ic:#2d7d8e">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M22 16.5a9.77 9.77 0 0 1-3.5.5c-2 0-3.5-.5-5-1.5s-3-1.5-5-1.5a9.77 9.77 0 0 0-3.5.5"/>
+          <path d="M2 9.5a9.77 9.77 0 0 1 3.5-.5c2 0 3.5.5 5 1.5s3 1.5 5 1.5a9.77 9.77 0 0 0 3.5-.5"/>
+          <line x1="12" y1="2" x2="12" y2="22"/>
+        </svg>
+      </div>
+      <span class="hs-label">Travel</span>
+    </div>
+
   </div>
 </div>
 
@@ -660,6 +671,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 <!-- Train Alert (iframe) -->
 <div class="screen" id="screen-train">
   <iframe src="train-alert/index.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
+</div>
+
+<!-- Travel Checklist (iframe) -->
+<div class="screen" id="screen-travel" style="overflow:hidden;padding:0">
+  <iframe src="travel-checklist.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
 </div>
 
 <script>
@@ -828,7 +844,7 @@ function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); retu
 // ─────────────────────────────────────────────
 //  NAVIGATION
 // ─────────────────────────────────────────────
-const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert' };
+const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist' };
 
 function openApp(id) {
   currentTab = id;
