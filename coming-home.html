@@ -145,12 +145,43 @@ svg { display: block; width: 100%; height: auto; }
     <feBlend in="SourceGraphic" mode="multiply" result="blend"/>
     <feComposite in="blend" in2="SourceGraphic" operator="in"/>
   </filter>
+  <!-- Soft drop shadow for shapes -->
+  <filter id="shadow" x="-12%" y="-12%" width="124%" height="124%">
+    <feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#2a5010" flood-opacity="0.28"/>
+  </filter>
+  <!-- Active node glow -->
   <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
     <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
     <feFlood flood-color="#e8c840" flood-opacity="0.9" result="color"/>
     <feComposite in="color" in2="blur" operator="in" result="gcolored"/>
     <feMerge><feMergeNode in="gcolored"/><feMergeNode in="SourceGraphic"/></feMerge>
   </filter>
+  <!-- Gradients for shape fills -->
+  <linearGradient id="gr-leaf" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#d8edbc"/>
+    <stop offset="100%" stop-color="#a8c880"/>
+  </linearGradient>
+  <linearGradient id="gr-pod" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#f5e4a8"/>
+    <stop offset="100%" stop-color="#d9b84a"/>
+  </linearGradient>
+  <linearGradient id="gr-scroll" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#f5eedb"/>
+    <stop offset="100%" stop-color="#d8c898"/>
+  </linearGradient>
+  <linearGradient id="gr-nutella" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#cce8a8"/>
+    <stop offset="100%" stop-color="#88b858"/>
+  </linearGradient>
+  <!-- Roll-end gradient (darker on the roll edges) -->
+  <linearGradient id="gr-roll-l" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%"   stop-color="#b8a070" stop-opacity="0.55"/>
+    <stop offset="100%" stop-color="#b8a070" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="gr-roll-r" x1="1" y1="0" x2="0" y2="0">
+    <stop offset="0%"   stop-color="#b8a070" stop-opacity="0.55"/>
+    <stop offset="100%" stop-color="#b8a070" stop-opacity="0"/>
+  </linearGradient>
   <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
     <path d="M0,1 L9,5 L0,9 z" fill="#1e3a10"/>
   </marker>
@@ -212,220 +243,243 @@ svg { display: block; width: 100%; height: auto; }
 
 <!-- ══════════════════════════════════════════════════════
      SHAPES
-     Terminals  → pointed leaves (horizontal, both ends sharp)
-     Decisions  → seed pods (rounded diamond, convex sides)
-     Process    → unfurled scrolls (banner/ribbon with wavy edges)
+     Terminals  → pointed leaves with gradient + vein
+     Decisions  → concave 4-pointed stars (clearly cross-shaped)
+     Process    → parchment scrolls with prominent rolled ends
      ══════════════════════════════════════════════════════ -->
 
 <!-- 1 ── START — leaf ──────────────────────────────────── -->
 <path id="node-start"
   d="M 220,90
-     C 248,60 312,58 330,58
-     C 348,58 412,60 440,90
-     C 412,120 348,122 330,122
-     C 312,122 248,120 220,90 Z"
-  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<!-- leaf vein -->
-<line x1="224" y1="90" x2="436" y2="90" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+     C 248,57 314,55 330,55
+     C 346,55 412,57 440,90
+     C 412,123 346,125 330,125
+     C 314,125 248,123 220,90 Z"
+  fill="url(#gr-leaf)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<line x1="224" y1="90" x2="436" y2="90" stroke="#2a6018" stroke-width="0.9" opacity="0.45"/>
+<!-- secondary veins -->
+<line x1="300" y1="90" x2="278" y2="68"  stroke="#2a6018" stroke-width="0.5" opacity="0.3"/>
+<line x1="330" y1="90" x2="308" y2="62"  stroke="#2a6018" stroke-width="0.5" opacity="0.3"/>
+<line x1="360" y1="90" x2="382" y2="68"  stroke="#2a6018" stroke-width="0.5" opacity="0.3"/>
 <text x="330" y="90" text-anchor="middle" dominant-baseline="middle"
-      font-family="'EB Garamond',serif" font-size="14.5" fill="#0e1e06">I come home</text>
+      font-family="'EB Garamond',serif" font-size="14.5" fill="#0e2606">I come home</text>
 
-<!-- 2 ── Q1 — seed pod ─────────────────────────────────── -->
-<!-- top(330,152) right(480,202) bot(330,252) left(180,202) — sides now convex curves -->
+<!-- 2 ── Q1 — concave 4-pointed star ──────────────────── -->
+<!-- Tips: T(330,147) R(485,202) B(330,257) L(175,202)  Waists at (±55 from cx): (275,172)(385,172)(385,232)(275,232) -->
 <path id="node-q1"
-  d="M 330,152
-     C 400,152 480,178 480,202
-     C 480,226 400,252 330,252
-     C 260,252 180,226 180,202
-     C 180,178 260,152 330,152 Z"
-  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
-<!-- seed dots at centre -->
-<circle cx="319" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="330" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="341" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 330,147
+     C 355,147  385,160  385,172
+     C 385,184  485,196  485,202
+     C 485,208  385,220  385,232
+     C 385,244  355,257  330,257
+     C 305,257  275,244  275,232
+     C 275,220  175,208  175,202
+     C 175,196  275,184  275,172
+     C 275,160  305,147  330,147 Z"
+  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<!-- seed cluster at heart of pod -->
+<ellipse cx="330" cy="202" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
+<circle cx="322" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="330" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="338" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
   <tspan x="330" y="196">Do I need my</tspan>
   <tspan x="330" dy="14">space right now?</tspan>
 </text>
-<text x="257" y="193" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q1</text>
+<text x="255" y="193" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q1</text>
 
 <!-- 3 ── NUTELLA — scroll ──────────────────────────────── -->
-<!-- Unfurled banner: pointed ends left & right, wavy top & bottom -->
+<!-- Roll radius 22px, body from x=520 to x=624 -->
 <path id="node-nutella"
-  d="M 505,175
-     C 530,168 558,178 572,175
-     C 586,172 618,168 641,175
-     L 646,210
-     L 641,245
-     C 618,252 586,242 572,245
-     C 558,248 530,252 505,245
-     L 500,210 Z"
-  fill="#b8d098" stroke="#1e3a10" stroke-width="2.2"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12" fill="#0e1e06">
-  <tspan x="572" y="197">Dad says</tspan>
-  <tspan x="572" dy="15" font-style="italic" font-size="14">"Nutella"</tspan>
-  <tspan x="572" dy="15">after 1 hour</tspan>
+  d="M 498,175 L 624,175
+     C 647,175 648,245 624,245
+     L 498,245
+     C 474,245 474,175 498,175 Z"
+  fill="url(#gr-nutella)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<!-- Left roll shading (slightly darker band) -->
+<ellipse cx="498" cy="210" rx="14" ry="35" fill="url(#gr-roll-l)" opacity="0.7"/>
+<!-- Right roll shading -->
+<ellipse cx="624" cy="210" rx="14" ry="35" fill="url(#gr-roll-r)" opacity="0.7"/>
+<!-- Roll crease lines -->
+<line x1="512" y1="176" x2="512" y2="244" stroke="#2a5010" stroke-width="1" opacity="0.25"/>
+<line x1="610" y1="176" x2="610" y2="244" stroke="#2a5010" stroke-width="1" opacity="0.25"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12" fill="#0e2606">
+  <tspan x="561" y="197">Dad says</tspan>
+  <tspan x="561" dy="15" font-style="italic" font-size="14">"Nutella"</tspan>
+  <tspan x="561" dy="15">after 1 hour</tspan>
 </text>
 
-<!-- 4 ── Q2 — seed pod ─────────────────────────────────── -->
+<!-- 4 ── Q2 — concave 4-pointed star ──────────────────── -->
+<!-- Tips: T(330,318) R(498,372) B(330,426) L(162,372)  Waists: (275,347)(385,347)(385,397)(275,397) -->
 <path id="node-q2"
-  d="M 330,320
-     C 406,320 495,348 495,372
-     C 495,396 406,424 330,424
-     C 254,424 165,396 165,372
-     C 165,348 254,320 330,320 Z"
-  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
-<circle cx="319" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="330" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="341" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 330,318
+     C 357,318  385,330  385,347
+     C 385,364  498,365  498,372
+     C 498,379  385,380  385,397
+     C 385,414  357,426  330,426
+     C 303,426  275,414  275,397
+     C 275,380  162,379  162,372
+     C 162,365  275,364  275,347
+     C 275,330  303,318  330,318 Z"
+  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<ellipse cx="330" cy="372" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
+<circle cx="322" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="330" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="338" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
   <tspan x="330" y="365">Do I need to do</tspan>
   <tspan x="330" dy="14">anything today?</tspan>
 </text>
-<text x="243" y="365" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q2</text>
+<text x="244" y="362" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q2</text>
 
 <!-- 5 ── FEET UP — leaf ────────────────────────────────── -->
 <path id="node-feetup"
   d="M 10,372
-     C 30,344 55,341 78,341
-     C 101,341 126,344 146,372
-     C 126,400 101,403 78,403
-     C 55,403 30,400 10,372 Z"
-  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<line x1="13" y1="372" x2="143" y2="372" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+     C 28,343 54,340 78,340
+     C 102,340 128,343 146,372
+     C 128,401 102,404 78,404
+     C 54,404 28,401 10,372 Z"
+  fill="url(#gr-leaf)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<line x1="13" y1="372" x2="143" y2="372" stroke="#2a6018" stroke-width="0.9" opacity="0.45"/>
 <text x="78" y="372" text-anchor="middle" dominant-baseline="middle"
-      font-family="'EB Garamond',serif" font-size="12.5" fill="#0e1e06">Put my feet up</text>
+      font-family="'EB Garamond',serif" font-size="12.5" fill="#0e2606">Put my feet up</text>
 
 <!-- 6 ── TODO — scroll ─────────────────────────────────── -->
 <path id="node-todo"
-  d="M 228,471
-     C 264,464 298,474 330,471
-     C 362,468 396,464 432,471
-     L 438,502
-     L 432,533
-     C 396,540 362,530 330,533
-     C 298,536 264,540 228,533
-     L 222,502 Z"
-  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 224,471 L 436,471
+     C 450,471 450,533 436,533
+     L 224,533
+     C 210,533 210,471 224,471 Z"
+  fill="url(#gr-scroll)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<ellipse cx="224" cy="502" rx="14" ry="31" fill="url(#gr-roll-l)" opacity="0.7"/>
+<ellipse cx="436" cy="502" rx="14" ry="31" fill="url(#gr-roll-r)" opacity="0.7"/>
+<line x1="238" y1="472" x2="238" y2="532" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<line x1="422" y1="472" x2="422" y2="532" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1800">
   <tspan x="330" y="496">Write it into the</tspan>
   <tspan x="330" dy="16">ordered to-do list</tspan>
 </text>
 
-<!-- 7 ── Q3 — seed pod ─────────────────────────────────── -->
+<!-- 7 ── Q3 — concave 4-pointed star ──────────────────── -->
+<!-- Tips: T(330,577) R(478,632) B(330,687) L(182,632)  Waists: (275,607)(385,607)(385,657)(275,657) -->
 <path id="node-q3"
-  d="M 330,580
-     C 403,580 475,608 475,632
-     C 475,656 403,684 330,684
-     C 257,684 185,656 185,632
-     C 185,608 257,580 330,580 Z"
-  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
-<circle cx="319" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="330" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
-<circle cx="341" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 330,577
+     C 356,577  385,590  385,607
+     C 385,624  478,629  478,632
+     C 478,635  385,640  385,657
+     C 385,674  356,687  330,687
+     C 304,687  275,674  275,657
+     C 275,640  182,635  182,632
+     C 182,629  275,624  275,607
+     C 275,590  304,577  330,577 Z"
+  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<ellipse cx="330" cy="632" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
+<circle cx="322" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="330" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
+<circle cx="338" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
   <tspan x="330" y="625">Can I start</tspan>
   <tspan x="330" dy="14">straight away?</tspan>
 </text>
-<text x="252" y="625" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q3</text>
+<text x="254" y="622" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q3</text>
 
 <!-- 8 ── START! — leaf ─────────────────────────────────── -->
 <path id="node-gostart"
   d="M 492,632
-     C 514,604 543,601 566,601
-     C 589,601 618,604 640,632
-     C 618,660 589,663 566,663
-     C 543,663 514,660 492,632 Z"
-  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<line x1="495" y1="632" x2="637" y2="632" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+     C 512,602 542,599 566,599
+     C 590,599 620,602 640,632
+     C 620,662 590,665 566,665
+     C 542,665 512,662 492,632 Z"
+  fill="url(#gr-leaf)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<line x1="495" y1="632" x2="637" y2="632" stroke="#2a6018" stroke-width="0.9" opacity="0.45"/>
 <text x="566" y="632" text-anchor="middle" dominant-baseline="middle"
-      font-family="'EB Garamond',serif" font-size="15" font-weight="500" fill="#0e1e06">Start!</text>
+      font-family="'EB Garamond',serif" font-size="15" font-weight="500" fill="#0e2606">Start!</text>
 
 <!-- 9 ── Q4 — scroll ──────────────────────────────────── -->
 <path id="node-q4"
-  d="M 224,749
-     C 262,742 297,752 330,749
-     C 363,746 398,742 436,749
-     L 442,780
-     L 436,811
-     C 398,818 363,808 330,811
-     C 297,814 262,818 224,811
-     L 218,780 Z"
-  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 222,749 L 438,749
+     C 452,749 452,811 438,811
+     L 222,811
+     C 208,811 208,749 222,749 Z"
+  fill="url(#gr-scroll)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<ellipse cx="222" cy="780" rx="14" ry="31" fill="url(#gr-roll-l)" opacity="0.7"/>
+<ellipse cx="438" cy="780" rx="14" ry="31" fill="url(#gr-roll-r)" opacity="0.7"/>
+<line x1="236" y1="750" x2="236" y2="810" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<line x1="424" y1="750" x2="424" y2="810" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1800">
   <tspan x="330" y="774">How can I make it</tspan>
   <tspan x="330" dy="16">easier to start now?</tspan>
 </text>
-<text x="232" y="765" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q4</text>
+<text x="232" y="763" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q4</text>
 
 <!-- 10 ── Q5 — scroll ─────────────────────────────────── -->
 <path id="node-q5"
-  d="M 224,879
-     C 262,872 297,882 330,879
-     C 363,876 398,872 436,879
-     L 442,910
-     L 436,941
-     C 398,948 363,938 330,941
-     C 297,944 262,948 224,941
-     L 218,910 Z"
-  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
-<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
+  d="M 222,879 L 438,879
+     C 452,879 452,941 438,941
+     L 222,941
+     C 208,941 208,879 222,879 Z"
+  fill="url(#gr-scroll)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
+<ellipse cx="222" cy="910" rx="14" ry="31" fill="url(#gr-roll-l)" opacity="0.7"/>
+<ellipse cx="438" cy="910" rx="14" ry="31" fill="url(#gr-roll-r)" opacity="0.7"/>
+<line x1="236" y1="880" x2="236" y2="940" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<line x1="424" y1="880" x2="424" y2="940" stroke="#2a5010" stroke-width="1" opacity="0.22"/>
+<text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1800">
   <tspan x="330" y="904">When can I start?</tspan>
   <tspan x="330" dy="16">Schedule it</tspan>
 </text>
-<text x="232" y="895" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q5</text>
+<text x="232" y="893" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q5</text>
 
 <!-- ══════════════════════════════════════════
      ARROWS
      ══════════════════════════════════════════ -->
 
 <!-- A ── Start → Q1 -->
-<line x1="330" y1="122" x2="330" y2="150"
+<line x1="330" y1="125" x2="330" y2="145"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 
 <!-- B ── Q1 No → Q2 -->
-<line x1="330" y1="253" x2="330" y2="318"
+<line x1="330" y1="258" x2="330" y2="316"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="337" y="289" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
+<text x="337" y="292" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- C ── Q1 Yes → Nutella -->
-<line x1="481" y1="202" x2="498" y2="202"
+<line x1="486" y1="202" x2="496" y2="202"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="483" y="194" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
+<text x="487" y="194" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- D ── Nutella loop → Q1 (dashed, over the top) -->
-<polyline points="646,210 650,210 650,55 22,55 22,202 178,202"
+<polyline points="648,210 654,210 654,50 18,50 18,202 173,202"
           fill="none" stroke="#4a7c2a" stroke-width="1.6"
           stroke-dasharray="7,4" marker-end="url(#arr2)"/>
 
 <!-- E ── Q2 No → Feet up -->
-<line x1="164" y1="372" x2="148" y2="372"
+<line x1="161" y1="372" x2="148" y2="372"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="152" y="364" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
+<text x="150" y="364" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- F ── Q2 Yes → Todo -->
-<line x1="330" y1="425" x2="330" y2="469"
+<line x1="330" y1="427" x2="330" y2="469"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="337" y="451" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
+<text x="337" y="453" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- G ── Todo → Q3 -->
-<line x1="330" y1="534" x2="330" y2="578"
+<line x1="330" y1="534" x2="330" y2="575"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 
 <!-- H ── Q3 Yes → Start! -->
-<line x1="476" y1="632" x2="490" y2="632"
+<line x1="479" y1="632" x2="490" y2="632"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="477" y="624" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
+<text x="480" y="624" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- I ── Q3 No → Q4 -->
-<line x1="330" y1="685" x2="330" y2="747"
+<line x1="330" y1="688" x2="330" y2="747"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="337" y="720" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
+<text x="337" y="722" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- J ── Q4 try again → Q3 (left side route) -->
-<polyline points="218,780 148,780 148,632 183,632"
+<polyline points="208,780 144,780 144,632 180,632"
           fill="none" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="181" y="773" text-anchor="middle"
+<text x="176" y="773" text-anchor="middle"
       font-family="'EB Garamond',serif" font-size="11" font-style="italic" fill="#4a6c28">try again</text>
 
 <!-- K ── Q4 not yet → Q5 -->
