@@ -165,6 +165,10 @@ svg { display: block; width: 100%; height: auto; }
     <stop offset="0%"   stop-color="#f5e4a8"/>
     <stop offset="100%" stop-color="#d9b84a"/>
   </linearGradient>
+  <linearGradient id="gr-cloud" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#fdfaf0"/>
+    <stop offset="100%" stop-color="#d8b850"/>
+  </linearGradient>
   <linearGradient id="gr-scroll" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0%"   stop-color="#f5eedb"/>
     <stop offset="100%" stop-color="#d8c898"/>
@@ -264,29 +268,22 @@ svg { display: block; width: 100%; height: auto; }
 <text x="330" y="90" text-anchor="middle" dominant-baseline="middle"
       font-family="'EB Garamond',serif" font-size="14.5" fill="#0e2606">I come home</text>
 
-<!-- 2 ── Q1 — concave 4-pointed star ──────────────────── -->
-<!-- Tips: T(330,147) R(485,202) B(330,257) L(175,202)  Waists at (±55 from cx): (275,172)(385,172)(385,232)(275,232) -->
+<!-- 2 ── Q1 — cloud (flat bottom, straight sides, 3 top bumps) ── -->
+<!-- Side connections: L(170,200) R(490,200)  Bottom y=252  Top ~y=140 -->
 <path id="node-q1"
-  d="M 330,147
-     C 355,147  385,160  385,172
-     C 385,184  485,196  485,202
-     C 485,208  385,220  385,232
-     C 385,244  355,257  330,257
-     C 305,257  275,244  275,232
-     C 275,220  175,208  175,202
-     C 175,196  275,184  275,172
-     C 275,160  305,147  330,147 Z"
-  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
-<!-- seed cluster at heart of pod -->
-<ellipse cx="330" cy="202" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
-<circle cx="322" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="330" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="338" cy="202" r="2.8" fill="#8c6820" opacity="0.45"/>
+  d="M 170,252 L 490,252 L 490,200
+     C 490,185 470,155 455,158
+     C 440,155 420,175 400,178
+     C 380,178 360,140 330,140
+     C 300,140 280,178 260,178
+     C 240,175 220,155 205,158
+     C 190,155 170,185 170,200 Z"
+  fill="url(#gr-cloud)" stroke="#a08010" stroke-width="2.4" filter="url(#shadow)"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
-  <tspan x="330" y="196">Do I need my</tspan>
+  <tspan x="330" y="201">Do I need my</tspan>
   <tspan x="330" dy="14">space right now?</tspan>
 </text>
-<text x="255" y="193" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q1</text>
+<text x="264" y="194" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q1</text>
 
 <!-- 3 ── NUTELLA — scroll ──────────────────────────────── -->
 <!-- Roll radius 22px, body from x=520 to x=624 -->
@@ -309,28 +306,22 @@ svg { display: block; width: 100%; height: auto; }
   <tspan x="561" dy="15">after 1 hour</tspan>
 </text>
 
-<!-- 4 ── Q2 — concave 4-pointed star ──────────────────── -->
-<!-- Tips: T(330,318) R(498,372) B(330,426) L(162,372)  Waists: (275,347)(385,347)(385,397)(275,397) -->
+<!-- 4 ── Q2 — cloud (flat bottom, straight sides, 3 top bumps) ── -->
+<!-- Side connections: L(162,372) R(498,372)  Bottom y=422  Top ~y=308 -->
 <path id="node-q2"
-  d="M 330,318
-     C 357,318  385,330  385,347
-     C 385,364  498,365  498,372
-     C 498,379  385,380  385,397
-     C 385,414  357,426  330,426
-     C 303,426  275,414  275,397
-     C 275,380  162,379  162,372
-     C 162,365  275,364  275,347
-     C 275,330  303,318  330,318 Z"
-  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
-<ellipse cx="330" cy="372" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
-<circle cx="322" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="330" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="338" cy="372" r="2.8" fill="#8c6820" opacity="0.45"/>
+  d="M 162,422 L 498,422 L 498,372
+     C 498,356 476,324 461,328
+     C 446,324 426,344 406,348
+     C 386,348 366,308 330,308
+     C 294,308 274,348 254,348
+     C 234,344 214,324 199,328
+     C 184,324 162,356 162,372 Z"
+  fill="url(#gr-cloud)" stroke="#a08010" stroke-width="2.4" filter="url(#shadow)"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
-  <tspan x="330" y="365">Do I need to do</tspan>
+  <tspan x="330" y="372">Do I need to do</tspan>
   <tspan x="330" dy="14">anything today?</tspan>
 </text>
-<text x="244" y="362" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q2</text>
+<text x="252" y="364" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q2</text>
 
 <!-- 5 ── FEET UP — leaf ────────────────────────────────── -->
 <path id="node-feetup"
@@ -360,28 +351,22 @@ svg { display: block; width: 100%; height: auto; }
   <tspan x="330" dy="16">ordered to-do list</tspan>
 </text>
 
-<!-- 7 ── Q3 — concave 4-pointed star ──────────────────── -->
-<!-- Tips: T(330,577) R(478,632) B(330,687) L(182,632)  Waists: (275,607)(385,607)(385,657)(275,657) -->
+<!-- 7 ── Q3 — cloud (flat bottom, straight sides, 3 top bumps) ── -->
+<!-- Side connections: L(182,632) R(478,632)  Bottom y=682  Top ~y=570 -->
 <path id="node-q3"
-  d="M 330,577
-     C 356,577  385,590  385,607
-     C 385,624  478,629  478,632
-     C 478,635  385,640  385,657
-     C 385,674  356,687  330,687
-     C 304,687  275,674  275,657
-     C 275,640  182,635  182,632
-     C 182,629  275,624  275,607
-     C 275,590  304,577  330,577 Z"
-  fill="url(#gr-pod)" stroke="#1e4a12" stroke-width="2.4" filter="url(#shadow)"/>
-<ellipse cx="330" cy="632" rx="12" ry="8" fill="#8c6820" opacity="0.18"/>
-<circle cx="322" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="330" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
-<circle cx="338" cy="632" r="2.8" fill="#8c6820" opacity="0.45"/>
+  d="M 182,682 L 478,682 L 478,632
+     C 478,616 456,586 441,590
+     C 426,586 408,606 390,610
+     C 372,610 352,570 330,570
+     C 308,570 288,610 270,610
+     C 252,606 234,586 219,590
+     C 204,586 182,616 182,632 Z"
+  fill="url(#gr-cloud)" stroke="#a08010" stroke-width="2.4" filter="url(#shadow)"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#2a1400">
-  <tspan x="330" y="625">Can I start</tspan>
+  <tspan x="330" y="632">Can I start</tspan>
   <tspan x="330" dy="14">straight away?</tspan>
 </text>
-<text x="254" y="622" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q3</text>
+<text x="261" y="624" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q3</text>
 
 <!-- 8 ── START! — leaf ─────────────────────────────────── -->
 <path id="node-gostart"
@@ -434,50 +419,50 @@ svg { display: block; width: 100%; height: auto; }
      ══════════════════════════════════════════ -->
 
 <!-- A ── Start → Q1 -->
-<line x1="330" y1="125" x2="330" y2="145"
+<line x1="330" y1="125" x2="330" y2="142"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 
 <!-- B ── Q1 No → Q2 -->
-<line x1="330" y1="258" x2="330" y2="316"
+<line x1="330" y1="253" x2="330" y2="310"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="292" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- C ── Q1 Yes → Nutella -->
-<line x1="486" y1="202" x2="496" y2="202"
+<line x1="490" y1="200" x2="496" y2="200"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="487" y="194" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
+<text x="491" y="192" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- D ── Nutella loop → Q1 (dashed, over the top) -->
-<polyline points="648,210 654,210 654,50 18,50 18,202 173,202"
+<polyline points="648,210 654,210 654,50 18,50 18,200 170,200"
           fill="none" stroke="#4a7c2a" stroke-width="1.6"
           stroke-dasharray="7,4" marker-end="url(#arr2)"/>
 
 <!-- E ── Q2 No → Feet up -->
-<line x1="161" y1="372" x2="148" y2="372"
+<line x1="163" y1="372" x2="148" y2="372"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="150" y="364" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- F ── Q2 Yes → Todo -->
-<line x1="330" y1="427" x2="330" y2="469"
+<line x1="330" y1="423" x2="330" y2="469"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="453" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- G ── Todo → Q3 -->
-<line x1="330" y1="534" x2="330" y2="575"
+<line x1="330" y1="534" x2="330" y2="572"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 
 <!-- H ── Q3 Yes → Start! -->
-<line x1="479" y1="632" x2="490" y2="632"
+<line x1="480" y1="632" x2="490" y2="632"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="480" y="624" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
 
 <!-- I ── Q3 No → Q4 -->
-<line x1="330" y1="688" x2="330" y2="747"
+<line x1="330" y1="683" x2="330" y2="747"
       stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="722" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
 
 <!-- J ── Q4 try again → Q3 (left side route) -->
-<polyline points="208,780 144,780 144,632 180,632"
+<polyline points="208,780 144,780 144,632 183,632"
           fill="none" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="176" y="773" text-anchor="middle"
       font-family="'EB Garamond',serif" font-size="11" font-style="italic" fill="#4a6c28">try again</text>
@@ -561,7 +546,7 @@ const FLOW = {
 };
 
 // Approximate centre-Y of each node in the 660×970 viewBox (for scroll-to)
-const NODE_Y = { start:90, q1:202, nutella:210, q2:372, feetup:372, todo:502, q3:632, gostart:632, q4:780, q5:910 };
+const NODE_Y = { start:90, q1:196, nutella:210, q2:365, feetup:372, todo:502, q3:626, gostart:632, q4:780, q5:910 };
 
 // ── State ────────────────────────────────────────────────────────────────
 const TIMER_SECS = 3600;
