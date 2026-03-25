@@ -251,37 +251,92 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   padding: 0.6rem 1rem 0.3rem;
   font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em;
 }
-.todo-bar { height: 2px; background: var(--border); margin: 0 1rem 0.25rem; }
+.todo-bar { height: 2px; background: var(--border); margin: 0 1rem 0.5rem; }
 .todo-bar-fill { height: 100%; background: var(--ink); transition: width 0.3s; }
 .todo-list { padding: 0 1rem 0.5rem; }
-.todo-sec-hdr {
-  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--muted); padding: 0.9rem 0 0.4rem;
-  border-top: 1px solid var(--border); margin-top: 0.5rem;
+
+/* rows */
+.t-row {
+  display: flex; align-items: center;
+  border-bottom: 1px solid var(--border); position: relative;
 }
-.todo-sec-hdr:first-child { margin-top: 0; }
-.todo-item {
+.t-row:last-child { border-bottom: none; }
+.t-row.dragging { opacity: 0.35; }
+.t-row.drag-over { border-top: 2px solid var(--ink); }
+
+/* drag handle */
+.t-handle {
+  cursor: grab; color: #d8d4cc; font-size: 0.95rem;
+  padding: 0.75rem 0.5rem 0.75rem 0; flex-shrink: 0;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none; touch-action: none; line-height: 1;
+}
+.t-handle:hover { color: #999; }
+.t-handle:active { cursor: grabbing; }
+
+/* task item */
+.t-item {
   display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.8rem 0; border-bottom: 1px solid #eee;
+  padding: 0.75rem 0; cursor: pointer; transition: opacity 0.2s; flex: 1; min-width: 0;
 }
-.todo-cb {
-  width: 22px; height: 22px; border: 2px solid var(--ink);
+.t-item:hover { opacity: 0.7; }
+
+.t-cb {
+  width: 20px; height: 20px; border: 2px solid var(--ink);
   flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; border-radius: 3px; flex-shrink: 0;
+  transition: background 0.15s;
 }
-.todo-cb.done { background: var(--ink); }
-.todo-cb.done::after { content: '✓'; color: var(--paper); font-size: 11px; font-weight: bold; }
-.todo-lbl { flex: 1; font-size: 0.85rem; color: var(--ink); min-width: 0; }
-.todo-lbl.done { text-decoration: line-through; color: #aaa; }
-.todo-del {
-  background: none; border: none; font-size: 1.1rem; color: #ddd;
-  cursor: pointer; padding: 0.2rem; flex-shrink: 0; line-height: 1;
+.t-item.done .t-cb { background: var(--ink); }
+.t-item.done .t-cb::after { content: '✓'; color: var(--paper); font-size: 12px; font-weight: bold; }
+
+.t-lbl {
+  font-size: 0.9rem; letter-spacing: 0.03em; color: var(--ink);
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.todo-del:active { color: #c0392b; }
+.t-item.done .t-lbl { text-decoration: line-through; color: #aaa; }
+
+.t-lbl-input {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem; letter-spacing: 0.03em;
+  color: var(--ink); border: none; border-bottom: 1px solid var(--ink);
+  background: transparent; outline: none; flex: 1; min-width: 0; padding: 0;
+}
+
+/* delete button */
+.t-del {
+  background: none; border: none; font-family: 'DM Mono', monospace;
+  font-size: 1rem; color: #ddd; cursor: pointer;
+  padding: 0.75rem 0 0.75rem 0.5rem; flex-shrink: 0; line-height: 1;
+  transition: opacity 0.15s, color 0.15s;
+}
+/* desktop: hide until hover */
+@media (hover: hover) {
+  .t-del { opacity: 0; }
+  .t-row:hover .t-del { opacity: 1; }
+}
+.t-del:hover { color: #c0392b !important; }
+
+/* section header row */
+.t-hdr-row {
+  display: flex; align-items: center; margin-top: 1.25rem;
+  padding-top: 0.75rem; border-top: 1px solid #d8d4cc; position: relative;
+}
+.t-hdr-row.first-section { margin-top: 0; padding-top: 0; border-top: none; }
+.t-hdr-row.dragging { opacity: 0.35; }
+.t-hdr {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 500;
+  color: #999; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.25rem 0; flex: 1; min-width: 0;
+}
+.t-hdr-input {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #999; border: none; background: transparent;
+  outline: none; flex: 1; min-width: 0; padding: 0.25rem 0;
+}
+
+/* add row */
 .todo-add-row {
   display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.85rem 1rem;
-  border-top: 1.5px dashed var(--border);
+  padding: 0.85rem 1rem; border-top: 1.5px dashed var(--border);
   position: sticky; bottom: 0; background: var(--bg);
 }
 .todo-add-inp {
@@ -913,58 +968,192 @@ function openEditOverlay(value, onSave) {
 // ─────────────────────────────────────────────
 //  TODO
 // ─────────────────────────────────────────────
+
+function saveFnFor(listId) { return listId.startsWith('jeff') ? saveJeff : saveMaryam; }
+
+// ── touch drag ───────────────────────────────
+let tTouchSrc = null, tTouchDragging = false;
+
+document.addEventListener('touchmove', e => {
+  if (tTouchDragging) e.preventDefault();
+}, { passive: false });
+
+function attachTouchDrag(handleEl, rowEl, idx, listEl) {
+  handleEl.addEventListener('touchstart', e => {
+    e.preventDefault();
+    tTouchSrc = idx;
+    tTouchDragging = true;
+    setTimeout(() => rowEl.classList.add('dragging'), 0);
+  }, { passive: false });
+
+  handleEl.addEventListener('touchmove', e => {
+    if (!tTouchDragging) return;
+    const touch = e.touches[0];
+    let target = null;
+    listEl.querySelectorAll('[data-ti]').forEach(r => {
+      if (r === rowEl) return;
+      const rect = r.getBoundingClientRect();
+      if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) target = r;
+    });
+    listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (target) target.classList.add('drag-over');
+  }, { passive: false });
+
+  function onEnd() {
+    if (!tTouchDragging) return;
+    tTouchDragging = false;
+    rowEl.classList.remove('dragging');
+    const over = listEl.querySelector('.drag-over');
+    listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (over) {
+      const ti = parseInt(over.dataset.ti);
+      const listId = listEl.id;
+      const tasks  = listId.startsWith('jeff') ? jeffTasks : maryamTasks;
+      if (!isNaN(ti) && ti !== tTouchSrc) {
+        const moved = tasks.splice(tTouchSrc, 1)[0];
+        tasks.splice(tTouchSrc < ti ? ti - 1 : ti, 0, moved);
+        saveFnFor(listId)();
+        renderTodo(tasks, listId, listId.startsWith('jeff') ? 'jeffProg' : 'maryamProg',
+                                  listId.startsWith('jeff') ? 'jeffBarFill' : 'maryamBarFill');
+      }
+    }
+    tTouchSrc = null;
+  }
+  handleEl.addEventListener('touchend',    onEnd, { passive: true });
+  handleEl.addEventListener('touchcancel', onEnd, { passive: true });
+}
+
+// ── rename ───────────────────────────────────
+function startRename(tasks, i, labelEl, isHeader, listId, progId, barId) {
+  const inp = document.createElement('input');
+  inp.className = isHeader ? 't-hdr-input' : 't-lbl-input';
+  inp.value = tasks[i].label;
+  labelEl.replaceWith(inp);
+  inp.focus(); inp.select();
+  function commit() {
+    const v = inp.value.trim();
+    if (v) tasks[i].label = v;
+    saveFnFor(listId)();
+    renderTodo(tasks, listId, progId, barId);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') { renderTodo(tasks, listId, progId, barId); }
+  });
+}
+
+// ── render ───────────────────────────────────
 function renderTodo(tasks, listId, progId, barId) {
   const listEl = document.getElementById(listId);
   const progEl = document.getElementById(progId);
   const barEl  = document.getElementById(barId);
   listEl.innerHTML = '';
 
+  let dragSrc = null;
+  const firstHeaderIdx = tasks.findIndex(t => t.header);
+
   tasks.forEach((t, i) => {
-    if (t.header) {
-      const hdr = document.createElement('div');
-      hdr.className   = 'todo-sec-hdr';
-      hdr.textContent = t.label;
-      listEl.appendChild(hdr);
-      return;
+    const isHeader = t.header === true;
+    const row = document.createElement('div');
+    row.className  = isHeader
+      ? 't-hdr-row' + (i === firstHeaderIdx ? ' first-section' : '')
+      : 't-row';
+    row.draggable  = true;
+    row.dataset.ti = i;
+
+    // drag handle
+    const handle = document.createElement('span');
+    handle.className   = 't-handle';
+    handle.textContent = '⠿';
+    handle.title       = 'Drag to reorder';
+    row.appendChild(handle);
+    attachTouchDrag(handle, row, i, listEl);
+
+    if (isHeader) {
+      const h = document.createElement('div');
+      h.className   = 't-hdr';
+      h.textContent = t.label;
+      h.title       = 'Double-tap to rename';
+      h.addEventListener('dblclick', e => { e.stopPropagation(); startRename(tasks, i, h, true, listId, progId, barId); });
+      row.appendChild(h);
+    } else {
+      const item = document.createElement('div');
+      item.className = 't-item' + (t.done ? ' done' : '');
+
+      const cb = document.createElement('div');
+      cb.className = 't-cb';
+      cb.addEventListener('click', e => {
+        e.stopPropagation();
+        tasks[i].done = !tasks[i].done;
+        saveFnFor(listId)();
+        renderTodo(tasks, listId, progId, barId);
+      });
+
+      const lbl = document.createElement('span');
+      lbl.className   = 't-lbl';
+      lbl.textContent = t.label;
+      lbl.title       = 'Double-tap to rename';
+      lbl.addEventListener('dblclick', e => { e.stopPropagation(); startRename(tasks, i, lbl, false, listId, progId, barId); });
+
+      item.appendChild(cb);
+      item.appendChild(lbl);
+      row.appendChild(item);
     }
 
-    const item = document.createElement('div');
-    item.className = 'todo-item';
-
-    const cb = document.createElement('div');
-    cb.className = 'todo-cb' + (t.done ? ' done' : '');
-    cb.addEventListener('click', () => {
-      tasks[i].done = !tasks[i].done;
-      listId.startsWith('jeff') ? saveJeff() : saveMaryam();
-      renderTodo(tasks, listId, progId, barId);
-    });
-
-    const lbl = document.createElement('div');
-    lbl.className   = 'todo-lbl' + (t.done ? ' done' : '');
-    lbl.textContent = t.label;
-
+    // delete button
     const del = document.createElement('button');
-    del.className   = 'todo-del';
+    del.className   = 't-del';
     del.textContent = '×';
-    del.addEventListener('click', () => {
-      tasks.splice(i,1);
-      listId.startsWith('jeff') ? saveJeff() : saveMaryam();
+    del.title       = 'Delete';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      tasks.splice(i, 1);
+      saveFnFor(listId)();
+      renderTodo(tasks, listId, progId, barId);
+    });
+    row.appendChild(del);
+
+    // desktop drag-and-drop
+    row.addEventListener('dragstart', e => {
+      dragSrc = i;
+      setTimeout(() => row.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      if (dragSrc !== i) row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      if (dragSrc === null || dragSrc === i) return;
+      const moved = tasks.splice(dragSrc, 1)[0];
+      tasks.splice(dragSrc < i ? i - 1 : i, 0, moved);
+      dragSrc = null;
+      saveFnFor(listId)();
       renderTodo(tasks, listId, progId, barId);
     });
 
-    item.appendChild(cb); item.appendChild(lbl); item.appendChild(del);
-    listEl.appendChild(item);
+    listEl.appendChild(row);
   });
 
   const items = tasks.filter(t => !t.header);
   const done  = items.filter(t => t.done).length;
-  progEl.textContent  = `${done} / ${items.length} done`;
-  barEl.style.width   = items.length ? (done/items.length*100)+'%' : '0%';
+  progEl.textContent = `${done} / ${items.length} done`;
+  barEl.style.width  = items.length ? (done / items.length * 100) + '%' : '0%';
 }
 
 function renderJeff()   { renderTodo(jeffTasks,   'jeffList',   'jeffProg',   'jeffBarFill'); }
 function renderMaryam() { renderTodo(maryamTasks, 'maryamList', 'maryamProg', 'maryamBarFill'); }
 
+// ── add items ────────────────────────────────
 function wireAddTodo(inpId, btnId, tasks, saveFn, renderFn) {
   const inp = document.getElementById(inpId);
   const btn = document.getElementById(btnId);
@@ -976,7 +1165,7 @@ function wireAddTodo(inpId, btnId, tasks, saveFn, renderFn) {
     saveFn(); renderFn();
   };
   btn.addEventListener('click', add);
-  inp.addEventListener('keydown', e => { if (e.key==='Enter') add(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
 }
 
 wireAddTodo('jeffAddInp',   'jeffAddBtn',   jeffTasks,   saveJeff,   renderJeff);
