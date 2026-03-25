@@ -23,6 +23,12 @@
   --hdr-h:  52px;
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-t: env(safe-area-inset-top,    0px);
+  --jeff:       #3d7ab5;
+  --jeff-bg:    #cfe2f5;
+  --maryam:     #a8466a;
+  --maryam-bg:  #f2d0db;
+  --joint:      #4a7c59;
+  --joint-bg:   #cce5d4;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -125,10 +131,25 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .span-bar.continues-right { border-right: none; }
 .span-label { overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; cursor: text; }
 .del-span { color: transparent; font-size: 0.85rem; cursor: pointer; flex-shrink: 0; line-height: 1; transition: color 0.1s; }
-.span-bar:hover { background: #333; }
-.span-bar:hover .del-span { color: rgba(255,255,255,0.45); }
-.span-bar:hover .del-span:hover { color: #ff9999; }
+.span-bar:hover { filter: brightness(0.88); }
+.span-bar:hover .del-span { color: rgba(0,0,0,0.3); }
+.span-bar:hover .del-span:hover { color: #c0392b; }
 .span-bar.preview { background: #888; pointer-events: none; }
+/* owner colours */
+.owner-jeff   { background: var(--jeff-bg)   !important; color: var(--jeff)   !important; border-color: var(--jeff)   !important; }
+.owner-maryam { background: var(--maryam-bg) !important; color: var(--maryam) !important; border-color: var(--maryam) !important; }
+.owner-joint  { background: var(--joint-bg)  !important; color: var(--joint)  !important; border-color: var(--joint)  !important; }
+.span-bar.owner-jeff   { color: var(--jeff)   !important; }
+.span-bar.owner-maryam { color: var(--maryam) !important; }
+.span-bar.owner-joint  { color: var(--joint)  !important; }
+/* owner picker */
+.owner-pick { display: flex; gap: 4px; margin: 4px 0 2px; }
+.owner-btn  { flex: 1; padding: 3px 0; border: 1px solid var(--border); border-radius: 3px;
+              background: var(--bg); font-family: 'DM Mono', monospace; font-size: 0.65rem;
+              cursor: pointer; color: var(--muted); transition: all 0.1s; }
+.owner-btn.active-jeff   { background: var(--jeff-bg);   border-color: var(--jeff);   color: var(--jeff);   font-weight: 600; }
+.owner-btn.active-maryam { background: var(--maryam-bg); border-color: var(--maryam); color: var(--maryam); font-weight: 600; }
+.owner-btn.active-joint  { background: var(--joint-bg);  border-color: var(--joint);  color: var(--joint);  font-weight: 600; }
 .days-layer { display: grid; grid-template-columns: repeat(7, 1fr); }
 .day-cell {
   border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink);
@@ -212,13 +233,13 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 }
 .week-dnum.today { background: var(--ink); color: var(--paper); }
 .week-event {
-  width: 100%; background: var(--ink); color: var(--paper);
+  width: 100%; background: var(--joint-bg); color: var(--joint);
   font-size: 0.55rem; padding: 3px 4px; line-height: 1.3;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  border-radius: 2px; cursor: pointer;
+  border-radius: 2px; cursor: pointer; border-left: 2px solid currentColor;
 }
 .week-span {
-  width: 100%; height: 5px; background: var(--accent);
+  width: 100%; height: 5px; background: var(--joint);
   border-radius: 2px; opacity: 0.7;
 }
 .week-add {
@@ -234,16 +255,16 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 .day-wrap { padding: 0.75rem 1rem 2rem; }
 .day-span-pill {
   display: flex; align-items: center; gap: 0.5rem;
-  background: var(--accent); color: var(--paper);
+  background: var(--joint-bg); color: var(--joint);
   padding: 0.5rem 0.75rem; margin-bottom: 6px; border-radius: 4px;
-  font-size: 0.78rem;
+  font-size: 0.78rem; border-left: 3px solid currentColor;
 }
 .day-event-row {
   display: flex; align-items: center; gap: 0.75rem;
   padding: 0.8rem 0; border-bottom: 1px solid #eee;
 }
 .day-event-dot {
-  width: 8px; height: 8px; background: var(--ink);
+  width: 8px; height: 8px; background: var(--owner-clr, var(--ink));
   border-radius: 50%; flex-shrink: 0;
 }
 .day-event-txt { flex: 1; font-size: 0.88rem; cursor: pointer; }
@@ -555,6 +576,31 @@ let jeffTasks   = [];
 let maryamTasks = [];
 let currentTab  = 'cal';
 
+// ── event owner helpers ───────────────────────
+const evLabel = ev => typeof ev === 'string' ? ev : ev.label;
+const evOwner = ev => typeof ev === 'string' ? 'joint' : (ev.owner || 'joint');
+const evObj   = (label, owner) => ({ label, owner });
+const ownerCss = o => o === 'jeff' ? 'owner-jeff' : o === 'maryam' ? 'owner-maryam' : 'owner-joint';
+const ownerClr = o => o === 'jeff' ? 'var(--jeff)' : o === 'maryam' ? 'var(--maryam)' : 'var(--joint)';
+// Make a J / Both / M picker; returns {el, get()}
+function makeOwnerPick(current) {
+  let selected = current || 'joint';
+  const wrap = document.createElement('div');
+  wrap.className = 'owner-pick';
+  [['jeff','Jeff'],['joint','Both'],['maryam','Maryam']].forEach(([val, lbl]) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = lbl; b.className = 'owner-btn';
+    if (val === selected) b.classList.add('active-' + val);
+    b.addEventListener('click', () => {
+      wrap.querySelectorAll('.owner-btn').forEach(x => x.className = 'owner-btn');
+      b.classList.add('active-' + val);
+      selected = val;
+    });
+    wrap.appendChild(b);
+  });
+  return { el: wrap, get: () => selected };
+}
+
 // Drag-to-select state (week/month)
 let selStart = null, selEnd = null, selActive = false;
 
@@ -850,7 +896,7 @@ function buildSpansLayer(week) {
 
 function makeSpanBar(sp, startCol, endCol, row, continuesLeft, continuesRight, isPreview) {
   const bar = document.createElement('div');
-  bar.className = 'span-bar' + (isPreview ? ' preview' : '');
+  bar.className = 'span-bar' + (isPreview ? ' preview' : '') + (isPreview ? '' : ' ' + ownerCss(sp.owner || 'joint'));
   if (continuesLeft)  bar.classList.add('continues-left');
   if (continuesRight) bar.classList.add('continues-right');
   bar.style.left   = `calc(${startCol} / 7 * 100% + 2px)`;
@@ -972,26 +1018,34 @@ function buildWeekArray(nonNullDays) {
 }
 
 function makeEventChip(ev, k, ei) {
+  const owner = evOwner(ev);
+  const label = evLabel(ev);
   const chip = document.createElement('div');
-  chip.className = 'event-chip';
+  chip.className = 'event-chip ' + ownerCss(owner);
 
   const txt = document.createElement('span');
-  txt.className = 'event-text'; txt.textContent = ev; txt.title = 'double-click to edit';
+  txt.className = 'event-text'; txt.textContent = label; txt.title = 'double-click to edit';
   chip.appendChild(txt);
 
   txt.addEventListener('dblclick', e => {
     e.stopPropagation();
+    // inline owner picker + input
+    const pick = makeOwnerPick(owner);
     const inp = document.createElement('input');
-    inp.className = 'edit-chip-input'; inp.value = ev;
-    txt.replaceWith(inp); inp.focus(); inp.select();
+    inp.className = 'edit-chip-input'; inp.value = label;
+    // replace chip contents with picker + input
+    chip.innerHTML = '';
+    chip.appendChild(pick.el);
+    chip.appendChild(inp);
+    inp.focus(); inp.select();
     function commit() {
       const v = inp.value.trim();
-      if (v) calStore.days[k][ei] = v;
+      if (v) calStore.days[k][ei] = evObj(v, pick.get());
       else { calStore.days[k].splice(ei, 1); if (!calStore.days[k].length) delete calStore.days[k]; }
       saveCal(); renderCal();
     }
     inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') renderCal(); });
-    inp.addEventListener('blur', commit);
+    inp.addEventListener('blur', () => setTimeout(commit, 120));
     inp.addEventListener('click', e => e.stopPropagation());
     inp.addEventListener('mousedown', e => e.stopPropagation());
   });
@@ -1012,17 +1066,19 @@ function openInlineAdd(cell, k) {
   if (cell.querySelector('.add-event-input')) return;
   const list = cell.querySelector('.events-list');
   if (!list) return;
+  const pick = makeOwnerPick('joint');
+  pick.el.addEventListener('mousedown', e => e.stopPropagation());
   const inp = document.createElement('input');
   inp.className = 'add-event-input'; inp.placeholder = 'add event…'; inp.autocomplete = 'off';
   inp.addEventListener('mousedown', e => e.stopPropagation());
   function commit() {
     const v = inp.value.trim();
-    if (v) { if (!calStore.days[k]) calStore.days[k] = []; calStore.days[k].push(v); saveCal(); }
+    if (v) { if (!calStore.days[k]) calStore.days[k] = []; calStore.days[k].push(evObj(v, pick.get())); saveCal(); }
     renderCal();
   }
   inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') renderCal(); });
-  inp.addEventListener('blur', commit);
-  list.appendChild(inp); inp.focus();
+  inp.addEventListener('blur', () => setTimeout(commit, 120));
+  list.appendChild(pick.el); list.appendChild(inp); inp.focus();
 }
 
 let promptEl = null;
@@ -1032,21 +1088,26 @@ function showSpanPrompt(startKey, endKey, cx, cy) {
   const fmt = k => { const p = k.split('-'); return `${parseInt(p[2])} ${MSHORT[parseInt(p[1])-1]}`; };
   const prompt = document.createElement('div');
   prompt.className = 'span-prompt';
+  prompt.style.flexDirection = 'column'; prompt.style.alignItems = 'flex-start'; prompt.style.gap = '6px';
   const lbl = document.createElement('span'); lbl.textContent = `${fmt(startKey)} → ${fmt(endKey)}:`;
   prompt.appendChild(lbl);
+  const pick = makeOwnerPick('joint');
+  pick.el.style.width = '100%';
+  prompt.appendChild(pick.el);
   const inp = document.createElement('input');
   inp.className = 'span-prompt-input'; inp.placeholder = 'e.g. Visitor stays · Conference'; inp.autocomplete = 'off';
+  inp.style.width = '100%';
   let committed = false;
   function commit() {
     if (committed) return; committed = true; removePrompt();
     const v = inp.value.trim();
-    if (v) { calStore.spans.push({ label: v, start: startKey, end: endKey }); saveCal(); }
+    if (v) { calStore.spans.push({ label: v, start: startKey, end: endKey, owner: pick.get() }); saveCal(); }
     renderCal();
   }
   inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') { committed=true; removePrompt(); renderCal(); } });
   inp.addEventListener('blur', () => setTimeout(commit, 120));
   prompt.appendChild(inp);
-  const PW=380, PH=52;
+  const PW=260, PH=110;
   let left=cx+12, top=cy+12;
   if (left+PW > window.innerWidth-16)  left = cx-PW-12;
   if (top+PH  > window.innerHeight-16) top  = cy-PH-12;
@@ -1091,7 +1152,7 @@ function buildWeek() {
     // Span bars
     (calStore.spans||[]).filter(s => s.start<=key && s.end>=key).forEach(sp => {
       const bar = document.createElement('div');
-      bar.className = 'week-span';
+      bar.className = 'week-span ' + ownerCss(sp.owner || 'joint');
       bar.title     = sp.label;
       col.appendChild(bar);
     });
@@ -1099,9 +1160,9 @@ function buildWeek() {
     // Day events
     (calStore.days[key]||[]).forEach(ev => {
       const chip = document.createElement('div');
-      chip.className   = 'week-event';
-      chip.textContent = ev;
-      chip.title       = ev;
+      chip.className   = 'week-event ' + ownerCss(evOwner(ev));
+      chip.textContent = evLabel(ev);
+      chip.title       = evLabel(ev);
       chip.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
       col.appendChild(chip);
     });
@@ -1133,7 +1194,7 @@ function buildDay() {
   // Span pills
   (calStore.spans||[]).filter(s => s.start<=key && s.end>=key).forEach(sp => {
     const pill = document.createElement('div');
-    pill.className   = 'day-span-pill';
+    pill.className   = 'day-span-pill ' + ownerCss(sp.owner || 'joint');
     pill.textContent = sp.label;
     wrap.appendChild(pill);
   });
@@ -1148,11 +1209,15 @@ function buildDay() {
   }
 
   evs.forEach((ev, i) => {
+    const owner = evOwner(ev);
+    const label = evLabel(ev);
     const row = document.createElement('div');
     row.className = 'day-event-row';
 
-    const dot = document.createElement('div'); dot.className='day-event-dot';
-    const txt = document.createElement('div'); txt.className='day-event-txt'; txt.textContent=ev;
+    const dot = document.createElement('div');
+    dot.className='day-event-dot';
+    dot.style.setProperty('--owner-clr', ownerClr(owner));
+    const txt = document.createElement('div'); txt.className='day-event-txt'; txt.textContent=label;
     const del = document.createElement('button');
     del.className   = 'day-del';
     del.textContent = '×';
@@ -1163,8 +1228,8 @@ function buildDay() {
     });
 
     // Tap to edit
-    txt.addEventListener('click', () => openEditOverlay(ev, v => {
-      if (v) { calStore.days[key][i]=v; saveCal(); }
+    txt.addEventListener('click', () => openEditOverlay(label, owner, (v, o) => {
+      if (v) { calStore.days[key][i] = evObj(v, o); saveCal(); }
       renderCal();
     }));
 
@@ -1173,8 +1238,15 @@ function buildDay() {
   });
 
   // Add row
+  const addWrap = document.createElement('div');
+  addWrap.style.cssText = 'margin-top:1rem; padding-top:0.75rem; border-top:1.5px dashed var(--border);';
+  const pick = makeOwnerPick('joint');
+  pick.el.style.marginBottom = '6px';
+  addWrap.appendChild(pick.el);
+
   const addRow = document.createElement('div');
   addRow.className = 'day-add-row';
+  addRow.style.cssText = 'margin-top:0; padding-top:0; border-top:none;';
 
   const inp = document.createElement('input');
   inp.className    = 'day-add-inp';
@@ -1189,11 +1261,10 @@ function buildDay() {
     const v = inp.value.trim();
     if (!v) return;
     if (!calStore.days[key]) calStore.days[key] = [];
-    calStore.days[key].push(v);
+    calStore.days[key].push(evObj(v, pick.get()));
     saveCal();
     inp.value = '';
     renderCal();
-    // re-focus after render
     setTimeout(() => {
       const newInp = document.querySelector('.day-add-inp');
       if (newInp) newInp.focus();
@@ -1203,7 +1274,8 @@ function buildDay() {
   inp.addEventListener('keydown', e => { if (e.key==='Enter') addEv(); });
   btn.addEventListener('click', addEv);
   addRow.appendChild(inp); addRow.appendChild(btn);
-  wrap.appendChild(addRow);
+  addWrap.appendChild(addRow);
+  wrap.appendChild(addWrap);
 
   setTimeout(() => inp.focus(), 100);
   return wrap;
@@ -1212,16 +1284,19 @@ function buildDay() {
 // ─────────────────────────────────────────────
 //  EDIT OVERLAY (day events)
 // ─────────────────────────────────────────────
-function openEditOverlay(value, onSave) {
+function openEditOverlay(value, currentOwner, onSave) {
   const overlay = document.createElement('div');
   overlay.className = 'edit-overlay';
 
   const box = document.createElement('div');
   box.className = 'edit-box';
 
-  const label = document.createElement('div');
-  label.style.cssText = 'font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:2px;';
-  label.textContent   = 'EDIT EVENT';
+  const lbl = document.createElement('div');
+  lbl.style.cssText = 'font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:4px;';
+  lbl.textContent   = 'EDIT EVENT';
+
+  const pick = makeOwnerPick(currentOwner || 'joint');
+  pick.el.style.marginBottom = '6px';
 
   const inp = document.createElement('input');
   inp.value = value;
@@ -1232,7 +1307,7 @@ function openEditOverlay(value, onSave) {
   const ok = document.createElement('button');
   ok.className   = 'edit-ok';
   ok.textContent = 'save';
-  ok.onclick = () => { overlay.remove(); onSave(inp.value.trim()); };
+  ok.onclick = () => { overlay.remove(); onSave(inp.value.trim(), pick.get()); };
 
   const cancel = document.createElement('button');
   cancel.className   = 'edit-cancel';
@@ -1245,7 +1320,7 @@ function openEditOverlay(value, onSave) {
   });
 
   btns.appendChild(ok); btns.appendChild(cancel);
-  box.appendChild(label); box.appendChild(inp); box.appendChild(btns);
+  box.appendChild(lbl); box.appendChild(pick.el); box.appendChild(inp); box.appendChild(btns);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
   setTimeout(() => inp.focus(), 50);
