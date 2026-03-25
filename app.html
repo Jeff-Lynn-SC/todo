@@ -442,7 +442,6 @@ let viewMonth = viewDate.getMonth();
 let calStore    = { days: {}, spans: [] };
 let jeffTasks   = [];
 let maryamTasks = [];
-let calSha = null, jeffSha = null, maryamSha = null;
 let currentTab  = 'cal';
 
 // Drag-to-select state (week/month)
@@ -484,12 +483,15 @@ async function ghGet(path) {
   return res.json();
 }
 
-async function ghPut(path, data, sha, msg) {
+async function ghPut(path, data, msg) {
   const pat = getPat();
   if (!pat) return null;
+  // Always fetch current SHA to avoid stale-SHA conflicts when both
+  // this app and a standalone app have written to the same file.
+  const current = await ghGet(path);
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const body = { message: msg, content };
-  if (sha) body.sha = sha;
+  if (current) body.sha = current.sha;
   const res = await fetch(ghUrl(path), {
     method: 'PUT',
     headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
@@ -517,22 +519,21 @@ async function loadAll() {
   ]);
 
   if (cm) {
-    calSha = cm.sha;
     const d = parseFile(cm);
     if (d && typeof d === 'object' && !Array.isArray(d)) calStore = d;
   }
   if (!calStore.days)  calStore.days  = {};
   if (!calStore.spans) calStore.spans = [];
 
-  if (jm) { jeffSha = jm.sha; const d = parseFile(jm); if (Array.isArray(d)) jeffTasks = d; }
-  if (mm) { maryamSha = mm.sha; const d = parseFile(mm); if (Array.isArray(d)) maryamTasks = d; }
+  if (jm) { const d = parseFile(jm); if (Array.isArray(d)) jeffTasks = d; }
+  if (mm) { const d = parseFile(mm); if (Array.isArray(d)) maryamTasks = d; }
 
   renderAll();
 }
 
-function saveCal()    { ghPut('events.json',      calStore,    calSha,    'update calendar').then(d => { if (d?.content) calSha    = d.content.sha; }); }
-function saveJeff()   { ghPut('tasks.json',        jeffTasks,   jeffSha,   'update jeff').then(d    => { if (d?.content) jeffSha   = d.content.sha; }); }
-function saveMaryam() { ghPut('maryam-tasks.json', maryamTasks, maryamSha, 'update maryam').then(d  => { if (d?.content) maryamSha = d.content.sha; }); }
+function saveCal()    { ghPut('events.json',      calStore,    'update calendar'); }
+function saveJeff()   { ghPut('tasks.json',        jeffTasks,   'update jeff'); }
+function saveMaryam() { ghPut('maryam-tasks.json', maryamTasks, 'update maryam'); }
 
 function renderAll() { renderCal(); renderJeff(); renderMaryam(); }
 
