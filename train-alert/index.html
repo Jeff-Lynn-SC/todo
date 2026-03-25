@@ -116,6 +116,87 @@
       display: none;
     }
 
+    .btn-danger {
+      background: transparent;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+      margin-top: 8px;
+    }
+
+    /* Saved stations list */
+    .station-list { margin-bottom: 12px; }
+
+    .station-item {
+      display: flex;
+      align-items: center;
+      background: #0f3460;
+      border: 1px solid #1a4a7a;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+
+    .station-item-info {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .station-item-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .station-item-dist {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    .station-item-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .station-item-actions button {
+      width: auto;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      margin: 0;
+    }
+
+    .btn-track {
+      background: #7ec8e3;
+      color: #1a1a2e;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #666;
+      font-size: 0.85rem;
+      padding: 12px 0;
+    }
+
+    /* collapsible add form */
+    #addFormToggle {
+      background: #0f3460;
+      color: #7ec8e3;
+      border: 1px dashed #1a4a7a;
+      margin-top: 0;
+      font-size: 0.9rem;
+      padding: 10px;
+    }
+
+    #addForm { margin-top: 14px; }
+
     .status-box {
       border-radius: 12px;
       padding: 16px;
@@ -193,29 +274,30 @@
   <h1>🚂 Train Alert</h1>
   <p class="subtitle">Get notified before your stop</p>
 
-  <!-- STATION SETUP -->
-  <div class="card" id="setupCard">
-    <h2>Station Location</h2>
-
-    <label>Station name</label>
-    <input type="text" id="stationName" placeholder="e.g. Central Station">
-
-    <div class="row">
-      <div>
-        <label>Latitude</label>
-        <input type="number" id="lat" placeholder="51.5074" step="any">
+  <!-- SAVED STATIONS -->
+  <div class="card">
+    <h2>My Stations</h2>
+    <div class="station-list" id="stationList"></div>
+    <button id="addFormToggle" onclick="toggleAddForm()">＋ Add a station</button>
+    <div id="addForm" style="display:none">
+      <label>Station name</label>
+      <input type="text" id="stationName" placeholder="e.g. Central Station">
+      <div class="row">
+        <div>
+          <label>Latitude</label>
+          <input type="number" id="lat" placeholder="51.5074" step="any">
+        </div>
+        <div>
+          <label>Longitude</label>
+          <input type="number" id="lng" placeholder="-0.1278" step="any">
+        </div>
       </div>
-      <div>
-        <label>Longitude</label>
-        <input type="number" id="lng" placeholder="-0.1278" step="any">
-      </div>
+      <label>Alert distance (metres)</label>
+      <input type="number" id="alertDist" value="500" min="50" max="5000">
+      <button class="btn-secondary" onclick="useCurrentLocation()">📍 I'm at the station — use my location</button>
+      <button class="btn-primary" style="margin-top:10px" onclick="saveStation()">Save Station</button>
+      <p class="tip">Look up coordinates: <strong>maps.apple.com</strong> → drop a pin → share → copy</p>
     </div>
-
-    <label>Alert distance (metres)</label>
-    <input type="number" id="alertDist" value="500" min="50" max="5000">
-
-    <button class="btn-secondary" onclick="useCurrentLocation()">📍 I'm at the station — use my location</button>
-    <p class="tip">Or look up coordinates at <strong>maps.apple.com</strong> → drop a pin → share → copy</p>
   </div>
 
   <!-- STATUS -->
@@ -224,7 +306,7 @@
     <div id="statusBox" class="status-box status-idle">
       <div class="status-icon">🛑</div>
       <div class="status-text">Not tracking</div>
-      <div class="status-sub">Set a station and press Start</div>
+      <div class="status-sub">Tap Track on a saved station</div>
     </div>
     <div id="distanceDisplay" style="display:none">
       <div class="distance-big" id="distanceVal">—</div>
@@ -233,11 +315,8 @@
         <span id="accuracy">—</span>
       </div>
     </div>
-    <button class="btn-primary" id="startBtn" onclick="startTracking()">Start Tracking</button>
-    <button class="btn-stop"    id="stopBtn"  onclick="stopTracking()">Stop</button>
+    <button class="btn-stop" id="stopBtn" onclick="stopTracking()">Stop Tracking</button>
   </div>
-
-  <!-- ALERT SOUND (silent by default, played via AudioContext) -->
 
   <!-- FULL-SCREEN ALERT OVERLAY -->
   <div id="alertOverlay">
@@ -252,59 +331,101 @@
   let audioCtx = null;
   let alerted = false;
   let stationLat = null, stationLng = null;
+  let addFormOpen = false;
 
-  // --- persistence ---
-  function save() {
-    localStorage.setItem('trainAlert', JSON.stringify({
-      name: document.getElementById('stationName').value,
-      lat:  document.getElementById('lat').value,
-      lng:  document.getElementById('lng').value,
-      dist: document.getElementById('alertDist').value,
-    }));
+  // --- station storage ---
+  function loadStations() {
+    try { return JSON.parse(localStorage.getItem('trainAlertStations') || '[]'); }
+    catch(e) { return []; }
   }
 
-  function load() {
-    try {
-      const d = JSON.parse(localStorage.getItem('trainAlert') || '{}');
-      if (d.name) document.getElementById('stationName').value = d.name;
-      if (d.lat)  document.getElementById('lat').value  = d.lat;
-      if (d.lng)  document.getElementById('lng').value  = d.lng;
-      if (d.dist) document.getElementById('alertDist').value = d.dist;
-    } catch(e) {}
+  function saveStations(stations) {
+    localStorage.setItem('trainAlertStations', JSON.stringify(stations));
   }
 
-  // --- geolocation ---
-  function startTracking() {
+  function saveStation() {
+    const name = document.getElementById('stationName').value.trim();
     const lat  = parseFloat(document.getElementById('lat').value);
     const lng  = parseFloat(document.getElementById('lng').value);
-    const name = document.getElementById('stationName').value.trim() || 'your station';
     const dist = parseInt(document.getElementById('alertDist').value) || 500;
 
-    if (isNaN(lat) || isNaN(lng)) {
-      alert('Please enter valid coordinates for your station first.');
+    if (!name) { alert('Please enter a station name.'); return; }
+    if (isNaN(lat) || isNaN(lng)) { alert('Please enter valid coordinates.'); return; }
+
+    const stations = loadStations();
+    stations.push({ id: Date.now(), name, lat, lng, dist });
+    saveStations(stations);
+
+    // reset form
+    document.getElementById('stationName').value = '';
+    document.getElementById('lat').value = '';
+    document.getElementById('lng').value = '';
+    document.getElementById('alertDist').value = '500';
+    toggleAddForm(false);
+    renderStations();
+  }
+
+  function deleteStation(id) {
+    const stations = loadStations().filter(s => s.id !== id);
+    saveStations(stations);
+    renderStations();
+  }
+
+  function renderStations() {
+    const stations = loadStations();
+    const list = document.getElementById('stationList');
+
+    if (stations.length === 0) {
+      list.innerHTML = '<div class="empty-state">No stations saved yet</div>';
       return;
     }
 
-    save();
-    stationLat = lat;
-    stationLng = lng;
+    list.innerHTML = stations.map(s => `
+      <div class="station-item">
+        <div class="station-item-info" onclick="startTracking(${s.id})">
+          <div class="station-item-name">🚉 ${s.name}</div>
+          <div class="station-item-dist">Alert at ${s.dist} m</div>
+        </div>
+        <div class="station-item-actions">
+          <button class="btn-track" onclick="startTracking(${s.id})">Track</button>
+          <button class="btn-delete" onclick="deleteStation(${s.id})">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // --- add form toggle ---
+  function toggleAddForm(forceState) {
+    addFormOpen = forceState !== undefined ? forceState : !addFormOpen;
+    document.getElementById('addForm').style.display = addFormOpen ? 'block' : 'none';
+    document.getElementById('addFormToggle').textContent = addFormOpen ? '✕ Cancel' : '＋ Add a station';
+  }
+
+  // --- geolocation ---
+  function startTracking(stationId) {
+    const stations = loadStations();
+    const station = stations.find(s => s.id === stationId);
+    if (!station) return;
+
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); }
+
+    stationLat = station.lat;
+    stationLng = station.lng;
     alerted = false;
 
     // unlock audio on iOS (must be inside user gesture)
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // request notification permission
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
 
-    setStatus('tracking', '📡', 'Tracking…', `Looking for ${name}`);
+    setStatus('tracking', '📡', 'Tracking…', `Looking for ${station.name}`);
     document.getElementById('distanceDisplay').style.display = 'block';
-    document.getElementById('startBtn').style.display = 'none';
     document.getElementById('stopBtn').style.display = 'block';
 
     watchId = navigator.geolocation.watchPosition(
-      pos => onPosition(pos, dist, name),
+      pos => onPosition(pos, station.dist, station.name),
       err => onError(err),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
     );
@@ -312,9 +433,8 @@
 
   function stopTracking() {
     if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-    setStatus('idle', '🛑', 'Not tracking', 'Set a station and press Start');
+    setStatus('idle', '🛑', 'Not tracking', 'Tap Track on a saved station');
     document.getElementById('distanceDisplay').style.display = 'none';
-    document.getElementById('startBtn').style.display = 'block';
     document.getElementById('stopBtn').style.display = 'none';
     alerted = false;
   }
@@ -348,18 +468,15 @@
   }
 
   function triggerAlert(name, dist) {
-    // visual
     document.getElementById('alertTitle').textContent = `Approaching ${name}!`;
     document.getElementById('alertBody').textContent  = `You are ${dist} away. Get ready to disembark!`;
     document.getElementById('alertOverlay').classList.add('show');
     setStatus('arrived', '🚨', 'STATION APPROACHING', `Get ready!`);
 
-    // audio beeps
     if (audioCtx) {
       for (let i = 0; i < 5; i++) setTimeout(() => beep(audioCtx), i * 400);
     }
 
-    // system notification (works when screen is on)
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`🚂 Approaching ${name}`, {
         body: `You are ${dist} away. Get ready!`,
@@ -369,7 +486,6 @@
       });
     }
 
-    // vibrate
     if ('vibrate' in navigator) navigator.vibrate([500, 200, 500, 200, 500]);
   }
 
@@ -377,7 +493,6 @@
     document.getElementById('alertOverlay').classList.remove('show');
   }
 
-  // --- use current location as station ---
   function useCurrentLocation() {
     if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
     navigator.geolocation.getCurrentPosition(pos => {
@@ -414,11 +529,23 @@
   }
 
   // --- init ---
-  load();
+  // migrate old single-station data if present
+  try {
+    const old = JSON.parse(localStorage.getItem('trainAlert') || 'null');
+    if (old && old.name && old.lat) {
+      const stations = loadStations();
+      if (stations.length === 0) {
+        stations.push({ id: Date.now(), name: old.name, lat: parseFloat(old.lat), lng: parseFloat(old.lng), dist: parseInt(old.dist) || 500 });
+        saveStations(stations);
+        localStorage.removeItem('trainAlert');
+      }
+    }
+  } catch(e) {}
+
+  renderStations();
 
   if (!navigator.geolocation) {
-    document.getElementById('startBtn').disabled = true;
-    document.getElementById('startBtn').textContent = 'GPS not supported';
+    document.getElementById('stopBtn').disabled = true;
   }
 </script>
 </body>
