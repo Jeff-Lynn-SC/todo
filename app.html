@@ -525,8 +525,8 @@ async function loadAll() {
   if (!calStore.days)  calStore.days  = {};
   if (!calStore.spans) calStore.spans = [];
 
-  if (jm) { const d = parseFile(jm); if (Array.isArray(d)) jeffTasks = d; }
-  if (mm) { const d = parseFile(mm); if (Array.isArray(d)) maryamTasks = d; }
+  if (jm) { const d = parseFile(jm); if (Array.isArray(d)) { jeffTasks.length = 0; jeffTasks.push(...d); } }
+  if (mm) { const d = parseFile(mm); if (Array.isArray(d)) { maryamTasks.length = 0; maryamTasks.push(...d); } }
 
   renderAll();
 }
