@@ -37,8 +37,8 @@ h1 {
 svg { display: block; width: 100%; height: auto; }
 
 @keyframes nodeGlow {
-  0%, 100% { opacity: 0.7; stroke-width: 4; }
-  50%       { opacity: 1;   stroke-width: 5.5; }
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1;   }
 }
 .hl-shape { animation: nodeGlow 1.5s ease-in-out infinite; }
 
@@ -52,7 +52,6 @@ svg { display: block; width: 100%; height: auto; }
 .leg-lines { font-family: 'EB Garamond', serif; font-style: italic; font-size: 1rem; color: #7aaa58; line-height: 1.85; }
 .leg-lines span { display: block; padding-left: 0.75rem; border-left: 1.5px solid #3a6820; }
 
-/* ── Begin button ── */
 #begin-btn {
   margin-top: 2rem;
   font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 0.1em;
@@ -65,7 +64,6 @@ svg { display: block; width: 100%; height: auto; }
 #begin-btn:hover { background: rgba(40,80,20,0.95); }
 #begin-btn:active { transform: scale(0.97); }
 
-/* ── Walk panel ── */
 #walk-panel {
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
@@ -76,58 +74,27 @@ svg { display: block; width: 100%; height: auto; }
 }
 #walk-panel.active { display: block; }
 
-.walk-top {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 0.7rem;
-}
-#walk-step-label {
-  font-family: 'Cinzel', serif; font-size: 0.68rem; color: #7aaa58;
-  letter-spacing: 0.14em; text-transform: uppercase;
-}
-#exit-walk {
-  background: none; border: 1px solid #3a6820; color: #7aaa58;
-  font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.85rem;
-  padding: 0.2rem 0.65rem; cursor: pointer; border-radius: 2px;
-}
+.walk-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.7rem; }
+#walk-step-label { font-family: 'Cinzel', serif; font-size: 0.68rem; color: #7aaa58; letter-spacing: 0.14em; text-transform: uppercase; }
+#exit-walk { background: none; border: 1px solid #3a6820; color: #7aaa58; font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.85rem; padding: 0.2rem 0.65rem; cursor: pointer; border-radius: 2px; }
 
-#walk-text {
-  font-family: 'EB Garamond', serif; font-size: 1.3rem;
-  color: #e8d888; line-height: 1.35; margin-bottom: 1rem;
-}
+#walk-text { font-family: 'EB Garamond', serif; font-size: 1.3rem; color: #e8d888; line-height: 1.35; margin-bottom: 1rem; }
 
-/* ── Nutella timer ── */
-#nutella-timer {
-  display: none; text-align: center;
-  padding: 0.6rem 0 0.9rem; margin-bottom: 0.8rem;
-  border-bottom: 1px solid #2a5010;
-}
-.timer-wrap {
-  display: inline-flex; align-items: center; gap: 1.2rem;
-}
-.timer-ring-svg {
-  width: 80px; height: 80px;
-  transform: rotate(-90deg); overflow: visible;
-}
+#nutella-timer { display: none; text-align: center; padding: 0.6rem 0 0.9rem; margin-bottom: 0.8rem; border-bottom: 1px solid #2a5010; }
+.timer-wrap { display: inline-flex; align-items: center; gap: 1.2rem; }
+.timer-ring-svg { width: 80px; height: 80px; transform: rotate(-90deg); overflow: visible; }
 #timer-track    { stroke: #1e3a10; fill: none; }
 #timer-progress { stroke: #7aaa58; fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
 .timer-info { text-align: left; }
-#timer-display {
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 1.8rem; color: #e8d888; line-height: 1;
-}
-#timer-sublabel {
-  font-family: 'EB Garamond', serif; font-style: italic;
-  font-size: 0.85rem; color: #7aaa58; margin-top: 0.25rem;
-}
+#timer-display  { font-family: 'DM Mono','Courier New',monospace; font-size: 1.8rem; color: #e8d888; line-height: 1; }
+#timer-sublabel { font-family: 'EB Garamond', serif; font-style: italic; font-size: 0.85rem; color: #7aaa58; margin-top: 0.25rem; }
 
-/* ── Walk buttons ── */
 .walk-btn-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
 .walk-btn {
   font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.05em;
   padding: 0.65rem 1.2rem; cursor: pointer; border-radius: 3px;
   border: 1.5px solid #4a7c28; flex: 1; min-width: 80px; text-align: center;
-  transition: transform 0.1s, opacity 0.1s;
-  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s, opacity 0.1s; -webkit-tap-highlight-color: transparent;
 }
 .walk-btn:active { transform: scale(0.95); opacity: 0.8; }
 .walk-btn-yes  { background: #2a5018; color: #c4e8a0; }
@@ -137,29 +104,15 @@ svg { display: block; width: 100%; height: auto; }
 .walk-btn-try  { background: #2a5018; color: #c4e8a0; }
 .walk-btn-later{ background: transparent; color: #7aaa58; }
 
-/* ── Nutella overlay ── */
-#nutella-overlay {
-  display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(6,14,3,0.96);
-  align-items: center; justify-content: center; padding: 2rem;
-}
+#nutella-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(6,14,3,0.96); align-items: center; justify-content: center; padding: 2rem; }
 #nutella-overlay.show { display: flex; }
-.nutella-card {
-  background: #0e1e08; border: 2px solid #4a7c28; border-radius: 10px;
-  padding: 2.5rem 2rem; max-width: 340px; width: 100%; text-align: center;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.7);
-  animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-}
+.nutella-card { background: #0e1e08; border: 2px solid #4a7c28; border-radius: 10px; padding: 2.5rem 2rem; max-width: 340px; width: 100%; text-align: center; box-shadow: 0 24px 64px rgba(0,0,0,0.7); animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
 @keyframes popIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 .nutella-emoji { font-size: 3.5rem; margin-bottom: 0.6rem; }
 .nutella-word  { font-family: 'Cinzel', serif; font-size: 1.7rem; color: #e8d888; letter-spacing: 0.1em; margin-bottom: 1.2rem; }
 .nutella-lines { font-family: 'EB Garamond', serif; font-style: italic; font-size: 1.1rem; color: #7aaa58; line-height: 2; margin-bottom: 1.75rem; }
 .nutella-lines span { display: block; }
-.nutella-dismiss {
-  width: 100%; font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.07em;
-  background: #2a5018; color: #c4e8a0; border: 1.5px solid #4a7c28;
-  border-radius: 3px; padding: 0.8rem 1.5rem; cursor: pointer;
-}
+.nutella-dismiss { width: 100%; font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 0.07em; background: #2a5018; color: #c4e8a0; border: 1.5px solid #4a7c28; border-radius: 3px; padding: 0.8rem 1.5rem; cursor: pointer; }
 
 @media print {
   body { background: #fff; padding: 0; }
@@ -192,7 +145,6 @@ svg { display: block; width: 100%; height: auto; }
     <feBlend in="SourceGraphic" mode="multiply" result="blend"/>
     <feComposite in="blend" in2="SourceGraphic" operator="in"/>
   </filter>
-  <!-- Golden glow for active node highlight -->
   <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
     <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
     <feFlood flood-color="#e8c840" flood-opacity="0.9" result="color"/>
@@ -246,7 +198,7 @@ svg { display: block; width: 100%; height: auto; }
   <circle cx="50" cy="11" r="2" fill="#8ab84a" opacity="0.55"/>
 </g>
 
-<!-- Small leaf accents -->
+<!-- Small leaf accents beside start and bottom nodes -->
 <ellipse cx="226" cy="90" rx="5" ry="12" transform="rotate(-30,226,90)" fill="#4a7c30" opacity="0.45"/>
 <ellipse cx="434" cy="90" rx="5" ry="12" transform="rotate(30,434,90)"  fill="#4a7c30" opacity="0.45"/>
 <g opacity="0.35" transform="translate(196,758)">
@@ -258,83 +210,227 @@ svg { display: block; width: 100%; height: auto; }
   <ellipse cx="14" cy="14" rx="4" ry="10" transform="rotate(5,14,14)"  fill="#4a7c30"/>
 </g>
 
-<!-- ── Flowchart shapes (with IDs for JS highlight) ── -->
-<ellipse id="node-start"   cx="330" cy="90"  rx="110" ry="27"  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<text x="330" y="90" text-anchor="middle" dominant-baseline="middle" font-family="'EB Garamond',serif" font-size="14.5" fill="#0e1e06">I come home</text>
+<!-- ══════════════════════════════════════════════════════
+     SHAPES
+     Terminals  → pointed leaves (horizontal, both ends sharp)
+     Decisions  → seed pods (rounded diamond, convex sides)
+     Process    → unfurled scrolls (banner/ribbon with wavy edges)
+     ══════════════════════════════════════════════════════ -->
 
-<polygon id="node-q1"      points="330,152 480,202 330,252 180,202" fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 1 ── START — leaf ──────────────────────────────────── -->
+<path id="node-start"
+  d="M 220,90
+     C 248,60 312,58 330,58
+     C 348,58 412,60 440,90
+     C 412,120 348,122 330,122
+     C 312,122 248,120 220,90 Z"
+  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- leaf vein -->
+<line x1="224" y1="90" x2="436" y2="90" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+<text x="330" y="90" text-anchor="middle" dominant-baseline="middle"
+      font-family="'EB Garamond',serif" font-size="14.5" fill="#0e1e06">I come home</text>
+
+<!-- 2 ── Q1 — seed pod ─────────────────────────────────── -->
+<!-- top(330,152) right(480,202) bot(330,252) left(180,202) — sides now convex curves -->
+<path id="node-q1"
+  d="M 330,152
+     C 400,152 480,178 480,202
+     C 480,226 400,252 330,252
+     C 260,252 180,226 180,202
+     C 180,178 260,152 330,152 Z"
+  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- seed dots at centre -->
+<circle cx="319" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="330" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="341" cy="202" r="2.2" fill="#8c6820" opacity="0.4"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="196">Do I need my</tspan>
   <tspan x="330" dy="14">space right now?</tspan>
 </text>
 <text x="257" y="193" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q1</text>
 
-<rect id="node-nutella"    x="498" y="175" width="148" height="70" fill="#b8d098" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 3 ── NUTELLA — scroll ──────────────────────────────── -->
+<!-- Unfurled banner: pointed ends left & right, wavy top & bottom -->
+<path id="node-nutella"
+  d="M 505,175
+     C 530,168 558,178 572,175
+     C 586,172 618,168 641,175
+     L 646,210
+     L 641,245
+     C 618,252 586,242 572,245
+     C 558,248 530,252 505,245
+     L 500,210 Z"
+  fill="#b8d098" stroke="#1e3a10" stroke-width="2.2"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12" fill="#0e1e06">
   <tspan x="572" y="197">Dad says</tspan>
   <tspan x="572" dy="15" font-style="italic" font-size="14">"Nutella"</tspan>
   <tspan x="572" dy="15">after 1 hour</tspan>
 </text>
 
-<polygon id="node-q2"      points="330,320 495,372 330,424 165,372" fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 4 ── Q2 — seed pod ─────────────────────────────────── -->
+<path id="node-q2"
+  d="M 330,320
+     C 406,320 495,348 495,372
+     C 495,396 406,424 330,424
+     C 254,424 165,396 165,372
+     C 165,348 254,320 330,320 Z"
+  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<circle cx="319" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="330" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="341" cy="372" r="2.2" fill="#8c6820" opacity="0.4"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="365">Do I need to do</tspan>
   <tspan x="330" dy="14">anything today?</tspan>
 </text>
 <text x="243" y="365" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q2</text>
 
-<ellipse id="node-feetup"  cx="78"  cy="372" rx="68"  ry="27"  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<text x="78" y="372" text-anchor="middle" dominant-baseline="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#0e1e06">Put my feet up</text>
+<!-- 5 ── FEET UP — leaf ────────────────────────────────── -->
+<path id="node-feetup"
+  d="M 10,372
+     C 30,344 55,341 78,341
+     C 101,341 126,344 146,372
+     C 126,400 101,403 78,403
+     C 55,403 30,400 10,372 Z"
+  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
+<line x1="13" y1="372" x2="143" y2="372" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+<text x="78" y="372" text-anchor="middle" dominant-baseline="middle"
+      font-family="'EB Garamond',serif" font-size="12.5" fill="#0e1e06">Put my feet up</text>
 
-<rect id="node-todo"       x="220" y="471" width="220" height="62" fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 6 ── TODO — scroll ─────────────────────────────────── -->
+<path id="node-todo"
+  d="M 228,471
+     C 264,464 298,474 330,471
+     C 362,468 396,464 432,471
+     L 438,502
+     L 432,533
+     C 396,540 362,530 330,533
+     C 298,536 264,540 228,533
+     L 222,502 Z"
+  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="496">Write it into the</tspan>
   <tspan x="330" dy="16">ordered to-do list</tspan>
 </text>
 
-<polygon id="node-q3"      points="330,580 475,632 330,684 185,632" fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 7 ── Q3 — seed pod ─────────────────────────────────── -->
+<path id="node-q3"
+  d="M 330,580
+     C 403,580 475,608 475,632
+     C 475,656 403,684 330,684
+     C 257,684 185,656 185,632
+     C 185,608 257,580 330,580 Z"
+  fill="#edd89e" stroke="#1e3a10" stroke-width="2.2"/>
+<circle cx="319" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="330" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
+<circle cx="341" cy="632" r="2.2" fill="#8c6820" opacity="0.4"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="625">Can I start</tspan>
   <tspan x="330" dy="14">straight away?</tspan>
 </text>
 <text x="252" y="625" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q3</text>
 
-<ellipse id="node-gostart" cx="566" cy="632" rx="74"  ry="27"  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
-<text x="566" y="632" text-anchor="middle" dominant-baseline="middle" font-family="'EB Garamond',serif" font-size="15" font-weight="500" fill="#0e1e06">Start!</text>
+<!-- 8 ── START! — leaf ─────────────────────────────────── -->
+<path id="node-gostart"
+  d="M 492,632
+     C 514,604 543,601 566,601
+     C 589,601 618,604 640,632
+     C 618,660 589,663 566,663
+     C 543,663 514,660 492,632 Z"
+  fill="#c4dba8" stroke="#1e3a10" stroke-width="2.2"/>
+<line x1="495" y1="632" x2="637" y2="632" stroke="#2a5518" stroke-width="0.7" opacity="0.35"/>
+<text x="566" y="632" text-anchor="middle" dominant-baseline="middle"
+      font-family="'EB Garamond',serif" font-size="15" font-weight="500" fill="#0e1e06">Start!</text>
 
-<rect id="node-q4"         x="216" y="749" width="228" height="62" fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 9 ── Q4 — scroll ──────────────────────────────────── -->
+<path id="node-q4"
+  d="M 224,749
+     C 262,742 297,752 330,749
+     C 363,746 398,742 436,749
+     L 442,780
+     L 436,811
+     C 398,818 363,808 330,811
+     C 297,814 262,818 224,811
+     L 218,780 Z"
+  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="774">How can I make it</tspan>
   <tspan x="330" dy="16">easier to start now?</tspan>
 </text>
-<text x="225" y="765" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q4</text>
+<text x="232" y="765" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q4</text>
 
-<rect id="node-q5"         x="216" y="879" width="228" height="62" fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
+<!-- 10 ── Q5 — scroll ─────────────────────────────────── -->
+<path id="node-q5"
+  d="M 224,879
+     C 262,872 297,882 330,879
+     C 363,876 398,872 436,879
+     L 442,910
+     L 436,941
+     C 398,948 363,938 330,941
+     C 297,944 262,948 224,941
+     L 218,910 Z"
+  fill="#ede2c0" stroke="#1e3a10" stroke-width="2.2"/>
 <text text-anchor="middle" font-family="'EB Garamond',serif" font-size="12.5" fill="#1a0e00">
   <tspan x="330" y="904">When can I start?</tspan>
   <tspan x="330" dy="16">Schedule it</tspan>
 </text>
-<text x="225" y="895" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q5</text>
+<text x="232" y="895" font-family="'EB Garamond',serif" font-size="9" font-style="italic" fill="#8c6820">Q5</text>
 
-<!-- ── Arrows ── -->
-<line x1="330" y1="117" x2="330" y2="150" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<line x1="330" y1="253" x2="330" y2="318" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+<!-- ══════════════════════════════════════════
+     ARROWS
+     ══════════════════════════════════════════ -->
+
+<!-- A ── Start → Q1 -->
+<line x1="330" y1="122" x2="330" y2="150"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- B ── Q1 No → Q2 -->
+<line x1="330" y1="253" x2="330" y2="318"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="289" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
-<line x1="481" y1="202" x2="496" y2="202" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- C ── Q1 Yes → Nutella -->
+<line x1="481" y1="202" x2="498" y2="202"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="483" y="194" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
-<polyline points="646,210 638,210 638,55 22,55 22,202 178,202" fill="none" stroke="#4a7c2a" stroke-width="1.6" stroke-dasharray="7,4" marker-end="url(#arr2)"/>
-<line x1="164" y1="372" x2="147" y2="372" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- D ── Nutella loop → Q1 (dashed, over the top) -->
+<polyline points="646,210 650,210 650,55 22,55 22,202 178,202"
+          fill="none" stroke="#4a7c2a" stroke-width="1.6"
+          stroke-dasharray="7,4" marker-end="url(#arr2)"/>
+
+<!-- E ── Q2 No → Feet up -->
+<line x1="164" y1="372" x2="148" y2="372"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="152" y="364" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
-<line x1="330" y1="425" x2="330" y2="469" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- F ── Q2 Yes → Todo -->
+<line x1="330" y1="425" x2="330" y2="469"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="451" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
-<line x1="330" y1="533" x2="330" y2="578" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<line x1="476" y1="632" x2="490" y2="632" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- G ── Todo → Q3 -->
+<line x1="330" y1="534" x2="330" y2="578"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- H ── Q3 Yes → Start! -->
+<line x1="476" y1="632" x2="490" y2="632"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="477" y="624" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">Yes</text>
-<line x1="330" y1="685" x2="330" y2="747" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- I ── Q3 No → Q4 -->
+<line x1="330" y1="685" x2="330" y2="747"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="720" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">No</text>
-<polyline points="216,780 148,780 148,632 183,632" fill="none" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
-<text x="181" y="773" text-anchor="middle" font-family="'EB Garamond',serif" font-size="11" font-style="italic" fill="#4a6c28">try again</text>
-<line x1="330" y1="811" x2="330" y2="877" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+
+<!-- J ── Q4 try again → Q3 (left side route) -->
+<polyline points="218,780 148,780 148,632 183,632"
+          fill="none" stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="181" y="773" text-anchor="middle"
+      font-family="'EB Garamond',serif" font-size="11" font-style="italic" fill="#4a6c28">try again</text>
+
+<!-- K ── Q4 not yet → Q5 -->
+<line x1="330" y1="812" x2="330" y2="877"
+      stroke="#1e3a10" stroke-width="1.6" marker-end="url(#arr)"/>
 <text x="337" y="848" font-family="'EB Garamond',serif" font-size="12" font-style="italic" fill="#4a6c28">not yet</text>
 
 <!-- Highlight layer — populated by JS -->
@@ -359,7 +455,6 @@ svg { display: block; width: 100%; height: auto; }
 
 <button id="begin-btn" onclick="beginWalk()">✦ Begin walkthrough</button>
 
-<!-- Walk panel (slides up from bottom) -->
 <div id="walk-panel">
   <div class="walk-top">
     <span id="walk-step-label">Welcome</span>
@@ -381,7 +476,6 @@ svg { display: block; width: 100%; height: auto; }
   <div class="walk-btn-row" id="walk-buttons"></div>
 </div>
 
-<!-- Nutella reveal overlay -->
 <div id="nutella-overlay">
   <div class="nutella-card">
     <div class="nutella-emoji">🍫</div>
@@ -398,20 +492,6 @@ svg { display: block; width: 100%; height: auto; }
 </div>
 
 <script>
-// ── Node shape data (for drawing the highlight overlay) ──────────────────
-const NODES = {
-  start:   { type: 'ellipse', cx: 330, cy: 90,  rx: 116, ry: 33,        scrollY: 90  },
-  q1:      { type: 'polygon', pts: '330,148 484,202 330,256 176,202',   scrollY: 202 },
-  nutella: { type: 'rect',    x: 492, y: 169, w: 160, h: 78, r: 3,     scrollY: 210 },
-  q2:      { type: 'polygon', pts: '330,316 499,372 330,428 161,372',   scrollY: 372 },
-  feetup:  { type: 'ellipse', cx: 78,  cy: 372, rx: 74,  ry: 33,       scrollY: 372 },
-  todo:    { type: 'rect',    x: 214, y: 465, w: 228, h: 68, r: 3,     scrollY: 502 },
-  q3:      { type: 'polygon', pts: '330,576 479,632 330,688 181,632',   scrollY: 632 },
-  gostart: { type: 'ellipse', cx: 566, cy: 632, rx: 80,  ry: 33,       scrollY: 632 },
-  q4:      { type: 'rect',    x: 210, y: 743, w: 240, h: 68, r: 3,     scrollY: 780 },
-  q5:      { type: 'rect',    x: 210, y: 873, w: 240, h: 68, r: 3,     scrollY: 910 },
-};
-
 // ── Flow definition ──────────────────────────────────────────────────────
 const FLOW = {
   start:   { label: 'Welcome',      text: 'I come home',                            type: 'intro',   next: 'q1' },
@@ -426,53 +506,38 @@ const FLOW = {
   q5:      { label: 'Question 5',   text: 'When can I start? Schedule it',         type: 'schedule' },
 };
 
+// Approximate centre-Y of each node in the 660×970 viewBox (for scroll-to)
+const NODE_Y = { start:90, q1:202, nutella:210, q2:372, feetup:372, todo:502, q3:632, gostart:632, q4:780, q5:910 };
+
 // ── State ────────────────────────────────────────────────────────────────
 const TIMER_SECS = 3600;
-const CIRC       = 2 * Math.PI * 40; // r=40 circle circumference
+const CIRC       = 2 * Math.PI * 40;
 let timerInterval = null;
 
-// ── SVG highlight ────────────────────────────────────────────────────────
+// ── SVG highlight — clone the actual path for a pixel-perfect glow ───────
 function highlightNode(id) {
-  const ns = 'http://www.w3.org/2000/svg';
-  const hl = document.getElementById('hl-layer');
+  const hl  = document.getElementById('hl-layer');
   hl.innerHTML = '';
-  const s = NODES[id];
-  if (!s) return;
-  let el;
-  if (s.type === 'ellipse') {
-    el = document.createElementNS(ns, 'ellipse');
-    el.setAttribute('cx', s.cx); el.setAttribute('cy', s.cy);
-    el.setAttribute('rx', s.rx); el.setAttribute('ry', s.ry);
-  } else if (s.type === 'polygon') {
-    el = document.createElementNS(ns, 'polygon');
-    el.setAttribute('points', s.pts);
-  } else {
-    el = document.createElementNS(ns, 'rect');
-    el.setAttribute('x', s.x); el.setAttribute('y', s.y);
-    el.setAttribute('width', s.w); el.setAttribute('height', s.h);
-    if (s.r) el.setAttribute('rx', s.r);
-  }
-  el.setAttribute('fill', 'none');
-  el.setAttribute('stroke', '#e8c840');
-  el.setAttribute('stroke-width', '4');
-  el.setAttribute('filter', 'url(#glow)');
-  el.classList.add('hl-shape');
-  hl.appendChild(el);
+  const src = document.getElementById('node-' + id);
+  if (!src) return;
+  const clone = src.cloneNode(false);
+  clone.removeAttribute('id');
+  clone.setAttribute('fill', 'none');
+  clone.setAttribute('stroke', '#e8c840');
+  clone.setAttribute('stroke-width', '5');
+  clone.setAttribute('filter', 'url(#glow)');
+  clone.classList.add('hl-shape');
+  hl.appendChild(clone);
 }
 
-function clearHighlight() {
-  document.getElementById('hl-layer').innerHTML = '';
-}
+function clearHighlight() { document.getElementById('hl-layer').innerHTML = ''; }
 
 function scrollToNode(id) {
   const svgEl = document.querySelector('svg');
-  if (!svgEl) return;
-  const s = NODES[id];
-  if (!s) return;
-  const scale = svgEl.getBoundingClientRect().width / 660;
+  if (!svgEl || !NODE_Y[id]) return;
+  const scale  = svgEl.getBoundingClientRect().width / 660;
   const svgTop = svgEl.getBoundingClientRect().top + window.scrollY;
-  const targetY = svgTop + s.scrollY * scale - 140;
-  window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+  window.scrollTo({ top: Math.max(0, svgTop + NODE_Y[id] * scale - 150), behavior: 'smooth' });
 }
 
 // ── Walk control ─────────────────────────────────────────────────────────
@@ -496,57 +561,31 @@ function goStep(id) {
   const step = FLOW[id];
   document.getElementById('walk-step-label').textContent = step.label;
   document.getElementById('walk-text').textContent = step.text;
-
-  const timerEl = document.getElementById('nutella-timer');
-  timerEl.style.display = step.type === 'timer' ? 'block' : 'none';
-
+  document.getElementById('nutella-timer').style.display = step.type === 'timer' ? 'block' : 'none';
   highlightNode(id);
   scrollToNode(id);
 
   const btns = document.getElementById('walk-buttons');
   btns.innerHTML = '';
 
-  if (step.type === 'intro') {
-    btn(btns, "I'm home →", 'walk-btn-next', () => goStep(step.next));
-
-  } else if (step.type === 'yn') {
-    btn(btns, 'Yes', 'walk-btn-yes', () => goStep(step.yes));
-    btn(btns, 'No',  'walk-btn-no',  () => goStep(step.no));
-
-  } else if (step.type === 'timer') {
-    startTimer();
-    btn(btns, "I'm ready now", 'walk-btn-next', () => goStep(step.next));
-
-  } else if (step.type === 'action') {
-    btn(btns, 'Done ✓', 'walk-btn-next', () => goStep(step.next));
-
-  } else if (step.type === 'q4') {
-    btn(btns, 'Try again', 'walk-btn-try',   () => goStep(step.tryAgain));
-    btn(btns, 'Not yet',   'walk-btn-later', () => goStep(step.notYet));
-
-  } else if (step.type === 'schedule') {
-    btn(btns, 'Scheduled ✓', 'walk-btn-end', () => exitWalk());
-    btn(btns, 'Start over',  'walk-btn-no',  () => goStep('start'));
-
-  } else if (step.type === 'end') {
-    btn(btns, 'Start over', 'walk-btn-end', () => goStep('start'));
-  }
+  if      (step.type === 'intro')    { btn(btns, "I'm home →",  'walk-btn-next',  () => goStep(step.next)); }
+  else if (step.type === 'yn')       { btn(btns, 'Yes', 'walk-btn-yes', () => goStep(step.yes)); btn(btns, 'No', 'walk-btn-no', () => goStep(step.no)); }
+  else if (step.type === 'timer')    { startTimer(); btn(btns, "I'm ready now", 'walk-btn-next', () => goStep(step.next)); }
+  else if (step.type === 'action')   { btn(btns, 'Done ✓',     'walk-btn-next',  () => goStep(step.next)); }
+  else if (step.type === 'q4')       { btn(btns, 'Try again',  'walk-btn-try',   () => goStep(step.tryAgain)); btn(btns, 'Not yet', 'walk-btn-later', () => goStep(step.notYet)); }
+  else if (step.type === 'schedule') { btn(btns, 'Scheduled ✓','walk-btn-end',   () => exitWalk()); btn(btns, 'Start over', 'walk-btn-no', () => goStep('start')); }
+  else if (step.type === 'end')      { btn(btns, 'Start over', 'walk-btn-end',   () => goStep('start')); }
 }
 
-function btn(container, text, cls, fn) {
+function btn(c, text, cls, fn) {
   const b = document.createElement('button');
-  b.className = 'walk-btn ' + cls;
-  b.textContent = text;
-  b.onclick = fn;
-  container.appendChild(b);
+  b.className = 'walk-btn ' + cls; b.textContent = text; b.onclick = fn;
+  c.appendChild(b);
 }
 
 // ── Nutella timer ─────────────────────────────────────────────────────────
 function startTimer() {
-  // Request notification permission inside user gesture
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
+  if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   const endTime = Date.now() + TIMER_SECS * 1000;
   localStorage.setItem('nutellaEnd', String(endTime));
   tickTimer(endTime);
@@ -555,30 +594,23 @@ function startTimer() {
 
 function tickTimer(endTime) {
   const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000));
-  const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
-  const secs = String(remaining % 60).padStart(2, '0');
+  const mins = String(Math.floor(remaining / 60)).padStart(2,'0');
+  const secs = String(remaining % 60).padStart(2,'0');
   document.getElementById('timer-display').textContent = `${mins}:${secs}`;
-  const pct = remaining / TIMER_SECS;
+  const pct    = remaining / TIMER_SECS;
   const offset = CIRC * (1 - pct);
-  const prog = document.getElementById('timer-progress');
-  prog.style.strokeDasharray = CIRC;
+  const prog   = document.getElementById('timer-progress');
+  prog.style.strokeDasharray  = CIRC;
   prog.style.strokeDashoffset = offset;
-  // colour shifts red as time runs low
   prog.style.stroke = pct > 0.3 ? '#7aaa58' : pct > 0.1 ? '#c8a840' : '#c84040';
-  if (remaining === 0) {
-    stopTimer();
-    localStorage.removeItem('nutellaEnd');
-    triggerNutella();
-  }
+  if (remaining === 0) { stopTimer(); localStorage.removeItem('nutellaEnd'); triggerNutella(); }
 }
 
-function stopTimer() {
-  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
-}
+function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
 
 function triggerNutella() {
   document.getElementById('nutella-overlay').classList.add('show');
-  if ('vibrate' in navigator) navigator.vibrate([400, 200, 400, 200, 600]);
+  if ('vibrate' in navigator) navigator.vibrate([400,200,400,200,600]);
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     [0, 0.55, 1.1].forEach(t => {
@@ -588,15 +620,11 @@ function triggerNutella() {
       g.gain.setValueAtTime(0, ctx.currentTime + t);
       g.gain.linearRampToValueAtTime(0.28, ctx.currentTime + t + 0.08);
       g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.9);
-      o.start(ctx.currentTime + t);
-      o.stop(ctx.currentTime + t + 0.9);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.9);
     });
   } catch(e) {}
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🍫 Nutella', {
-      body: "Dad is checking in — I love you ❤️",
-      tag: 'nutella', requireInteraction: true,
-    });
+    new Notification('🍫 Nutella', { body: "Dad is checking in — I love you ❤️", tag: 'nutella', requireInteraction: true });
   }
 }
 
@@ -605,14 +633,13 @@ function dismissNutella() {
   goStep('q1');
 }
 
-// Resume timer if page was reloaded mid-countdown
+// Resume timer across page reloads
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('nutellaEnd');
   if (!saved) return;
   const endTime = parseInt(saved);
   if (endTime > Date.now()) {
     beginWalk();
-    // directly show nutella step and resume ticking
     document.getElementById('walk-step-label').textContent = FLOW.nutella.label;
     document.getElementById('walk-text').textContent = FLOW.nutella.text;
     document.getElementById('nutella-timer').style.display = 'block';
@@ -622,9 +649,7 @@ window.addEventListener('load', () => {
     btn(btns, "I'm ready now", 'walk-btn-next', () => goStep('q1'));
     tickTimer(endTime);
     timerInterval = setInterval(() => tickTimer(endTime), 1000);
-  } else {
-    localStorage.removeItem('nutellaEnd');
-  }
+  } else { localStorage.removeItem('nutellaEnd'); }
 });
 </script>
 </body>
