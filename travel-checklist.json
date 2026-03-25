@@ -1,0 +1,88 @@
+{
+  "tripName": "Our trip",
+  "items": [
+    {
+      "header": true,
+      "label": "Travel"
+    },
+    {
+      "header": false,
+      "label": "Passport",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "UK wallet / cash",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Tabs",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Books",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Water bottle",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Battery pack",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Charging cables (inc watch)",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Sleeping bag",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Sleeping bag bag",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Bivvy",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "AirPods",
+      "done": false
+    },
+    {
+      "header": true,
+      "label": "Leaving the flat"
+    },
+    {
+      "header": false,
+      "label": "Turn off bathroom water heater",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Turn off kitchen water heater",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Turn off all taps",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Bin putting-out covered",
+      "done": false
+    }
+  ]
+}
