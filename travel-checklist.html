@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f0e8">
+<title>Travel Checklist</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:       #1a1a1a;
+  --paper:     #fffef9;
+  --bg:        #f5f0e8;
+  --muted:     #888;
+  --border:    #d8d4cc;
+  --accent:    #2d7d8e;
+  --accent-bg: #cce8ed;
+  --hdr-h:     52px;
+  --safe-b:    env(safe-area-inset-bottom, 0px);
+  --safe-t:    env(safe-area-inset-top,    0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); font-family: 'DM Mono', monospace; color: var(--ink); }
+
+/* ── header ── */
+.app-hdr {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--safe-t) + var(--hdr-h));
+  padding-top: var(--safe-t);
+  background: var(--paper); border-bottom: 2px solid var(--ink);
+  display: flex; align-items: center;
+  padding-left: 1rem; padding-right: 0.75rem; gap: 0.75rem;
+}
+.hdr-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hdr-btn {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  color: var(--muted); padding: 0.3rem 0.65rem; cursor: pointer;
+  border-radius: 2px; letter-spacing: 0.04em; white-space: nowrap;
+  transition: all 0.1s;
+}
+.hdr-btn:hover  { border-color: var(--ink); color: var(--ink); }
+.hdr-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #bbb; flex-shrink: 0;
+  transition: background 0.3s;
+}
+.sync-dot.syncing { background: var(--accent); animation: pulse 0.8s ease-in-out infinite alternate; }
+.sync-dot.ok      { background: #5cba7d; }
+.sync-dot.error   { background: #c0392b; }
+@keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+/* ── main scroll area ── */
+.main {
+  position: fixed;
+  top: calc(var(--safe-t) + var(--hdr-h));
+  bottom: 0; left: 0; right: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+}
+
+/* ── trip name + progress ── */
+.trip-bar {
+  background: var(--accent); color: #fff;
+  padding: 0.6rem 1rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.trip-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: text;
+}
+.trip-name-input {
+  font-family: 'Playfair Display', serif; font-size: 1rem;
+  background: transparent; border: none; border-bottom: 1.5px solid rgba(255,255,255,0.6);
+  outline: none; color: #fff; flex: 1; min-width: 0; padding: 0;
+}
+.trip-name-input::placeholder { color: rgba(255,255,255,0.5); }
+.trip-prog-text {
+  font-size: 0.65rem; opacity: 0.85; white-space: nowrap; letter-spacing: 0.04em;
+}
+
+.prog-wrap { height: 3px; background: rgba(0,0,0,0.15); }
+.prog-fill  { height: 100%; background: #fff; transition: width 0.4s; }
+
+/* ── todo list ── */
+.todo-list { padding: 0 1rem 6rem; }
+
+.t-row {
+  display: flex; align-items: center;
+  border-bottom: 1px solid var(--border); position: relative;
+}
+.t-row:last-child { border-bottom: none; }
+.t-row.dragging  { opacity: 0.35; }
+.t-row.drag-over { border-top: 2px solid var(--ink); }
+
+.t-handle {
+  cursor: grab; color: #d8d4cc; font-size: 0.95rem;
+  padding: 0.75rem 0.5rem 0.75rem 0; flex-shrink: 0;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none; touch-action: none; line-height: 1;
+}
+.t-handle:hover { color: #999; }
+.t-handle:active { cursor: grabbing; }
+
+.t-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 0; flex: 1; min-width: 0;
+}
+.t-cb {
+  width: 22px; height: 22px; border: 2px solid var(--ink);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; cursor: pointer;
+}
+.t-item.done .t-cb { background: var(--accent); border-color: var(--accent); }
+.t-item.done .t-cb::after { content: '✓'; color: #fff; font-size: 13px; font-weight: bold; }
+.t-lbl {
+  font-size: 0.9rem; letter-spacing: 0.02em; color: var(--ink);
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: text;
+}
+.t-item.done .t-lbl { text-decoration: line-through; color: #aaa; }
+.t-lbl-input {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem; letter-spacing: 0.02em;
+  color: var(--ink); border: none; border-bottom: 1px solid var(--ink);
+  background: transparent; outline: none; flex: 1; min-width: 0; padding: 0;
+}
+
+.t-del {
+  background: none; border: none;
+  font-size: 1rem; color: #ddd; cursor: pointer;
+  padding: 0.75rem 0 0.75rem 0.5rem; flex-shrink: 0; line-height: 1;
+  transition: opacity 0.15s, color 0.15s;
+}
+@media (hover: hover) { .t-del { opacity: 0; } .t-row:hover .t-del { opacity: 1; } }
+.t-del:hover { color: #c0392b !important; }
+
+/* section header rows */
+.t-hdr-row {
+  display: flex; align-items: center; margin-top: 1.5rem;
+  padding-top: 0.75rem; border-top: 1px solid #d8d4cc; position: relative;
+}
+.t-hdr-row.first-section { margin-top: 0.5rem; padding-top: 0; border-top: none; }
+.t-hdr-row.dragging { opacity: 0.35; }
+.t-hdr {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 500;
+  color: #999; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.25rem 0; flex: 1; min-width: 0; cursor: text;
+}
+.t-hdr-input {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #999; border: none; background: transparent;
+  outline: none; flex: 1; min-width: 0; padding: 0.25rem 0;
+}
+
+/* ── add row ── */
+.add-section {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--bg); border-top: 1.5px dashed var(--border);
+  padding: 0.75rem 1rem calc(0.75rem + var(--safe-b));
+  display: flex; flex-direction: column; gap: 0.5rem; z-index: 100;
+}
+.add-row { display: flex; align-items: center; gap: 0.5rem; }
+.add-inp {
+  flex: 1; background: none; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.85rem;
+  color: var(--ink); outline: none;
+}
+.add-inp::placeholder { color: #ccc; }
+.add-btn {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.45rem 0.85rem; cursor: pointer; border-radius: 2px; flex-shrink: 0;
+}
+.add-section-btn {
+  background: none; border: none; font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; color: var(--muted); cursor: pointer; letter-spacing: 0.05em;
+  text-align: left; padding: 0;
+}
+.add-section-btn:hover { color: var(--ink); }
+
+/* ── PAT modal ── */
+#pat-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(245,240,232,0.96);
+  align-items: center; justify-content: center;
+  z-index: 9999; padding: 1.5rem;
+}
+#pat-modal.show { display: flex; }
+#pat-box {
+  background: var(--paper); border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 1.75rem; width: 100%; max-width: 360px;
+  display: flex; flex-direction: column; gap: 0.85rem;
+}
+#pat-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+#pat-msg   { font-size: 0.72rem; color: #c0392b; min-height: 1em; }
+#pat-input {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: 2px solid var(--ink); background: var(--bg);
+  padding: 0.5rem 0.65rem; outline: none; width: 100%;
+}
+#pat-hint  { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+#pat-save  {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  background: var(--ink); color: var(--paper); border: none;
+  padding: 0.6rem 1.2rem; cursor: pointer; align-self: flex-start; border-radius: 2px;
+}
+
+/* ── confirm modal ── */
+.confirm-overlay {
+  position: fixed; inset: 0; background: rgba(26,26,26,0.5);
+  z-index: 8000; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.confirm-box {
+  background: var(--paper); border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 1.5rem; width: 100%; max-width: 320px;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.confirm-msg  { font-size: 0.85rem; line-height: 1.6; }
+.confirm-btns { display: flex; gap: 0.5rem; }
+.confirm-ok {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  padding: 0.55rem 1.1rem; cursor: pointer; border-radius: 2px;
+}
+.confirm-cancel {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: var(--muted); padding: 0.55rem 1rem; cursor: pointer; border-radius: 2px;
+}
+</style>
+</head>
+<body>
+
+<!-- PAT modal -->
+<div id="pat-modal">
+  <div id="pat-box">
+    <div id="pat-title">GitHub Token</div>
+    <div id="pat-msg"></div>
+    <input id="pat-input" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+    <div id="pat-hint">Create at <b>github.com → Settings → Developer settings → Personal access tokens</b> with <b>repo</b> scope.</div>
+    <button id="pat-save">Save token</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="app-hdr">
+  <div class="hdr-title">✈ Travel Checklist</div>
+  <button class="hdr-btn" onclick="resetTrip()">new trip</button>
+  <div class="sync-dot" id="syncDot" title="Sync status"></div>
+</header>
+
+<!-- Main -->
+<div class="main">
+  <!-- Trip name + progress bar -->
+  <div class="trip-bar">
+    <div class="trip-name" id="tripName" onclick="editTripName(this)">Our trip</div>
+    <div class="trip-prog-text" id="tripProg">0 / 0 packed</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+  <!-- Checklist -->
+  <div class="todo-list" id="todoList"></div>
+</div>
+
+<!-- Add item -->
+<div class="add-section">
+  <div class="add-row">
+    <span style="color:#ccc">+</span>
+    <input class="add-inp" id="addInp" placeholder="add item…" autocomplete="off">
+    <button class="add-btn" id="addBtn">add</button>
+  </div>
+  <button class="add-section-btn" onclick="addSection()">+ add section heading</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────
+const REPO    = 'Jeff-Lynn-SC/todo';
+const GH_FILE = 'travel-checklist.json';
+const ghUrl   = p => `https://api.github.com/repos/${REPO}/contents/${p}`;
+
+// ─────────────────────────────────────────────
+//  DEFAULTS  (used only on first load)
+// ─────────────────────────────────────────────
+const DEFAULTS = [
+  { header: true,  label: 'Travel' },
+  { header: false, label: 'Passport',                   done: false },
+  { header: false, label: 'UK wallet / cash',           done: false },
+  { header: false, label: 'Tabs',                       done: false },
+  { header: false, label: 'Books',                      done: false },
+  { header: false, label: 'Water bottle',               done: false },
+  { header: false, label: 'Battery pack',               done: false },
+  { header: false, label: 'Charging cables (inc watch)',done: false },
+  { header: false, label: 'Sleeping bag',               done: false },
+  { header: false, label: 'Sleeping bag bag',           done: false },
+  { header: false, label: 'Bivvy',                      done: false },
+  { header: false, label: 'AirPods',                    done: false },
+  { header: true,  label: 'Leaving the flat' },
+  { header: false, label: 'Turn off bathroom water heater', done: false },
+  { header: false, label: 'Turn off kitchen water heater',  done: false },
+  { header: false, label: 'Turn off all taps',              done: false },
+  { header: false, label: 'Bin putting-out covered',        done: false },
+];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let store = { tripName: 'Our trip', items: [] };
+let saveTimer = null;
+
+// ─────────────────────────────────────────────
+//  SYNC DOT
+// ─────────────────────────────────────────────
+function setSyncDot(state) {
+  const d = document.getElementById('syncDot');
+  d.className = 'sync-dot' + (state ? ' ' + state : '');
+}
+
+// ─────────────────────────────────────────────
+//  GITHUB
+// ─────────────────────────────────────────────
+const getPat = () => localStorage.getItem('gh_pat');
+
+function showPat(msg) {
+  document.getElementById('pat-modal').classList.add('show');
+  document.getElementById('pat-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('pat-input').focus(), 120);
+}
+
+document.getElementById('pat-save').addEventListener('click', () => {
+  const v = document.getElementById('pat-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('gh_pat', v);
+  document.getElementById('pat-modal').classList.remove('show');
+  loadData();
+});
+document.getElementById('pat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('pat-save').click();
+});
+
+async function ghGet(path) {
+  const pat = getPat();
+  if (!pat) { showPat(); return null; }
+  const res = await fetch(ghUrl(path), {
+    headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (res.status === 401) { localStorage.removeItem('gh_pat'); showPat('Token rejected — please re-enter.'); return null; }
+  if (res.status === 404) return null; // file doesn't exist yet
+  if (!res.ok) return null;
+  return res.json();
+}
+
+async function ghPut(path, data, msg) {
+  const pat = getPat();
+  if (!pat) return null;
+  setSyncDot('syncing');
+  const current = await ghGet(path);
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+  const body = { message: msg, content };
+  if (current && current.sha) body.sha = current.sha;
+  const res = await fetch(ghUrl(path), {
+    method: 'PUT',
+    headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (res.ok) { setSyncDot('ok'); setTimeout(() => setSyncDot(''), 2500); return res.json(); }
+  setSyncDot('error'); return null;
+}
+
+// ─────────────────────────────────────────────
+//  LOAD / SAVE
+// ─────────────────────────────────────────────
+async function loadData() {
+  if (!getPat()) { showPat(); return; }
+  setSyncDot('syncing');
+  const meta = await ghGet(GH_FILE);
+  if (meta && meta.content) {
+    try {
+      const d = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+      if (d && d.items) store = d;
+    } catch(e) {}
+  } else {
+    // First run — use defaults
+    store.items = DEFAULTS.map(i => ({ ...i }));
+    scheduleSave('init travel checklist');
+  }
+  setSyncDot('ok'); setTimeout(() => setSyncDot(''), 2000);
+  render();
+}
+
+function scheduleSave(msg) {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => ghPut(GH_FILE, store, msg || 'update travel checklist'), 800);
+}
+
+// ─────────────────────────────────────────────
+//  TRIP NAME
+// ─────────────────────────────────────────────
+function editTripName(el) {
+  const inp = document.createElement('input');
+  inp.className = 'trip-name-input'; inp.value = store.tripName; inp.placeholder = 'Name this trip…';
+  el.replaceWith(inp); inp.focus(); inp.select();
+  function commit() {
+    const v = inp.value.trim() || 'Our trip';
+    store.tripName = v;
+    scheduleSave('update trip name');
+    render();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') render(); });
+}
+
+// ─────────────────────────────────────────────
+//  RESET TRIP
+// ─────────────────────────────────────────────
+function resetTrip() {
+  showConfirm(
+    'Uncheck all items for a new trip?',
+    () => {
+      store.items.forEach(t => { if (!t.header) t.done = false; });
+      scheduleSave('reset for new trip');
+      render();
+    }
+  );
+}
+
+// ─────────────────────────────────────────────
+//  CONFIRM DIALOG
+// ─────────────────────────────────────────────
+function showConfirm(msg, onOk) {
+  const overlay = document.createElement('div'); overlay.className = 'confirm-overlay';
+  const box  = document.createElement('div');    box.className = 'confirm-box';
+  const text = document.createElement('div');    text.className = 'confirm-msg'; text.textContent = msg;
+  const btns = document.createElement('div');    btns.className = 'confirm-btns';
+  const ok   = document.createElement('button'); ok.className = 'confirm-ok';     ok.textContent = 'yes, reset';
+  const no   = document.createElement('button'); no.className = 'confirm-cancel'; no.textContent = 'cancel';
+  ok.onclick = () => { overlay.remove(); onOk(); };
+  no.onclick = () => overlay.remove();
+  btns.appendChild(ok); btns.appendChild(no);
+  box.appendChild(text); box.appendChild(btns);
+  overlay.appendChild(box); document.body.appendChild(overlay);
+}
+
+// ─────────────────────────────────────────────
+//  TOUCH DRAG
+// ─────────────────────────────────────────────
+let tTouchSrc = null, tTouchDragging = false;
+document.addEventListener('touchmove', e => { if (tTouchDragging) e.preventDefault(); }, { passive: false });
+
+function attachTouchDrag(handleEl, rowEl, idx, listEl) {
+  handleEl.addEventListener('touchstart', e => {
+    e.preventDefault(); tTouchSrc = idx; tTouchDragging = true;
+    setTimeout(() => rowEl.classList.add('dragging'), 0);
+  }, { passive: false });
+  handleEl.addEventListener('touchmove', e => {
+    if (!tTouchDragging) return;
+    const touch = e.touches[0]; let target = null;
+    listEl.querySelectorAll('[data-ti]').forEach(r => {
+      if (r === rowEl) return;
+      const rect = r.getBoundingClientRect();
+      if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) target = r;
+    });
+    listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (target) target.classList.add('drag-over');
+  }, { passive: false });
+  function onEnd() {
+    if (!tTouchDragging) return;
+    tTouchDragging = false; rowEl.classList.remove('dragging');
+    const over = listEl.querySelector('.drag-over');
+    listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (over) {
+      const ti = parseInt(over.dataset.ti);
+      if (!isNaN(ti) && ti !== tTouchSrc) {
+        const moved = store.items.splice(tTouchSrc, 1)[0];
+        store.items.splice(tTouchSrc < ti ? ti - 1 : ti, 0, moved);
+        scheduleSave(); render();
+      }
+    }
+    tTouchSrc = null;
+  }
+  handleEl.addEventListener('touchend',    onEnd, { passive: true });
+  handleEl.addEventListener('touchcancel', onEnd, { passive: true });
+}
+
+// ─────────────────────────────────────────────
+//  RENAME
+// ─────────────────────────────────────────────
+function startRename(i, labelEl, isHeader) {
+  const inp = document.createElement('input');
+  inp.className = isHeader ? 't-hdr-input' : 't-lbl-input';
+  inp.value = store.items[i].label;
+  labelEl.replaceWith(inp); inp.focus(); inp.select();
+  function commit() {
+    const v = inp.value.trim(); if (v) store.items[i].label = v;
+    scheduleSave(); render();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') render();
+  });
+}
+
+// ─────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────
+function render() {
+  // Trip name bar
+  const tnEl = document.getElementById('tripName');
+  if (tnEl) tnEl.textContent = store.tripName;
+
+  // Progress
+  const items = store.items.filter(t => !t.header);
+  const done  = items.filter(t => t.done).length;
+  document.getElementById('tripProg').textContent  = `${done} / ${items.length} packed`;
+  document.getElementById('progFill').style.width  = items.length ? (done / items.length * 100) + '%' : '0%';
+
+  // List
+  const listEl = document.getElementById('todoList');
+  listEl.innerHTML = '';
+  let dragSrc = null;
+  const firstHeaderIdx = store.items.findIndex(t => t.header);
+
+  store.items.forEach((t, i) => {
+    const isHeader = t.header === true;
+    const row = document.createElement('div');
+    row.className  = isHeader ? 't-hdr-row' + (i === firstHeaderIdx ? ' first-section' : '') : 't-row';
+    row.draggable  = true;
+    row.dataset.ti = i;
+
+    const handle = document.createElement('span');
+    handle.className = 't-handle'; handle.textContent = '⠿'; handle.title = 'Drag to reorder';
+    row.appendChild(handle);
+    attachTouchDrag(handle, row, i, listEl);
+
+    if (isHeader) {
+      const h = document.createElement('div');
+      h.className = 't-hdr'; h.textContent = t.label; h.title = 'Double-tap to rename';
+      h.addEventListener('dblclick', e => { e.stopPropagation(); startRename(i, h, true); });
+      row.appendChild(h);
+    } else {
+      const item = document.createElement('div');
+      item.className = 't-item' + (t.done ? ' done' : '');
+      const cb = document.createElement('div'); cb.className = 't-cb';
+      cb.addEventListener('click', e => {
+        e.stopPropagation();
+        store.items[i].done = !store.items[i].done;
+        scheduleSave(); render();
+      });
+      const lbl = document.createElement('span');
+      lbl.className = 't-lbl'; lbl.textContent = t.label; lbl.title = 'Double-tap to rename';
+      lbl.addEventListener('dblclick', e => { e.stopPropagation(); startRename(i, lbl, false); });
+      item.appendChild(cb); item.appendChild(lbl); row.appendChild(item);
+    }
+
+    const del = document.createElement('button');
+    del.className = 't-del'; del.textContent = '×'; del.title = 'Delete';
+    del.addEventListener('click', e => {
+      e.stopPropagation(); store.items.splice(i, 1); scheduleSave(); render();
+    });
+    row.appendChild(del);
+
+    // Desktop drag
+    row.addEventListener('dragstart', e => {
+      dragSrc = i; setTimeout(() => row.classList.add('dragging'), 0); e.dataTransfer.effectAllowed = 'move';
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging'); listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    row.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      listEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      if (dragSrc !== i) row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+    row.addEventListener('drop', e => {
+      e.preventDefault(); row.classList.remove('drag-over');
+      if (dragSrc === null || dragSrc === i) return;
+      const moved = store.items.splice(dragSrc, 1)[0];
+      store.items.splice(dragSrc < i ? i - 1 : i, 0, moved);
+      dragSrc = null; scheduleSave(); render();
+    });
+
+    listEl.appendChild(row);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  ADD ITEM / SECTION
+// ─────────────────────────────────────────────
+function addItem(label, isHeader) {
+  store.items.push(isHeader ? { header: true, label } : { header: false, label, done: false });
+  scheduleSave(); render();
+}
+
+function addSection() {
+  const label = prompt('Section heading:');
+  if (label && label.trim()) addItem(label.trim(), true);
+}
+
+const addInp = document.getElementById('addInp');
+const addBtn = document.getElementById('addBtn');
+const doAdd  = () => {
+  const v = addInp.value.trim(); if (!v) return;
+  addItem(v, false); addInp.value = '';
+};
+addBtn.addEventListener('click', doAdd);
+addInp.addEventListener('keydown', e => { if (e.key === 'Enter') doAdd(); });
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
