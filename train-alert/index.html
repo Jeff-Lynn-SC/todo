@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Train Alert">
+  <title>Train Station Alert</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .card {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 16px;
+      border: 1px solid #0f3460;
+    }
+
+    .card h2 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7ec8e3;
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0f3460;
+      border: 1px solid #1a4a7a;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #7ec8e3;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row > div { flex: 1; }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:active { opacity: 0.8; }
+
+    .btn-primary {
+      background: #7ec8e3;
+      color: #1a1a2e;
+    }
+
+    .btn-secondary {
+      background: #0f3460;
+      color: #7ec8e3;
+      border: 1px solid #1a4a7a;
+      margin-top: 8px;
+    }
+
+    .btn-stop {
+      background: #c0392b;
+      color: #fff;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .status-box {
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .status-idle     { background: #0f3460; }
+    .status-tracking { background: #1a5276; }
+    .status-near     { background: #1e8449; animation: pulse 1s infinite; }
+    .status-arrived  { background: #c0392b; animation: pulse 0.5s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.75; }
+    }
+
+    .status-icon { font-size: 2.2rem; margin-bottom: 6px; }
+    .status-text { font-size: 1rem; font-weight: 600; }
+    .status-sub  { font-size: 0.82rem; color: #ccc; margin-top: 4px; }
+
+    .distance-big {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #7ec8e3;
+      text-align: center;
+      margin: 8px 0 2px;
+    }
+
+    .coords-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .tip {
+      font-size: 0.78rem;
+      color: #888;
+      text-align: center;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    #alertOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(192,57,43,0.95);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    #alertOverlay.show { display: flex; }
+
+    #alertOverlay .big-icon { font-size: 5rem; margin-bottom: 16px; }
+    #alertOverlay h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    #alertOverlay p  { font-size: 1.1rem; color: #ffe; margin-bottom: 32px; }
+
+    #alertOverlay button {
+      max-width: 280px;
+      background: #fff;
+      color: #c0392b;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚂 Train Alert</h1>
+  <p class="subtitle">Get notified before your stop</p>
+
+  <!-- STATION SETUP -->
+  <div class="card" id="setupCard">
+    <h2>Station Location</h2>
+
+    <label>Station name</label>
+    <input type="text" id="stationName" placeholder="e.g. Central Station">
+
+    <div class="row">
+      <div>
+        <label>Latitude</label>
+        <input type="number" id="lat" placeholder="51.5074" step="any">
+      </div>
+      <div>
+        <label>Longitude</label>
+        <input type="number" id="lng" placeholder="-0.1278" step="any">
+      </div>
+    </div>
+
+    <label>Alert distance (metres)</label>
+    <input type="number" id="alertDist" value="500" min="50" max="5000">
+
+    <button class="btn-secondary" onclick="useCurrentLocation()">📍 I'm at the station — use my location</button>
+    <p class="tip">Or look up coordinates at <strong>maps.apple.com</strong> → drop a pin → share → copy</p>
+  </div>
+
+  <!-- STATUS -->
+  <div class="card">
+    <h2>Status</h2>
+    <div id="statusBox" class="status-box status-idle">
+      <div class="status-icon">🛑</div>
+      <div class="status-text">Not tracking</div>
+      <div class="status-sub">Set a station and press Start</div>
+    </div>
+    <div id="distanceDisplay" style="display:none">
+      <div class="distance-big" id="distanceVal">—</div>
+      <div class="coords-row">
+        <span id="myCoords">—</span>
+        <span id="accuracy">—</span>
+      </div>
+    </div>
+    <button class="btn-primary" id="startBtn" onclick="startTracking()">Start Tracking</button>
+    <button class="btn-stop"    id="stopBtn"  onclick="stopTracking()">Stop</button>
+  </div>
+
+  <!-- ALERT SOUND (silent by default, played via AudioContext) -->
+
+  <!-- FULL-SCREEN ALERT OVERLAY -->
+  <div id="alertOverlay">
+    <div class="big-icon">🚨</div>
+    <h2 id="alertTitle">Approaching station!</h2>
+    <p id="alertBody">Your stop is coming up. Get ready!</p>
+    <button onclick="dismissAlert()">Dismiss</button>
+  </div>
+
+<script>
+  let watchId = null;
+  let audioCtx = null;
+  let alerted = false;
+  let stationLat = null, stationLng = null;
+
+  // --- persistence ---
+  function save() {
+    localStorage.setItem('trainAlert', JSON.stringify({
+      name: document.getElementById('stationName').value,
+      lat:  document.getElementById('lat').value,
+      lng:  document.getElementById('lng').value,
+      dist: document.getElementById('alertDist').value,
+    }));
+  }
+
+  function load() {
+    try {
+      const d = JSON.parse(localStorage.getItem('trainAlert') || '{}');
+      if (d.name) document.getElementById('stationName').value = d.name;
+      if (d.lat)  document.getElementById('lat').value  = d.lat;
+      if (d.lng)  document.getElementById('lng').value  = d.lng;
+      if (d.dist) document.getElementById('alertDist').value = d.dist;
+    } catch(e) {}
+  }
+
+  // --- geolocation ---
+  function startTracking() {
+    const lat  = parseFloat(document.getElementById('lat').value);
+    const lng  = parseFloat(document.getElementById('lng').value);
+    const name = document.getElementById('stationName').value.trim() || 'your station';
+    const dist = parseInt(document.getElementById('alertDist').value) || 500;
+
+    if (isNaN(lat) || isNaN(lng)) {
+      alert('Please enter valid coordinates for your station first.');
+      return;
+    }
+
+    save();
+    stationLat = lat;
+    stationLng = lng;
+    alerted = false;
+
+    // unlock audio on iOS (must be inside user gesture)
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    setStatus('tracking', '📡', 'Tracking…', `Looking for ${name}`);
+    document.getElementById('distanceDisplay').style.display = 'block';
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = 'block';
+
+    watchId = navigator.geolocation.watchPosition(
+      pos => onPosition(pos, dist, name),
+      err => onError(err),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
+    );
+  }
+
+  function stopTracking() {
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+    setStatus('idle', '🛑', 'Not tracking', 'Set a station and press Start');
+    document.getElementById('distanceDisplay').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('stopBtn').style.display = 'none';
+    alerted = false;
+  }
+
+  function onPosition(pos, alertDist, name) {
+    const { latitude, longitude, accuracy } = pos.coords;
+    const d = haversine(latitude, longitude, stationLat, stationLng);
+    const dLabel = d < 1000 ? `${Math.round(d)} m` : `${(d/1000).toFixed(1)} km`;
+
+    document.getElementById('distanceVal').textContent = dLabel;
+    document.getElementById('myCoords').textContent = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+    document.getElementById('accuracy').textContent = `±${Math.round(accuracy)} m`;
+
+    if (d <= alertDist && !alerted) {
+      alerted = true;
+      triggerAlert(name, dLabel);
+    } else if (d <= alertDist) {
+      setStatus('near', '🚉', 'Almost there!', `${dLabel} to ${name}`);
+    } else {
+      setStatus('tracking', '📡', 'Tracking…', `${dLabel} to ${name}`);
+    }
+  }
+
+  function onError(err) {
+    const msgs = {
+      1: 'Location permission denied. Please allow location access in Settings → Safari → Location.',
+      2: 'Location unavailable. Make sure you have GPS signal.',
+      3: 'Location request timed out.',
+    };
+    setStatus('idle', '⚠️', 'GPS error', msgs[err.code] || err.message);
+  }
+
+  function triggerAlert(name, dist) {
+    // visual
+    document.getElementById('alertTitle').textContent = `Approaching ${name}!`;
+    document.getElementById('alertBody').textContent  = `You are ${dist} away. Get ready to disembark!`;
+    document.getElementById('alertOverlay').classList.add('show');
+    setStatus('arrived', '🚨', 'STATION APPROACHING', `Get ready!`);
+
+    // audio beeps
+    if (audioCtx) {
+      for (let i = 0; i < 5; i++) setTimeout(() => beep(audioCtx), i * 400);
+    }
+
+    // system notification (works when screen is on)
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(`🚂 Approaching ${name}`, {
+        body: `You are ${dist} away. Get ready!`,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🚂</text></svg>',
+        tag: 'train-alert',
+        requireInteraction: true,
+      });
+    }
+
+    // vibrate
+    if ('vibrate' in navigator) navigator.vibrate([500, 200, 500, 200, 500]);
+  }
+
+  function dismissAlert() {
+    document.getElementById('alertOverlay').classList.remove('show');
+  }
+
+  // --- use current location as station ---
+  function useCurrentLocation() {
+    if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(pos => {
+      document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
+      document.getElementById('lng').value = pos.coords.longitude.toFixed(6);
+    }, err => alert('Could not get location: ' + err.message), { enableHighAccuracy: true });
+  }
+
+  // --- helpers ---
+  function setStatus(type, icon, text, sub) {
+    const box = document.getElementById('statusBox');
+    box.className = `status-box status-${type}`;
+    box.innerHTML = `<div class="status-icon">${icon}</div><div class="status-text">${text}</div><div class="status-sub">${sub}</div>`;
+  }
+
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function beep(ctx) {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    o.type = 'sine';
+    g.gain.setValueAtTime(0.5, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.3);
+  }
+
+  // --- init ---
+  load();
+
+  if (!navigator.geolocation) {
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('startBtn').textContent = 'GPS not supported';
+  }
+</script>
+</body>
+</html>
