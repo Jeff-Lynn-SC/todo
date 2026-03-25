@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Guide</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:    #1a1a1a;
+  --paper:  #fffef9;
+  --bg:     #f5f0e8;
+  --muted:  #888;
+  --border: #d8d4cc;
+  --accent: #4a7c59;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  font-family: 'DM Mono', monospace;
+  color: var(--ink);
+  padding: 2rem 1.25rem 4rem;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+.subtitle {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--ink);
+}
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1.5px solid var(--border);
+}
+
+h3 {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 1.5rem 0 0.4rem;
+}
+
+p { font-size: 0.88rem; margin-bottom: 0.75rem; }
+
+ul { padding-left: 0; list-style: none; margin-bottom: 0.75rem; }
+ul li {
+  font-size: 0.88rem;
+  padding: 0.3rem 0 0.3rem 1.25rem;
+  position: relative;
+}
+ul li::before {
+  content: '→';
+  position: absolute; left: 0;
+  color: var(--accent);
+}
+
+.tip {
+  background: var(--paper);
+  border-left: 3px solid var(--accent);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.8rem;
+  margin: 0.75rem 0;
+  color: #555;
+}
+
+kbd {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  letter-spacing: 0.03em;
+}
+
+.section-num {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.65rem;
+  width: 1.4rem; height: 1.4rem;
+  line-height: 1.4rem;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+}
+
+.apps {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0;
+}
+.app-pill {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  border: 1.5px solid var(--ink);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+.app-pill.sue     { border-color: #8b5e9a; color: #8b5e9a; }
+.app-pill.allyson { border-color: #3d7a6e; color: #3d7a6e; }
+.app-pill.kumar   { border-color: #b5762a; color: #b5762a; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>Your App — Quick Guide</h1>
+<p class="subtitle">CALENDAR &amp; TO-DO · PERSONAL EDITION</p>
+
+<p>You each have your own personal app — your data is stored privately on your device and isn't shared with anyone else.</p>
+
+<div class="apps">
+  <span class="app-pill sue">sue.html</span>
+  <span class="app-pill allyson">allyson.html</span>
+  <span class="app-pill kumar">kumar.html</span>
+</div>
+
+<!-- ─── GETTING STARTED ─── -->
+<h2><span class="section-num">1</span> Getting started</h2>
+
+<h3>Open it</h3>
+<p>Open the link you were given in Safari (iPhone/iPad) or Chrome (Android/desktop). The app works entirely in your browser — nothing to install.</p>
+
+<h3>Add to your home screen (recommended)</h3>
+<ul>
+  <li><strong>iPhone / iPad:</strong> tap the Share button <kbd>⎙</kbd> in Safari, then choose <em>Add to Home Screen</em>. It will appear as an icon just like a regular app.</li>
+  <li><strong>Android:</strong> tap the three-dot menu in Chrome, then <em>Add to Home screen</em>.</li>
+  <li><strong>Desktop:</strong> bookmark it, or pin the tab.</li>
+</ul>
+
+<div class="tip">Your data is saved automatically in your browser. It stays there between visits — even if you close the app.</div>
+
+<hr>
+
+<!-- ─── CALENDAR ─── -->
+<h2><span class="section-num">2</span> Calendar</h2>
+
+<p>Tap <kbd>calendar</kbd> in the bottom bar. Use <kbd>day</kbd> <kbd>week</kbd> <kbd>month</kbd> in the top-right to switch views.</p>
+
+<h3>Add an event (day &amp; week views)</h3>
+<ul>
+  <li>Tap a day cell to open an input, type the event name, press <kbd>Return</kbd>.</li>
+  <li>In the week view, tap <kbd>+</kbd> under any day to jump to the day view and add there.</li>
+</ul>
+
+<h3>Add a multi-day span (month view)</h3>
+<ul>
+  <li>Click and <strong>drag across several days</strong> — a label prompt appears when you release. Type the name (e.g. "Holiday") and press <kbd>Return</kbd>.</li>
+  <li>The span appears as a coloured bar across those days.</li>
+</ul>
+
+<h3>Edit or delete</h3>
+<ul>
+  <li><strong>Edit event:</strong> double-tap the event text to rename it inline.</li>
+  <li><strong>Delete event:</strong> hover (or tap) to reveal the <kbd>×</kbd> button.</li>
+  <li><strong>Delete span:</strong> hover the span bar to reveal <kbd>×</kbd>; double-click the label to rename it.</li>
+</ul>
+
+<div class="tip">Navigating months: use ← prev and next → buttons just below the header.</div>
+
+<hr>
+
+<!-- ─── TO-DO ─── -->
+<h2><span class="section-num">3</span> To-do list</h2>
+
+<p>Tap <kbd>to-do</kbd> in the bottom bar.</p>
+
+<h3>Add an item</h3>
+<ul>
+  <li>Type in the box at the bottom and press <kbd>Return</kbd> or tap <kbd>add</kbd>.</li>
+</ul>
+
+<h3>Tick something off</h3>
+<ul>
+  <li>Tap the square checkbox to the left of any item. It turns filled when done, and the text gets a strikethrough.</li>
+  <li>The progress bar at the top shows how many items are complete.</li>
+</ul>
+
+<h3>Rename an item</h3>
+<ul>
+  <li>Double-tap the item text to edit it inline. Press <kbd>Return</kbd> or tap away to save.</li>
+</ul>
+
+<h3>Reorder items</h3>
+<ul>
+  <li>Grab the <kbd>⠿</kbd> handle on the left of any row and drag it up or down.</li>
+  <li>Works with touch on mobile too — press and hold the handle, then drag.</li>
+</ul>
+
+<h3>Delete an item</h3>
+<ul>
+  <li>Tap (or hover on desktop) to reveal the <kbd>×</kbd> button on the right, then tap it.</li>
+</ul>
+
+<h3>Section headers</h3>
+<ul>
+  <li>You can add headings to group your tasks. Type something like <em>"This week"</em> or <em>"Someday"</em> and it'll be added as a plain task first — to convert it to a section heading, just drag it above other items to use as a divider. (Section headers are items with the <code>header</code> flag — double-tap to rename them.)</li>
+</ul>
+
+<div class="tip">Everything saves automatically as you go. No save button needed.</div>
+
+<hr>
+
+<!-- ─── FAQ ─── -->
+<h2><span class="section-num">4</span> Common questions</h2>
+
+<h3>Will my data sync across my devices?</h3>
+<p>Not automatically — each browser keeps its own copy. For now, the app is best used on one device (e.g. always your phone). Sync across devices may come later.</p>
+
+<h3>What if I clear my browser data?</h3>
+<p>Your calendar and to-do items are stored in your browser's local storage. Clearing site data will erase them, so avoid doing that if you want to keep your entries.</p>
+
+<h3>Can anyone else see my list?</h3>
+<p>No. Your data never leaves your device — it's not sent to any server.</p>
+
+<h3>The app looks odd / things are missing</h3>
+<p>Try a hard refresh: hold <kbd>Shift</kbd> and tap the reload button, or close and reopen the tab.</p>
+
+</body>
+</html>
