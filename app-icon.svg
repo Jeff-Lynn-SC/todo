@@ -1,10 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" rx="32" fill="#1a1a1a"/>
-  <rect x="40" y="52" width="112" height="104" rx="6" fill="none" stroke="#fffef9" stroke-width="7"/>
-  <line x1="72" y1="40" x2="72" y2="68" stroke="#fffef9" stroke-width="7" stroke-linecap="round"/>
-  <line x1="120" y1="40" x2="120" y2="68" stroke="#fffef9" stroke-width="7" stroke-linecap="round"/>
-  <line x1="40" y1="90" x2="152" y2="90" stroke="#fffef9" stroke-width="5"/>
-  <rect x="58" y="108" width="20" height="20" rx="3" fill="#fffef9"/>
-  <line x1="90" y1="118" x2="140" y2="118" stroke="#fffef9" stroke-width="5" stroke-linecap="round"/>
-  <line x1="90" y1="140" x2="120" y2="140" stroke="#888" stroke-width="5" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#d8edda"/>
+      <stop offset="100%" stop-color="#f5e8d5"/>
+    </linearGradient>
+    <linearGradient id="mug" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#243b2c"/>
+      <stop offset="100%" stop-color="#1a2e20"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+
+  <!-- Steam wisps -->
+  <path d="M 78 90 C 71 74 85 62 78 46"
+        fill="none" stroke="#4a7c59" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M 96 86 C 89 70 103 58 96 42"
+        fill="none" stroke="#4a7c59" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M 114 90 C 107 74 121 62 114 46"
+        fill="none" stroke="#4a7c59" stroke-width="6.5" stroke-linecap="round"/>
+
+  <!-- Handle (drawn first so cup body sits on top at join) -->
+  <path d="M 133 113 Q 162 113 162 129 Q 162 147 133 147"
+        fill="none" stroke="url(#mug)" stroke-width="13" stroke-linecap="round"/>
+
+  <!-- Cup body -->
+  <path d="M 56 100 L 136 100 L 128 156 Q 127 162 121 162 L 71 162 Q 65 162 64 156 Z"
+        fill="url(#mug)"/>
+
+  <!-- Cup rim -->
+  <rect x="52" y="94" width="88" height="14" rx="7" fill="url(#mug)"/>
+
+  <!-- Liquid surface — hint of tea -->
+  <ellipse cx="96" cy="103" rx="38" ry="5.5" fill="#4a7c59" opacity="0.55"/>
+
+  <!-- Subtle rim highlight -->
+  <rect x="52" y="94" width="88" height="14" rx="7"
+        fill="none" stroke="#3a6248" stroke-width="1.5" opacity="0.4"/>
 </svg>
