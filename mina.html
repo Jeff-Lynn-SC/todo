@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f5f0e8">
+<title>Mina</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:       #1a1a1a;
+  --paper:     #fffef9;
+  --bg:        #f5f0e8;
+  --muted:     #888;
+  --border:    #d8d4cc;
+  --accent:    #c45c7a;
+  --accent-bg: #fadadf;
+  --nav-h:     48px;
+  --hdr-h:     52px;
+  --safe-b:    env(safe-area-inset-bottom, 0px);
+  --safe-t:    env(safe-area-inset-top,    0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); font-family: 'DM Mono', monospace; color: var(--ink); }
+
+/* ── header ── */
+.app-hdr {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--safe-t) + var(--hdr-h));
+  padding-top: var(--safe-t);
+  background: var(--paper); border-bottom: 2px solid var(--ink);
+  display: flex; align-items: center;
+  padding-left: 1rem; padding-right: 0.6rem; gap: 0.6rem;
+}
+.hdr-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; flex: 1; }
+.hdr-views { display: flex; }
+.view-btn {
+  background: none; border: none; border-left: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.68rem;
+  color: var(--muted); padding: 0.4rem 0.65rem; cursor: pointer;
+  letter-spacing: 0.04em; line-height: 1;
+}
+.view-btn:first-child { border-left: 1.5px solid var(--ink); }
+.view-btn.active { background: var(--ink); color: var(--paper); }
+
+/* ── bottom nav ── */
+.app-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  height: calc(var(--safe-b) + var(--nav-h));
+  padding-bottom: var(--safe-b);
+  background: var(--paper); border-top: 2px solid var(--ink);
+  display: flex;
+}
+.nav-btn {
+  flex: 1; background: none; border: none; border-right: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.06em;
+  color: var(--muted); cursor: pointer;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.active { background: var(--ink); color: var(--paper); }
+
+/* ── screens ── */
+.screen {
+  display: none; position: fixed;
+  top: calc(var(--safe-t) + var(--hdr-h));
+  bottom: calc(var(--safe-b) + var(--nav-h));
+  left: 0; right: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+}
+.screen.active { display: block; }
+
+/* ── calendar nav ── */
+.cal-nav {
+  display: flex; border-bottom: 1.5px solid var(--border);
+  background: var(--paper); position: sticky; top: 0; z-index: 10;
+}
+.cal-nav-btn {
+  flex: 1; background: none; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  color: var(--ink); padding: 0.55rem 0; cursor: pointer;
+  border-right: 1px solid var(--border); letter-spacing: 0.03em;
+}
+.cal-nav-btn:last-child { border-right: none; }
+.cal-nav-btn:active { background: var(--bg); }
+
+/* ── month view ── */
+.cal-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.cal-body { border-top: 1.5px solid var(--ink); border-left: 1.5px solid var(--ink); min-width: 320px; }
+.headers-row { display: grid; grid-template-columns: repeat(7, 1fr); }
+.day-header {
+  border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink);
+  padding: 0.4rem 0.3rem; text-align: center; font-size: 0.62rem;
+  letter-spacing: 0.06em; color: #888; background: var(--bg); user-select: none;
+}
+.week-row { position: relative; }
+.spans-layer { position: relative; overflow: hidden; }
+.spans-layer.has-spans { border-bottom: 1px solid #e8e4dc; }
+.span-bar {
+  position: absolute; height: 20px; background: var(--accent); color: var(--paper);
+  font-size: 0.62rem; letter-spacing: 0.04em; padding: 0 6px 0 8px;
+  display: flex; align-items: center; gap: 4px;
+  white-space: nowrap; overflow: hidden; cursor: default; user-select: none;
+}
+.span-bar.continues-left  { border-left: none; }
+.span-bar.continues-right { border-right: none; }
+.span-label { overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; cursor: text; }
+.del-span { color: transparent; font-size: 0.85rem; cursor: pointer; flex-shrink: 0; line-height: 1; transition: color 0.1s; }
+.span-bar:hover { filter: brightness(0.88); }
+.span-bar:hover .del-span { color: rgba(255,255,255,0.5); }
+.span-bar:hover .del-span:hover { color: #fff; }
+.span-bar.preview { background: #aaa; pointer-events: none; }
+.edit-span-input {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  background: transparent; border: none; border-bottom: 1px solid rgba(255,254,249,0.6);
+  outline: none; color: var(--paper); padding: 0; flex: 1; min-width: 0; width: 100%;
+}
+.days-layer { display: grid; grid-template-columns: repeat(7, 1fr); }
+.day-cell {
+  border-right: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink);
+  min-height: 90px; padding: 0.35rem 0.4rem 0.4rem;
+  position: relative; cursor: pointer; user-select: none; transition: background 0.08s;
+}
+.day-cell:hover { background: #fdfcf6; }
+.day-cell.empty { background: var(--bg); cursor: default; }
+.day-cell.empty:hover { background: var(--bg); }
+.day-cell.selecting { background: #e8e4dc; }
+.day-cell.today .day-num {
+  background: var(--ink); color: var(--paper);
+  width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+}
+.day-num {
+  font-size: 0.72rem; color: var(--ink); display: inline-block;
+  margin-bottom: 0.25rem; line-height: 1; min-width: 20px; text-align: center;
+}
+.events-list { display: flex; flex-direction: column; gap: 2px; }
+.event-chip {
+  font-size: 0.6rem; background: var(--accent-bg); color: var(--accent);
+  padding: 2px 4px; display: flex; align-items: center; gap: 3px;
+  line-height: 1.4; cursor: default; transition: background 0.08s;
+}
+.event-chip:hover { filter: brightness(0.94); }
+.event-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: text; }
+.del-event { color: transparent; font-size: 0.8rem; cursor: pointer; flex-shrink: 0; line-height: 1; }
+.event-chip:hover .del-event { color: var(--accent); opacity: 0.4; }
+.event-chip:hover .del-event:hover { opacity: 1; }
+.edit-chip-input {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  background: transparent; border: none; border-bottom: 1px solid var(--accent);
+  outline: none; color: var(--accent); padding: 0; flex: 1; min-width: 0;
+}
+.add-event-input {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem; width: 100%;
+  border: none; border-bottom: 1px solid var(--ink);
+  background: transparent; outline: none; color: var(--ink);
+  padding: 2px 0; margin-top: 3px;
+}
+.add-event-input::placeholder { color: #bbb; }
+
+/* span prompt */
+.span-prompt {
+  position: fixed; background: var(--paper);
+  border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink);
+  padding: 0.65rem 0.9rem; z-index: 1000;
+  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 0.7rem; color: #888; letter-spacing: 0.05em; white-space: nowrap;
+}
+.span-prompt-input {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: none; border-bottom: 1px solid var(--ink);
+  background: transparent; outline: none; color: var(--ink); padding: 1px 0; min-width: 180px;
+}
+.span-prompt-input::placeholder { color: #bbb; }
+
+/* ── week view ── */
+.week-wrap { padding: 0.5rem 0.4rem 1rem; }
+.week-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.week-cols { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; min-width: 340px; }
+.week-col { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.week-col-hdr {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 4px 2px 6px; cursor: pointer; width: 100%;
+  border-bottom: 1.5px solid var(--border); margin-bottom: 2px;
+}
+.week-dow  { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.05em; }
+.week-dnum {
+  font-size: 1rem; font-weight: 500; color: var(--ink);
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.week-dnum.today { background: var(--ink); color: var(--paper); }
+.week-event {
+  width: 100%; background: var(--accent-bg); color: var(--accent);
+  font-size: 0.55rem; padding: 3px 4px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  border-radius: 2px; cursor: pointer; border-left: 2px solid currentColor;
+}
+.week-span { width: 100%; height: 5px; background: var(--accent); border-radius: 2px; opacity: 0.7; }
+.week-add {
+  width: 100%; background: none; border: 1px dashed var(--border);
+  font-size: 0.7rem; color: var(--muted); padding: 3px 0; cursor: pointer;
+  border-radius: 2px; margin-top: 2px; font-family: 'DM Mono', monospace;
+}
+.week-add:active { background: var(--bg); }
+
+/* ── day view ── */
+.day-wrap { padding: 0.75rem 1rem 2rem; }
+.day-span-pill {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--accent-bg); color: var(--accent);
+  padding: 0.5rem 0.75rem; margin-bottom: 6px; border-radius: 4px;
+  font-size: 0.78rem; border-left: 3px solid currentColor;
+}
+.day-event-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 0; border-bottom: 1px solid #eee;
+}
+.day-event-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
+.day-event-txt { flex: 1; font-size: 0.88rem; cursor: pointer; }
+.day-del {
+  background: none; border: none; font-size: 1.1rem; color: #ccc;
+  cursor: pointer; padding: 0.2rem; line-height: 1; flex-shrink: 0;
+}
+.day-del:active { color: #c0392b; }
+.day-empty { color: var(--muted); font-size: 0.78rem; padding: 0.75rem 0; }
+.day-add-row {
+  display: flex; align-items: center; gap: 0.6rem; margin-top: 1rem;
+  padding-top: 0.75rem; border-top: 1.5px dashed var(--border);
+}
+.day-add-inp {
+  flex: 1; background: none; border: none; border-bottom: 1.5px solid var(--ink);
+  font-family: 'DM Mono', monospace; font-size: 0.88rem; color: var(--ink); outline: none; padding: 0.25rem 0;
+}
+.day-add-inp::placeholder { color: #ccc; }
+.day-add-btn {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.45rem 0.9rem; cursor: pointer; border-radius: 2px;
+}
+
+/* edit overlay */
+.edit-overlay {
+  position: fixed; inset: 0; background: rgba(26,26,26,0.5);
+  z-index: 500; display: flex; align-items: flex-end;
+}
+.edit-box {
+  width: 100%; background: var(--paper); border-top: 2px solid var(--ink);
+  padding: 1.25rem 1.25rem calc(1.25rem + var(--safe-b));
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.edit-box input {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem;
+  border: none; border-bottom: 1.5px solid var(--ink);
+  background: transparent; outline: none; padding: 0.3rem 0; width: 100%;
+}
+.edit-btns { display: flex; gap: 0.5rem; }
+.edit-ok {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  padding: 0.55rem 1.1rem; cursor: pointer; border-radius: 2px;
+}
+.edit-cancel {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.78rem;
+  color: var(--muted); padding: 0.55rem 1rem; cursor: pointer; border-radius: 2px;
+}
+
+/* ── todo ── */
+.todo-prog { padding: 0.6rem 1rem 0.3rem; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em; }
+.todo-bar { height: 2px; background: var(--border); margin: 0 1rem 0.5rem; }
+.todo-bar-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+.todo-list { padding: 0 1rem 0.5rem; }
+.t-row { display: flex; align-items: center; border-bottom: 1px solid var(--border); position: relative; }
+.t-row:last-child { border-bottom: none; }
+.t-row.dragging { opacity: 0.35; }
+.t-row.drag-over { border-top: 2px solid var(--ink); }
+.t-handle {
+  cursor: grab; color: #d8d4cc; font-size: 0.95rem;
+  padding: 0.75rem 0.5rem 0.75rem 0; flex-shrink: 0;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none; touch-action: none; line-height: 1;
+}
+.t-handle:hover { color: #999; }
+.t-handle:active { cursor: grabbing; }
+.t-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 0; cursor: pointer; transition: opacity 0.2s; flex: 1; min-width: 0;
+}
+.t-item:hover { opacity: 0.7; }
+.t-cb {
+  width: 20px; height: 20px; border: 2px solid var(--ink);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.t-item.done .t-cb { background: var(--accent); border-color: var(--accent); }
+.t-item.done .t-cb::after { content: '✓'; color: var(--paper); font-size: 12px; font-weight: bold; }
+.t-lbl {
+  font-size: 0.9rem; letter-spacing: 0.03em; color: var(--ink);
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.t-item.done .t-lbl { text-decoration: line-through; color: #aaa; }
+.t-lbl-input {
+  font-family: 'DM Mono', monospace; font-size: 0.9rem; letter-spacing: 0.03em;
+  color: var(--ink); border: none; border-bottom: 1px solid var(--ink);
+  background: transparent; outline: none; flex: 1; min-width: 0; padding: 0;
+}
+.t-del {
+  background: none; border: none; font-family: 'DM Mono', monospace;
+  font-size: 1rem; color: #ddd; cursor: pointer;
+  padding: 0.75rem 0 0.75rem 0.5rem; flex-shrink: 0; line-height: 1;
+  transition: opacity 0.15s, color 0.15s;
+}
+@media (hover: hover) { .t-del { opacity: 0; } .t-row:hover .t-del { opacity: 1; } }
+.t-del:hover { color: #c0392b !important; }
+.t-hdr-row {
+  display: flex; align-items: center; margin-top: 1.25rem;
+  padding-top: 0.75rem; border-top: 1px solid #d8d4cc; position: relative;
+}
+.t-hdr-row.first-section { margin-top: 0; padding-top: 0; border-top: none; }
+.t-hdr-row.dragging { opacity: 0.35; }
+.t-hdr {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; font-weight: 500;
+  color: #999; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.25rem 0; flex: 1; min-width: 0;
+}
+.t-hdr-input {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #999; border: none; background: transparent;
+  outline: none; flex: 1; min-width: 0; padding: 0.25rem 0;
+}
+.todo-add-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 1rem; border-top: 1.5px dashed var(--border);
+  position: sticky; bottom: 0; background: var(--bg);
+}
+.todo-add-inp {
+  flex: 1; background: none; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.85rem;
+  color: var(--ink); outline: none;
+}
+.todo-add-inp::placeholder { color: #ccc; }
+.todo-add-btn {
+  background: var(--ink); color: var(--paper); border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.45rem 0.85rem; cursor: pointer; border-radius: 2px; flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<header class="app-hdr">
+  <div class="hdr-title" id="hdrTitle">Calendar</div>
+  <div class="hdr-views" id="hdrViews"></div>
+</header>
+
+<div class="screen active" id="screen-cal">
+  <div class="cal-nav" id="calNav"></div>
+  <div id="calContent"></div>
+</div>
+
+<div class="screen" id="screen-todo">
+  <div class="todo-prog"><span id="todoProg">0 / 0 done</span></div>
+  <div class="todo-bar"><div class="todo-bar-fill" id="todoBarFill" style="width:0%"></div></div>
+  <div class="todo-list" id="todoList"></div>
+  <div class="todo-add-row">
+    <span style="color:#ccc">+</span>
+    <input class="todo-add-inp" id="todoAddInp" placeholder="add item…" autocomplete="off">
+    <button class="todo-add-btn" id="todoAddBtn">add</button>
+  </div>
+</div>
+
+<nav class="app-nav">
+  <button class="nav-btn active" id="navCal"  onclick="switchTab('cal')">calendar</button>
+  <button class="nav-btn"        id="navTodo" onclick="switchTab('todo')">to-do</button>
+</nav>
+
+<script>
+// ─────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────
+const USER_NAME   = 'Mina';
+const STORAGE_CAL = 'mina-cal';
+const STORAGE_TODO= 'mina-tasks';
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MSHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DSHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DLONG  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let calView   = 'month';
+let viewDate  = new Date();
+let viewYear  = viewDate.getFullYear();
+let viewMonth = viewDate.getMonth();
+let calStore  = { days: {}, spans: [] };
+let tasks     = [];
+let currentTab= 'cal';
+
+// ─────────────────────────────────────────────
+//  STORAGE
+// ─────────────────────────────────────────────
+function saveCal() {
+  try { localStorage.setItem(STORAGE_CAL, JSON.stringify(calStore)); } catch(e) {}
+}
+function saveTasks() {
+  try { localStorage.setItem(STORAGE_TODO, JSON.stringify(tasks)); } catch(e) {}
+}
+function loadAll() {
+  try {
+    const c = localStorage.getItem(STORAGE_CAL);
+    if (c) { const d = JSON.parse(c); if (d && typeof d === 'object') calStore = d; }
+  } catch(e) {}
+  if (!calStore.days)  calStore.days  = {};
+  if (!calStore.spans) calStore.spans = [];
+  try {
+    const t = localStorage.getItem(STORAGE_TODO);
+    if (t) { const d = JSON.parse(t); if (Array.isArray(d)) tasks = d; }
+  } catch(e) {}
+}
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function dk(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function dkFromDate(dt) { return dk(dt.getFullYear(), dt.getMonth(), dt.getDate()); }
+function isToday(y, m, d) { const t=new Date(); return t.getFullYear()===y && t.getMonth()===m && t.getDate()===d; }
+function getWeekStart(dt) { const d=new Date(dt); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); d.setHours(0,0,0,0); return d; }
+function addDays(dt, n) { const d=new Date(dt); d.setDate(d.getDate()+n); return d; }
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+function switchTab(id) {
+  currentTab = id;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('navCal').classList.toggle('active',  id === 'cal');
+  document.getElementById('navTodo').classList.toggle('active', id === 'todo');
+  const views = document.getElementById('hdrViews');
+  views.innerHTML = '';
+  if (id === 'cal') {
+    document.getElementById('hdrTitle').textContent = 'Calendar';
+    updateCalHdr();
+    renderCal();
+  } else {
+    document.getElementById('hdrTitle').textContent = USER_NAME + "'s List";
+    renderTodo();
+  }
+}
+
+function updateCalHdr() {
+  const views = document.getElementById('hdrViews');
+  views.innerHTML = '';
+  ['day','week','month'].forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'view-btn' + (calView===v ? ' active' : '');
+    b.textContent = v;
+    b.onclick = () => { calView = v; renderCal(); };
+    views.appendChild(b);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  CALENDAR RENDER
+// ─────────────────────────────────────────────
+function renderCal() {
+  updateCalHdr();
+  const nav     = document.getElementById('calNav');
+  const content = document.getElementById('calContent');
+  nav.innerHTML = content.innerHTML = '';
+  const makeNavBtn = (lbl, fn) => {
+    const b = document.createElement('button');
+    b.className = 'cal-nav-btn'; b.textContent = lbl; b.onclick = fn;
+    nav.appendChild(b);
+  };
+  if (calView === 'month') {
+    makeNavBtn('← prev', () => { if (--viewMonth < 0) { viewMonth=11; viewYear--; } renderCal(); });
+    makeNavBtn('today',   () => { const n=new Date(); viewYear=n.getFullYear(); viewMonth=n.getMonth(); renderCal(); });
+    makeNavBtn('next →',  () => { if (++viewMonth > 11) { viewMonth=0; viewYear++; } renderCal(); });
+    document.getElementById('hdrTitle').textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+    content.appendChild(buildMonth());
+  } else if (calView === 'week') {
+    makeNavBtn('← prev', () => { viewDate=addDays(viewDate,-7); renderCal(); });
+    makeNavBtn('today',   () => { viewDate=new Date(); renderCal(); });
+    makeNavBtn('next →',  () => { viewDate=addDays(viewDate, 7); renderCal(); });
+    const ws=getWeekStart(viewDate), we=addDays(ws,6);
+    document.getElementById('hdrTitle').textContent =
+      ws.getMonth()===we.getMonth()
+        ? `${MSHORT[ws.getMonth()]} ${ws.getFullYear()}`
+        : `${MSHORT[ws.getMonth()]}–${MSHORT[we.getMonth()]} ${ws.getFullYear()}`;
+    content.appendChild(buildWeek());
+  } else {
+    makeNavBtn('← prev', () => { viewDate=addDays(viewDate,-1); renderCal(); });
+    makeNavBtn('today',   () => { viewDate=new Date(); renderCal(); });
+    makeNavBtn('next →',  () => { viewDate=addDays(viewDate, 1); renderCal(); });
+    const dow=(viewDate.getDay()+6)%7;
+    document.getElementById('hdrTitle').textContent =
+      `${DLONG[dow]} ${viewDate.getDate()} ${MSHORT[viewDate.getMonth()]}`;
+    content.appendChild(buildDay());
+  }
+}
+
+// ── month ──────────────────────────────────
+const BAR_H = 20, BAR_GAP = 3;
+let dragStartKey=null, dragEndKey=null, isDragging=false, hasCrossedDay=false;
+
+document.addEventListener('mouseup', e => {
+  if (!isDragging) return;
+  isDragging = false;
+  const start=dragStartKey, end=dragEndKey||dragStartKey;
+  dragStartKey = dragEndKey = null;
+  clearSelect(); removePreviewBars();
+  if (!start) return;
+  const s=start<=end?start:end, e2=start<=end?end:start;
+  if (hasCrossedDay) showSpanPrompt(s, e2, e.clientX, e.clientY);
+  hasCrossedDay = false;
+});
+
+function clearSelect() { document.querySelectorAll('.day-cell.selecting').forEach(c => c.classList.remove('selecting')); }
+function removePreviewBars() { document.querySelectorAll('.span-bar.preview').forEach(b => b.remove()); }
+
+function buildMonth() {
+  const scroll = document.createElement('div'); scroll.className = 'cal-scroll';
+  const body   = document.createElement('div'); body.className   = 'cal-body';
+  const hRow   = document.createElement('div'); hRow.className   = 'headers-row';
+  DSHORT.forEach(name => {
+    const h = document.createElement('div'); h.className='day-header'; h.textContent=name; hRow.appendChild(h);
+  });
+  body.appendChild(hRow);
+  const firstDaySun = new Date(viewYear, viewMonth, 1).getDay();
+  const firstDay    = (firstDaySun + 6) % 7;
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  const today       = new Date();
+  const cells = [];
+  for (let i=0; i<firstDay; i++)     cells.push(null);
+  for (let d=1; d<=daysInMonth; d++) cells.push(d);
+  while (cells.length % 7 !== 0)     cells.push(null);
+  for (let wi=0; wi<cells.length; wi+=7) {
+    const week = cells.slice(wi, wi+7);
+    const weekRow = document.createElement('div'); weekRow.className = 'week-row';
+    weekRow.appendChild(buildSpansLayer(week));
+    weekRow.appendChild(buildDaysLayer(week, today));
+    body.appendChild(weekRow);
+  }
+  scroll.appendChild(body);
+  return scroll;
+}
+
+function buildSpansLayer(week) {
+  const layer = document.createElement('div');
+  layer.className = 'spans-layer';
+  layer.dataset.week = week.filter(Boolean).join(',');
+  const nonNull = week.filter(d => d !== null);
+  if (!nonNull.length) return layer;
+  const weekFirstKey = dk(viewYear, viewMonth, nonNull[0]);
+  const weekLastKey  = dk(viewYear, viewMonth, nonNull[nonNull.length-1]);
+  const spansHere    = (calStore.spans||[]).filter(sp => sp.start<=weekLastKey && sp.end>=weekFirstKey);
+  if (!spansHere.length) return layer;
+  layer.classList.add('has-spans');
+  const spansWithCols = spansHere.map(sp => {
+    const visStart=sp.start<weekFirstKey?weekFirstKey:sp.start;
+    const visEnd=sp.end>weekLastKey?weekLastKey:sp.end;
+    const vsDay=parseInt(visStart.split('-')[2]), veDay=parseInt(visEnd.split('-')[2]);
+    const startCol=week.indexOf(vsDay), endCol=week.indexOf(veDay);
+    return { sp, startCol, endCol, continuesLeft:sp.start<weekFirstKey, continuesRight:sp.end>weekLastKey };
+  }).filter(x => x.startCol!==-1 && x.endCol!==-1).sort((a,b) => a.startCol-b.startCol);
+  const rowEnds = [];
+  spansWithCols.forEach(({ sp, startCol, endCol, continuesLeft, continuesRight }) => {
+    let row = rowEnds.findIndex(last => last < startCol);
+    if (row===-1) row = rowEnds.length;
+    rowEnds[row] = endCol;
+    layer.appendChild(makeSpanBar(sp, startCol, endCol, row, continuesLeft, continuesRight));
+  });
+  layer.style.minHeight = `${rowEnds.length*(BAR_H+BAR_GAP)+BAR_GAP}px`;
+  return layer;
+}
+
+function makeSpanBar(sp, startCol, endCol, row, continuesLeft, continuesRight, isPreview) {
+  const bar = document.createElement('div');
+  bar.className = 'span-bar' + (isPreview ? ' preview' : '');
+  if (continuesLeft)  bar.classList.add('continues-left');
+  if (continuesRight) bar.classList.add('continues-right');
+  bar.style.left   = `calc(${startCol}/7*100% + 2px)`;
+  bar.style.width  = `calc(${endCol-startCol+1}/7*100% - 4px)`;
+  bar.style.top    = `${row*(BAR_H+BAR_GAP)+BAR_GAP}px`;
+  bar.style.height = `${BAR_H}px`;
+  const lbl = document.createElement('span');
+  lbl.className = 'span-label'; lbl.textContent = sp.label; lbl.title = 'double-click to edit';
+  bar.appendChild(lbl);
+  if (!isPreview) {
+    lbl.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      const inp = document.createElement('input');
+      inp.className = 'edit-span-input'; inp.value = sp.label;
+      lbl.replaceWith(inp); inp.focus(); inp.select();
+      function commit() { const v=inp.value.trim(); if (v) { sp.label=v; saveCal(); } renderCal(); }
+      inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') renderCal(); });
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('click', e => e.stopPropagation());
+      inp.addEventListener('mousedown', e => e.stopPropagation());
+    });
+    const del = document.createElement('span');
+    del.className = 'del-span'; del.textContent = '×'; del.title = 'Remove span';
+    del.addEventListener('click', e => {
+      e.stopPropagation();
+      calStore.spans = calStore.spans.filter(s => s !== sp);
+      saveCal(); renderCal();
+    });
+    bar.appendChild(del);
+  }
+  return bar;
+}
+
+function buildDaysLayer(week, today) {
+  const layer = document.createElement('div'); layer.className = 'days-layer';
+  week.forEach(d => {
+    const k = d!==null ? dk(viewYear, viewMonth, d) : null;
+    const isT = d!==null && today.getFullYear()===viewYear && today.getMonth()===viewMonth && today.getDate()===d;
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' + (d===null?' empty':'') + (isT?' today':'');
+    if (d !== null) {
+      cell.dataset.key = k;
+      const numEl = document.createElement('div'); numEl.className='day-num'; numEl.textContent=d;
+      cell.appendChild(numEl);
+      const list = document.createElement('div'); list.className='events-list';
+      (calStore.days[k]||[]).forEach((ev, ei) => list.appendChild(makeEventChip(ev, k, ei)));
+      cell.appendChild(list);
+      cell.addEventListener('mousedown', e => {
+        if (e.button!==0) return; e.preventDefault();
+        isDragging=true; hasCrossedDay=false; dragStartKey=dragEndKey=k;
+        cell.classList.add('selecting');
+      });
+      cell.addEventListener('mouseover', () => {
+        if (!isDragging || dragEndKey===k) return;
+        hasCrossedDay=true; dragEndKey=k;
+        const s=dragStartKey<=k?dragStartKey:k, e2=dragStartKey<=k?k:dragStartKey;
+        document.querySelectorAll('[data-key]').forEach(c => {
+          c.classList.toggle('selecting', c.dataset.key>=s && c.dataset.key<=e2);
+        });
+        removePreviewBars(); renderPreview(s, e2);
+      });
+      cell.addEventListener('click', e => { if (e.target.closest('.event-chip')) return; openInlineAdd(cell, k); });
+    }
+    layer.appendChild(cell);
+  });
+  return layer;
+}
+
+function renderPreview(startKey, endKey) {
+  document.querySelectorAll('.spans-layer').forEach(layer => {
+    const weekDays = (layer.dataset.week||'').split(',').map(Number).filter(Boolean);
+    if (!weekDays.length) return;
+    const wfk=dk(viewYear,viewMonth,weekDays[0]), wlk=dk(viewYear,viewMonth,weekDays[weekDays.length-1]);
+    if (startKey>wlk || endKey<wfk) return;
+    const visStart=startKey<wfk?wfk:startKey, visEnd=endKey>wlk?wlk:endKey;
+    const week=buildWeekArray(weekDays);
+    const sc=week.indexOf(parseInt(visStart.split('-')[2])), ec=week.indexOf(parseInt(visEnd.split('-')[2]));
+    if (sc===-1||ec===-1) return;
+    const row=layer.querySelectorAll('.span-bar:not(.preview)').length;
+    const bar=makeSpanBar({label:'…'},sc,ec,row,startKey<wfk,endKey>wlk,true);
+    layer.classList.add('has-spans');
+    const needed=(row+1)*(BAR_H+BAR_GAP)+BAR_GAP;
+    if (parseFloat(layer.style.minHeight||0)<needed) layer.style.minHeight=`${needed}px`;
+    layer.appendChild(bar);
+  });
+}
+
+function buildWeekArray(nonNullDays) {
+  const week=Array(7).fill(null);
+  nonNullDays.forEach(d => { const dow=(new Date(viewYear,viewMonth,d).getDay()+6)%7; week[dow]=d; });
+  return week;
+}
+
+function makeEventChip(ev, k, ei) {
+  const chip = document.createElement('div'); chip.className = 'event-chip';
+  const txt  = document.createElement('span'); txt.className='event-text'; txt.textContent=ev; txt.title='double-click to edit';
+  chip.appendChild(txt);
+  txt.addEventListener('dblclick', e => {
+    e.stopPropagation();
+    const inp = document.createElement('input');
+    inp.className='edit-chip-input'; inp.value=ev;
+    chip.innerHTML=''; chip.appendChild(inp);
+    inp.focus(); inp.select();
+    function commit() {
+      const v=inp.value.trim();
+      if (v) calStore.days[k][ei]=v;
+      else { calStore.days[k].splice(ei,1); if (!calStore.days[k].length) delete calStore.days[k]; }
+      saveCal(); renderCal();
+    }
+    inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') renderCal(); });
+    inp.addEventListener('blur', () => setTimeout(commit, 120));
+    inp.addEventListener('click', e => e.stopPropagation());
+    inp.addEventListener('mousedown', e => e.stopPropagation());
+  });
+  const del = document.createElement('span'); del.className='del-event'; del.textContent='×';
+  del.addEventListener('click', e => {
+    e.stopPropagation();
+    calStore.days[k].splice(ei,1);
+    if (!calStore.days[k].length) delete calStore.days[k];
+    saveCal(); renderCal();
+  });
+  chip.appendChild(del);
+  return chip;
+}
+
+function openInlineAdd(cell, k) {
+  if (cell.querySelector('.add-event-input')) return;
+  const list = cell.querySelector('.events-list');
+  if (!list) return;
+  const inp = document.createElement('input');
+  inp.className='add-event-input'; inp.placeholder='add event…'; inp.autocomplete='off';
+  inp.addEventListener('mousedown', e => e.stopPropagation());
+  function commit() {
+    const v=inp.value.trim();
+    if (v) { if (!calStore.days[k]) calStore.days[k]=[]; calStore.days[k].push(v); saveCal(); }
+    renderCal();
+  }
+  inp.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); commit(); } if (e.key==='Escape') renderCal(); });
+  inp.addEventListener('blur', () => setTimeout(commit, 120));
+  list.appendChild(inp); inp.focus();
+}
+
+let promptEl = null;
+function showSpanPrompt(startKey, endKey, cx, cy) {
+  removePrompt();
+  const fmt=k=>{ const p=k.split('-'); return `${parseInt(p[2])} ${MSHORT[parseInt(p[1])-1]}`; };
+  const prompt = document.createElement('div'); prompt.className='span-prompt';
+  prompt.style.flexDirection='column'; prompt.style.alignItems='flex-start'; prompt.style.gap='6px';
+  const lbl=document.createElement('span'); lbl.textContent=`${fmt(startKey)} → ${fmt(endKey)}:`; prompt.appendChild(lbl);
+  const inp=document.createElement('input');
+  inp.className='span-prompt-input'; inp.placeholder='name this period…'; inp.autocomplete='off'; inp.style.width='100%';
+  let committed=false;
+  function commit() {
+    if (committed) return; committed=true; removePrompt();
+    const v=inp.value.trim();
+    if (v) { calStore.spans.push({ label:v, start:startKey, end:endKey }); saveCal(); }
+    renderCal();
+  }
+  inp.addEventListener('keydown', e => {
+    if (e.key==='Enter') { e.preventDefault(); commit(); }
+    if (e.key==='Escape') { committed=true; removePrompt(); renderCal(); }
+  });
+  inp.addEventListener('blur', () => setTimeout(commit, 120));
+  prompt.appendChild(inp);
+  const PW=260, PH=80;
+  let left=cx+12, top=cy+12;
+  if (left+PW>window.innerWidth-16)  left=cx-PW-12;
+  if (top+PH >window.innerHeight-16) top=cy-PH-12;
+  prompt.style.left=`${Math.max(8,left)}px`; prompt.style.top=`${Math.max(8,top)}px`;
+  document.body.appendChild(prompt); promptEl=prompt;
+  setTimeout(()=>inp.focus(),0);
+}
+function removePrompt() { if (promptEl) { promptEl.remove(); promptEl=null; } }
+document.addEventListener('mousedown', e => { if (promptEl && !promptEl.contains(e.target)) removePrompt(); });
+
+// ── week view ──────────────────────────────
+function buildWeek() {
+  const wrap=document.createElement('div'); wrap.className='week-wrap';
+  const ws=getWeekStart(viewDate);
+  const cols=document.createElement('div'); cols.className='week-cols';
+  for (let i=0; i<7; i++) {
+    const dt=addDays(ws,i), y=dt.getFullYear(), m=dt.getMonth(), d=dt.getDate();
+    const key=dk(y,m,d), tod=isToday(y,m,d);
+    const col=document.createElement('div'); col.className='week-col';
+    const hdr=document.createElement('div'); hdr.className='week-col-hdr';
+    const dw=document.createElement('div'); dw.className='week-dow'; dw.textContent=DSHORT[i];
+    const dn=document.createElement('div'); dn.className='week-dnum'+(tod?' today':''); dn.textContent=d;
+    hdr.appendChild(dw); hdr.appendChild(dn);
+    hdr.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+    col.appendChild(hdr);
+    (calStore.spans||[]).filter(s=>s.start<=key&&s.end>=key).forEach(sp => {
+      const bar=document.createElement('div'); bar.className='week-span'; bar.title=sp.label; col.appendChild(bar);
+    });
+    (calStore.days[key]||[]).forEach(ev => {
+      const chip=document.createElement('div'); chip.className='week-event'; chip.textContent=ev; chip.title=ev;
+      chip.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+      col.appendChild(chip);
+    });
+    const add=document.createElement('button'); add.className='week-add'; add.textContent='+';
+    add.addEventListener('click', () => { viewDate=new Date(y,m,d); calView='day'; renderCal(); });
+    col.appendChild(add);
+    cols.appendChild(col);
+  }
+  wrap.appendChild(cols);
+  return wrap;
+}
+
+// ── day view ──────────────────────────────
+function buildDay() {
+  const wrap=document.createElement('div'); wrap.className='day-wrap';
+  const y=viewDate.getFullYear(), m=viewDate.getMonth(), d=viewDate.getDate(), key=dk(y,m,d);
+  (calStore.spans||[]).filter(s=>s.start<=key&&s.end>=key).forEach(sp => {
+    const pill=document.createElement('div'); pill.className='day-span-pill'; pill.textContent=sp.label;
+    wrap.appendChild(pill);
+  });
+  const evs=calStore.days[key]||[];
+  if (evs.length===0 && !(calStore.spans||[]).some(s=>s.start<=key&&s.end>=key)) {
+    const empty=document.createElement('div'); empty.className='day-empty'; empty.textContent='No events today'; wrap.appendChild(empty);
+  }
+  evs.forEach((ev, i) => {
+    const row=document.createElement('div'); row.className='day-event-row';
+    const dot=document.createElement('div'); dot.className='day-event-dot';
+    const txt=document.createElement('div'); txt.className='day-event-txt'; txt.textContent=ev;
+    const del=document.createElement('button'); del.className='day-del'; del.textContent='×';
+    del.addEventListener('click', () => {
+      calStore.days[key].splice(i,1);
+      if (!calStore.days[key].length) delete calStore.days[key];
+      saveCal(); renderCal();
+    });
+    txt.addEventListener('click', () => openEditOverlay(ev, v => {
+      if (v) { calStore.days[key][i]=v; saveCal(); } renderCal();
+    }));
+    row.appendChild(dot); row.appendChild(txt); row.appendChild(del);
+    wrap.appendChild(row);
+  });
+  const addWrap=document.createElement('div');
+  addWrap.style.cssText='margin-top:1rem; padding-top:0.75rem; border-top:1.5px dashed var(--border);';
+  const addRow=document.createElement('div'); addRow.className='day-add-row';
+  addRow.style.cssText='margin-top:0; padding-top:0; border-top:none;';
+  const inp=document.createElement('input'); inp.className='day-add-inp'; inp.placeholder='add event…'; inp.autocomplete='off';
+  const btn=document.createElement('button'); btn.className='day-add-btn'; btn.textContent='add';
+  const addEv=()=>{
+    const v=inp.value.trim(); if (!v) return;
+    if (!calStore.days[key]) calStore.days[key]=[];
+    calStore.days[key].push(v); saveCal(); inp.value=''; renderCal();
+    setTimeout(()=>{ const ni=document.querySelector('.day-add-inp'); if (ni) ni.focus(); },80);
+  };
+  inp.addEventListener('keydown', e=>{ if (e.key==='Enter') addEv(); });
+  btn.addEventListener('click', addEv);
+  addRow.appendChild(inp); addRow.appendChild(btn);
+  addWrap.appendChild(addRow); wrap.appendChild(addWrap);
+  setTimeout(()=>inp.focus(),100);
+  return wrap;
+}
+
+function openEditOverlay(value, onSave) {
+  const overlay=document.createElement('div'); overlay.className='edit-overlay';
+  const box=document.createElement('div'); box.className='edit-box';
+  const lbl=document.createElement('div');
+  lbl.style.cssText='font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;margin-bottom:4px;';
+  lbl.textContent='EDIT EVENT';
+  const inp=document.createElement('input'); inp.value=value;
+  const btns=document.createElement('div'); btns.className='edit-btns';
+  const ok=document.createElement('button'); ok.className='edit-ok'; ok.textContent='save';
+  ok.onclick=()=>{ overlay.remove(); onSave(inp.value.trim()); };
+  const cancel=document.createElement('button'); cancel.className='edit-cancel'; cancel.textContent='cancel';
+  cancel.onclick=()=>overlay.remove();
+  inp.addEventListener('keydown', e=>{ if (e.key==='Enter') ok.click(); if (e.key==='Escape') overlay.remove(); });
+  btns.appendChild(ok); btns.appendChild(cancel);
+  box.appendChild(lbl); box.appendChild(inp); box.appendChild(btns);
+  overlay.appendChild(box); document.body.appendChild(overlay);
+  setTimeout(()=>inp.focus(),50);
+}
+
+// ─────────────────────────────────────────────
+//  TODO
+// ─────────────────────────────────────────────
+let tTouchSrc=null, tTouchDragging=false;
+document.addEventListener('touchmove', e => { if (tTouchDragging) e.preventDefault(); }, { passive: false });
+
+function attachTouchDrag(handleEl, rowEl, idx, listEl) {
+  handleEl.addEventListener('touchstart', e => {
+    e.preventDefault(); tTouchSrc=idx; tTouchDragging=true;
+    setTimeout(()=>rowEl.classList.add('dragging'),0);
+  }, { passive: false });
+  handleEl.addEventListener('touchmove', e => {
+    if (!tTouchDragging) return;
+    const touch=e.touches[0];
+    let target=null;
+    listEl.querySelectorAll('[data-ti]').forEach(r => {
+      if (r===rowEl) return;
+      const rect=r.getBoundingClientRect();
+      if (touch.clientY>=rect.top && touch.clientY<=rect.bottom) target=r;
+    });
+    listEl.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    if (target) target.classList.add('drag-over');
+  }, { passive: false });
+  function onEnd() {
+    if (!tTouchDragging) return;
+    tTouchDragging=false; rowEl.classList.remove('dragging');
+    const over=listEl.querySelector('.drag-over');
+    listEl.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+    if (over) {
+      const ti=parseInt(over.dataset.ti);
+      if (!isNaN(ti) && ti!==tTouchSrc) {
+        const moved=tasks.splice(tTouchSrc,1)[0];
+        tasks.splice(tTouchSrc<ti?ti-1:ti, 0, moved);
+        saveTasks(); renderTodo();
+      }
+    }
+    tTouchSrc=null;
+  }
+  handleEl.addEventListener('touchend',    onEnd, { passive: true });
+  handleEl.addEventListener('touchcancel', onEnd, { passive: true });
+}
+
+function startRename(i, labelEl, isHeader) {
+  const inp=document.createElement('input');
+  inp.className=isHeader?'t-hdr-input':'t-lbl-input';
+  inp.value=tasks[i].label;
+  labelEl.replaceWith(inp); inp.focus(); inp.select();
+  function commit() {
+    const v=inp.value.trim(); if (v) tasks[i].label=v;
+    saveTasks(); renderTodo();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if (e.key==='Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key==='Escape') renderTodo();
+  });
+}
+
+function renderTodo() {
+  const listEl  = document.getElementById('todoList');
+  const progEl  = document.getElementById('todoProg');
+  const barEl   = document.getElementById('todoBarFill');
+  listEl.innerHTML = '';
+  let dragSrc=null;
+  const firstHeaderIdx=tasks.findIndex(t=>t.header);
+  tasks.forEach((t, i) => {
+    const isHeader=t.header===true;
+    const row=document.createElement('div');
+    row.className = isHeader ? 't-hdr-row'+(i===firstHeaderIdx?' first-section':'') : 't-row';
+    row.draggable=true; row.dataset.ti=i;
+    const handle=document.createElement('span');
+    handle.className='t-handle'; handle.textContent='⠿'; handle.title='Drag to reorder';
+    row.appendChild(handle);
+    attachTouchDrag(handle, row, i, listEl);
+    if (isHeader) {
+      const h=document.createElement('div'); h.className='t-hdr'; h.textContent=t.label; h.title='Double-tap to rename';
+      h.addEventListener('dblclick', e=>{ e.stopPropagation(); startRename(i,h,true); });
+      row.appendChild(h);
+    } else {
+      const item=document.createElement('div'); item.className='t-item'+(t.done?' done':'');
+      const cb=document.createElement('div'); cb.className='t-cb';
+      cb.addEventListener('click', e=>{ e.stopPropagation(); tasks[i].done=!tasks[i].done; saveTasks(); renderTodo(); });
+      const lbl=document.createElement('span'); lbl.className='t-lbl'; lbl.textContent=t.label; lbl.title='Double-tap to rename';
+      lbl.addEventListener('dblclick', e=>{ e.stopPropagation(); startRename(i,lbl,false); });
+      item.appendChild(cb); item.appendChild(lbl); row.appendChild(item);
+    }
+    const del=document.createElement('button'); del.className='t-del'; del.textContent='×'; del.title='Delete';
+    del.addEventListener('click', e=>{ e.stopPropagation(); tasks.splice(i,1); saveTasks(); renderTodo(); });
+    row.appendChild(del);
+    row.addEventListener('dragstart', e=>{ dragSrc=i; setTimeout(()=>row.classList.add('dragging'),0); e.dataTransfer.effectAllowed='move'; });
+    row.addEventListener('dragend', ()=>{ row.classList.remove('dragging'); listEl.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over')); });
+    row.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; listEl.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over')); if (dragSrc!==i) row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', ()=>row.classList.remove('drag-over'));
+    row.addEventListener('drop', e=>{ e.preventDefault(); row.classList.remove('drag-over'); if (dragSrc===null||dragSrc===i) return; const moved=tasks.splice(dragSrc,1)[0]; tasks.splice(dragSrc<i?i-1:i,0,moved); dragSrc=null; saveTasks(); renderTodo(); });
+    listEl.appendChild(row);
+  });
+  const items=tasks.filter(t=>!t.header), done=items.filter(t=>t.done).length;
+  progEl.textContent=`${done} / ${items.length} done`;
+  barEl.style.width=items.length?(done/items.length*100)+'%':'0%';
+}
+
+const todoAddInp = document.getElementById('todoAddInp');
+const todoAddBtn = document.getElementById('todoAddBtn');
+const addTask = () => {
+  const v=todoAddInp.value.trim(); if (!v) return;
+  tasks.push({ label:v, done:false }); todoAddInp.value=''; saveTasks(); renderTodo();
+};
+todoAddBtn.addEventListener('click', addTask);
+todoAddInp.addEventListener('keydown', e=>{ if (e.key==='Enter') addTask(); });
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+loadAll();
+switchTab('cal');
+</script>
+</body>
+</html>
