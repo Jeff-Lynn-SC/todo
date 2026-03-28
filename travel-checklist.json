@@ -68,6 +68,11 @@
       "header": false,
       "label": "Bin putting-out covered",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "turn off the heating",
+      "done": false
     }
   ]
 }
