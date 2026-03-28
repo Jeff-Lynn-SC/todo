@@ -52,12 +52,12 @@
     {
       "header": false,
       "label": "Turn off bathroom water heater",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Turn off kitchen water heater",
-      "done": false
+      "done": true
     },
     {
       "header": false,
