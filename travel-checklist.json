@@ -67,7 +67,7 @@
     {
       "header": false,
       "label": "Bin putting-out covered",
-      "done": false
+      "done": true
     },
     {
       "header": false,
