@@ -72,7 +72,7 @@
     {
       "header": false,
       "label": "turn off the heating",
-      "done": false
+      "done": true
     },
     {
       "header": false,
