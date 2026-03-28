@@ -78,6 +78,11 @@
       "header": false,
       "label": "sort the sourdough",
       "done": true
+    },
+    {
+      "header": false,
+      "label": "Turn off WiFi",
+      "done": false
     }
   ]
 }
