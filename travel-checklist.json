@@ -91,12 +91,12 @@
     {
       "header": false,
       "label": "Coat",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Jumper",
-      "done": false
+      "done": true
     },
     {
       "header": false,
