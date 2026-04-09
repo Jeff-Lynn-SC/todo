@@ -97,6 +97,11 @@
       "header": false,
       "label": "Jumper",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "P",
+      "done": false
     }
   ]
 }
