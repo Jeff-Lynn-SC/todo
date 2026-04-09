@@ -92,6 +92,11 @@
       "header": false,
       "label": "Coat",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Jumper",
+      "done": false
     }
   ]
 }
