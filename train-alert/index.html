@@ -257,15 +257,25 @@
 
     #alertOverlay.show { display: flex; }
 
-    #alertOverlay .big-icon { font-size: 5rem; margin-bottom: 16px; }
-    #alertOverlay h2 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    @keyframes flashBg {
+      0%, 100% { background: rgba(192,57,43,0.95); }
+      50%       { background: rgba(231,76,60,1); }
+    }
+
+    #alertOverlay.show { animation: flashBg 0.5s infinite; }
+
+    #alertOverlay .big-icon { font-size: 5rem; margin-bottom: 16px; animation: pulse 0.5s infinite; }
+    #alertOverlay h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
     #alertOverlay p  { font-size: 1.1rem; color: #ffe; margin-bottom: 32px; }
 
     #alertOverlay button {
       max-width: 280px;
       background: #fff;
       color: #c0392b;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 18px;
+      border-radius: 14px;
     }
   </style>
 </head>
@@ -332,6 +342,27 @@
   let alerted = false;
   let stationLat = null, stationLng = null;
   let addFormOpen = false;
+  let alarmInterval = null;
+  let vibrateInterval = null;
+  let alarmNodes = [];
+  let wakeLock = null;
+
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      // Re-acquire if page becomes visible again (e.g. user switches back)
+      document.addEventListener('visibilitychange', async () => {
+        if (wakeLock !== null && document.visibilityState === 'visible' && watchId !== null) {
+          try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+        }
+      });
+    } catch(e) {}
+  }
+
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+  }
 
   // --- station storage ---
   function loadStations() {
@@ -420,6 +451,7 @@
       Notification.requestPermission();
     }
 
+    requestWakeLock();
     setStatus('tracking', '📡', 'Tracking…', `Looking for ${station.name}`);
     document.getElementById('distanceDisplay').style.display = 'block';
     document.getElementById('stopBtn').style.display = 'block';
@@ -436,6 +468,9 @@
     setStatus('idle', '🛑', 'Not tracking', 'Tap Track on a saved station');
     document.getElementById('distanceDisplay').style.display = 'none';
     document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('alertOverlay').classList.remove('show');
+    stopAlarm();
+    releaseWakeLock();
     alerted = false;
   }
 
@@ -473,9 +508,8 @@
     document.getElementById('alertOverlay').classList.add('show');
     setStatus('arrived', '🚨', 'STATION APPROACHING', `Get ready!`);
 
-    if (audioCtx) {
-      for (let i = 0; i < 5; i++) setTimeout(() => beep(audioCtx), i * 400);
-    }
+    startAlarmSound();
+    startVibrateLoop();
 
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(`🚂 Approaching ${name}`, {
@@ -486,11 +520,57 @@
       });
     }
 
-    if ('vibrate' in navigator) navigator.vibrate([500, 200, 500, 200, 500]);
+    // Re-fire alarm every 8 seconds if not dismissed
+    alarmInterval = setInterval(() => {
+      if (document.getElementById('alertOverlay').classList.contains('show')) {
+        startAlarmSound();
+      }
+    }, 8000);
+  }
+
+  function startAlarmSound() {
+    if (!audioCtx) return;
+    // Two-tone siren: high then low, 4 pairs
+    const pattern = [960, 640, 960, 640, 960, 640, 960, 640];
+    pattern.forEach((freq, i) => {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value = freq;
+      o.type = 'square';
+      const t = audioCtx.currentTime + i * 0.18;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.6, t + 0.02);
+      g.gain.setValueAtTime(0.6, t + 0.14);
+      g.gain.linearRampToValueAtTime(0, t + 0.18);
+      o.start(t);
+      o.stop(t + 0.18);
+      alarmNodes.push(o);
+    });
+  }
+
+  function startVibrateLoop() {
+    if (!('vibrate' in navigator)) return;
+    // Immediately vibrate, then repeat every 2s until dismissed
+    const pattern = [400, 150, 400, 150, 600];
+    navigator.vibrate(pattern);
+    vibrateInterval = setInterval(() => {
+      if (document.getElementById('alertOverlay').classList.contains('show')) {
+        navigator.vibrate(pattern);
+      }
+    }, 2000);
+  }
+
+  function stopAlarm() {
+    if (alarmInterval) { clearInterval(alarmInterval); alarmInterval = null; }
+    if (vibrateInterval) { clearInterval(vibrateInterval); vibrateInterval = null; }
+    if ('vibrate' in navigator) navigator.vibrate(0);
+    alarmNodes = [];
   }
 
   function dismissAlert() {
     document.getElementById('alertOverlay').classList.remove('show');
+    stopAlarm();
   }
 
   function useCurrentLocation() {
