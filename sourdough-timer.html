@@ -246,6 +246,14 @@
 
   .status-bar span { color: var(--brown); font-weight: 500; }
 
+  .btn-new-session {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    background: none; border: 1px solid var(--muted); color: var(--muted);
+    padding: 4px 10px; cursor: pointer;
+  }
+  .btn-new-session:hover { border-color: var(--rust); color: var(--rust); }
+
   .hidden { display: none; }
 
   /* Timer alert overlay */
@@ -336,6 +344,7 @@
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
   <div>Started: <span id="bulk-start">—</span></div>
+  <button class="btn-new-session" onclick="newSession()">New session</button>
 </div>
 
 <div class="timeline" id="timeline"></div>
@@ -447,6 +456,7 @@ function markDone(stepId, index) {
   const nextStep = STEPS[index + 1];
   state.activeStep = nextStep ? nextStep.id : null;
 
+  saveState();
   render();
 
   // Auto-prompt Claude with context
@@ -461,6 +471,7 @@ function startTimer(stepId, mins) {
   const target = new Date(Date.now() + mins * 60 * 1000);
   const intervalId = setInterval(() => tick(stepId, target), 1000);
   state.timers[stepId] = { target, intervalId };
+  saveState();
   tick(stepId, target);
 }
 
@@ -666,11 +677,70 @@ function fmt(d) {
   return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
+// ─── Persistence ─────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'sourdough-session';
+
+function saveState() {
+  const toSave = {
+    completedAt: {},
+    activeStep: state.activeStep,
+    bulkStart: state.bulkStart ? state.bulkStart.getTime() : null,
+    timerTargets: {},
+  };
+  Object.entries(state.completedAt).forEach(([k, v]) => { toSave.completedAt[k] = v.getTime(); });
+  Object.entries(state.timers).forEach(([k, v]) => { toSave.timerTargets[k] = v.target.getTime(); });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    state.activeStep = saved.activeStep || STEPS[0].id;
+    state.bulkStart  = saved.bulkStart ? new Date(saved.bulkStart) : null;
+    Object.entries(saved.completedAt || {}).forEach(([k, v]) => { state.completedAt[k] = new Date(v); });
+    // Restore running timers
+    Object.entries(saved.timerTargets || {}).forEach(([stepId, targetMs]) => {
+      const target = new Date(targetMs);
+      const remaining = target - Date.now();
+      if (remaining > 0) {
+        const intervalId = setInterval(() => tick(stepId, target), 1000);
+        state.timers[stepId] = { target, intervalId };
+      } else {
+        // Timer expired while away — fire alert immediately
+        setTimeout(() => triggerTimerAlert(stepId), 300);
+      }
+    });
+    return true;
+  } catch(e) { return false; }
+}
+
+function newSession() {
+  if (!confirm('Start a new bake? This will clear the current session.')) return;
+  // Clear all running timers
+  Object.values(state.timers).forEach(t => clearInterval(t.intervalId));
+  state = { completedAt: {}, timers: {}, activeStep: STEPS[0].id, bulkStart: null };
+  localStorage.removeItem(STORAGE_KEY);
+  chatHistory = [];
+  document.getElementById('messages').innerHTML = '';
+  dismissTimerAlert();
+  render();
+  addMsg("Fresh start. Good luck with the bake!", 'claude');
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
-state.activeStep = STEPS[0].id;
+const resumed = loadState();
 render();
-addMsg("Ready. Mark each step done as you go, or ask me anything about the bake.", 'claude');
+if (resumed && state.bulkStart) {
+  addMsg(`Welcome back. You're on ${STEPS.find(s => s.id === state.activeStep)?.name || 'the final step'} — carry on!`, 'claude');
+} else {
+  state.activeStep = STEPS[0].id;
+  render();
+  addMsg("Ready. Mark each step done as you go, or ask me anything about the bake.", 'claude');
+}
 if (!getKey()) showKeyModal();
 </script>
 </body>
