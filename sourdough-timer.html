@@ -343,7 +343,7 @@
 </div>
 
 <h1>Sourdough</h1>
-<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.8</p>
+<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.9</p>
 
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
@@ -708,12 +708,17 @@ async function chat(userText, isAuto = false) {
       return;
     }
     const data = await res.json();
+    if (!res.ok) {
+      thinking.textContent = `API error ${res.status}: ${data.error?.message || JSON.stringify(data)}`;
+      thinking.classList.remove('thinking');
+      return;
+    }
     const reply = data.content?.find(b => b.type === 'text')?.text || '(no response)';
     thinking.textContent = reply;
     thinking.classList.remove('thinking');
     chatHistory.push({ role: 'assistant', content: reply });
   } catch(e) {
-    thinking.textContent = 'Error reaching Claude.';
+    thinking.textContent = `Error: ${e.message}`;
     thinking.classList.remove('thinking');
   }
 
