@@ -343,7 +343,7 @@
 </div>
 
 <h1>Sourdough</h1>
-<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.7</p>
+<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.8</p>
 
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
@@ -369,15 +369,16 @@
 // ─── State ───────────────────────────────────────────────────────────────────
 
 const STEPS = [
-  { id: 'fermentolyse', label: 'Step 1', name: 'Fermentolyse',        defaultMins: 45  },
-  { id: 'salt',         label: 'Step 2', name: 'Salt',                defaultMins: 30  },
-  { id: 'sf1',          label: 'Step 3', name: 'S&F 1',               defaultMins: 30  },
-  { id: 'sf2',          label: 'Step 4', name: 'S&F 2',               defaultMins: 30  },
-  { id: 'sf3',          label: 'Step 5', name: 'S&F 3',               defaultMins: 30  },
-  { id: 'sf4',          label: 'Step 6', name: 'S&F 4',               defaultMins: 30  },
-  { id: 'preshapecheck',label: 'Step 7', name: 'Ready to pre-shape?', defaultMins: 30, checkLoop: true, firstCheckMins: 120 },
-  { id: 'preshape',     label: 'Step 8', name: 'Pre-shape',           defaultMins: 30  },
-  { id: 'shape',        label: 'Step 9', name: 'Final shape',         defaultMins: null},
+  { id: 'fermentolyse', label: 'Step 1',  name: 'Fermentolyse',        defaultMins: 45  },
+  { id: 'salt',         label: 'Step 2',  name: 'Salt',                defaultMins: 30  },
+  { id: 'slapfold',     label: 'Step 3',  name: 'Slap & Fold',         defaultMins: 10  },
+  { id: 'sf1',          label: 'Step 4',  name: 'S&F 1',               defaultMins: 30  },
+  { id: 'sf2',          label: 'Step 5',  name: 'S&F 2',               defaultMins: 30  },
+  { id: 'sf3',          label: 'Step 6',  name: 'S&F 3',               defaultMins: 30  },
+  { id: 'sf4',          label: 'Step 7',  name: 'S&F 4',               defaultMins: 30  },
+  { id: 'preshapecheck',label: 'Step 8',  name: 'Ready to pre-shape?', defaultMins: 30, checkLoop: true, firstCheckMins: 120 },
+  { id: 'preshape',     label: 'Step 9',  name: 'Pre-shape',           defaultMins: 30  },
+  { id: 'shape',        label: 'Step 10', name: 'Final shape',         defaultMins: null},
 ];
 
 let state = {
