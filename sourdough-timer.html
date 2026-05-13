@@ -343,7 +343,7 @@
 </div>
 
 <h1>Sourdough</h1>
-<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.4</p>
+<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.5</p>
 
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
@@ -375,7 +375,7 @@ const STEPS = [
   { id: 'sf2',          label: 'Step 4', name: 'S&F 2',               defaultMins: 30  },
   { id: 'sf3',          label: 'Step 5', name: 'S&F 3',               defaultMins: 30  },
   { id: 'sf4',          label: 'Step 6', name: 'S&F 4',               defaultMins: 30  },
-  { id: 'preshapecheck',label: 'Step 7', name: 'Ready to pre-shape?', defaultMins: 30, checkLoop: true },
+  { id: 'preshapecheck',label: 'Step 7', name: 'Ready to pre-shape?', defaultMins: 30, checkLoop: true, firstCheckMins: 120 },
   { id: 'preshape',     label: 'Step 8', name: 'Pre-shape',           defaultMins: 30  },
   { id: 'shape',        label: 'Step 9', name: 'Final shape',         defaultMins: null},
 ];
@@ -420,18 +420,22 @@ function render() {
 
     if (!done) {
       if (active && step.checkLoop) {
-        // Check-loop step: Ready + Not yet buttons
+        const hasTimer = !!state.timers[step.id];
+
         const readyBtn = document.createElement('button');
         readyBtn.className = 'btn-primary btn-small';
         readyBtn.textContent = 'Ready! Pre-shape now';
         readyBtn.onclick = () => markDone(step.id, i);
         actions.appendChild(readyBtn);
 
-        const notYetBtn = document.createElement('button');
-        notYetBtn.className = 'btn-secondary btn-small';
-        notYetBtn.textContent = 'Not yet — check in 30 min';
-        notYetBtn.onclick = () => { startTimer(step.id, step.defaultMins); render(); };
-        actions.appendChild(notYetBtn);
+        // Only show "not yet" when a check is actually due (no timer running)
+        if (!hasTimer) {
+          const notYetBtn = document.createElement('button');
+          notYetBtn.className = 'btn-secondary btn-small';
+          notYetBtn.textContent = 'Not yet — check in 30 min';
+          notYetBtn.onclick = () => { startTimer(step.id, step.defaultMins); render(); };
+          actions.appendChild(notYetBtn);
+        }
       } else {
         const markBtn = document.createElement('button');
         markBtn.className = 'btn-primary btn-small';
@@ -476,6 +480,11 @@ function markDone(stepId, index) {
   // Advance active step
   const nextStep = STEPS[index + 1];
   state.activeStep = nextStep ? nextStep.id : null;
+
+  // Auto-start first-check timer if next step needs one
+  if (nextStep?.firstCheckMins) {
+    startTimer(nextStep.id, nextStep.firstCheckMins);
+  }
 
   saveState();
   render();
