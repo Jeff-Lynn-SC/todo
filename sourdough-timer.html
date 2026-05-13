@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sourdough Timer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:wght@400;700&display=swap');
+
+  :root {
+    --cream: #f5f0e8;
+    --dark: #1a1208;
+    --brown: #6b4c2a;
+    --amber: #c8821a;
+    --rust: #a84c1e;
+    --light: #e8dfc8;
+    --muted: #8c7a60;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--dark);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--brown);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 28px;
+  }
+
+  .step {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 36px;
+    flex-shrink: 0;
+  }
+
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--muted);
+    background: var(--cream);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.3s;
+  }
+
+  .dot.done { background: var(--brown); border-color: var(--brown); }
+  .dot.active { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 0 3px rgba(200,130,26,0.25); }
+
+  .line {
+    width: 2px;
+    flex: 1;
+    background: var(--light);
+    margin: 4px 0;
+    min-height: 20px;
+  }
+
+  .step-right {
+    flex: 1;
+    padding: 0 0 20px 12px;
+  }
+
+  .step-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .step-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  .step-time {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .step-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Countdown display */
+  .countdown {
+    font-size: 2.2rem;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--amber);
+    letter-spacing: -0.02em;
+    margin: 6px 0 10px;
+  }
+
+  .countdown.urgent { color: var(--rust); animation: pulse 1s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Buttons */
+  button {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--brown);
+    color: var(--cream);
+  }
+  .btn-primary:hover { background: var(--dark); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--brown);
+    border: 1px solid var(--brown);
+  }
+  .btn-secondary:hover { background: var(--light); }
+
+  .btn-small {
+    font-size: 0.65rem;
+    padding: 5px 10px;
+  }
+
+  /* Claude chat */
+  .chat-section {
+    border-top: 1px solid var(--light);
+    padding-top: 20px;
+  }
+
+  .chat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .msg {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    max-width: 90%;
+  }
+
+  .msg-user {
+    background: var(--light);
+    color: var(--dark);
+    align-self: flex-end;
+    border-left: 3px solid var(--amber);
+  }
+
+  .msg-claude {
+    background: var(--dark);
+    color: var(--cream);
+    align-self: flex-start;
+    border-left: 3px solid var(--brown);
+  }
+
+  .msg-claude.thinking {
+    opacity: 0.6;
+    font-style: italic;
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 10px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--light);
+    border: 1px solid var(--light);
+    color: var(--dark);
+    outline: none;
+  }
+
+  .chat-input:focus { border-color: var(--amber); }
+
+  /* Status bar */
+  .status-bar {
+    background: var(--light);
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .status-bar span { color: var(--brown); font-weight: 500; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Sourdough</h1>
+<p class="subtitle">Bulk fermentation tracker</p>
+
+<div class="status-bar">
+  <div>Stage: <span id="current-stage">—</span></div>
+  <div>Started: <span id="bulk-start">—</span></div>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<div class="chat-section">
+  <div class="chat-label">Ask the baker</div>
+  <div class="messages" id="messages"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" type="text" placeholder="How's the dough feeling?" />
+    <button class="btn-primary" onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+
+const STEPS = [
+  { id: 'fermentolyse', label: 'Step 1', name: 'Fermentolyse', defaultMins: 45 },
+  { id: 'salt',         label: 'Step 2', name: 'Salt + S&F',   defaultMins: null },
+  { id: 'fold1',        label: 'Step 3', name: 'Coil Fold 1',  defaultMins: 30 },
+  { id: 'fold2',        label: 'Step 4', name: 'Coil Fold 2',  defaultMins: 30 },
+  { id: 'fold3',        label: 'Step 5', name: 'Coil Fold 3',  defaultMins: 30 },
+  { id: 'fold4',        label: 'Step 6', name: 'Coil Fold 4',  defaultMins: 30 },
+  { id: 'shape',        label: 'Step 7', name: 'Shape',        defaultMins: null },
+];
+
+let state = {
+  completedAt: {},   // stepId -> Date
+  timers: {},        // stepId -> { targetTime: Date, intervalId }
+  activeStep: null,
+  bulkStart: null,
+};
+
+// ─── Render ──────────────────────────────────────────────────────────────────
+
+function render() {
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+
+  STEPS.forEach((step, i) => {
+    const done = !!state.completedAt[step.id];
+    const active = state.activeStep === step.id;
+    const isLast = i === STEPS.length - 1;
+    const completedTime = state.completedAt[step.id];
+
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.innerHTML = `
+      <div class="step-left">
+        <div class="dot ${done ? 'done' : active ? 'active' : ''}"></div>
+        ${!isLast ? '<div class="line"></div>' : ''}
+      </div>
+      <div class="step-right">
+        <div class="step-label">${step.label}</div>
+        <div class="step-name">${step.name}</div>
+        ${completedTime ? `<div class="step-time">Done at ${fmt(completedTime)}</div>` : ''}
+        ${active ? `<div class="countdown" id="cd-${step.id}">—</div>` : ''}
+        <div class="step-actions" id="actions-${step.id}"></div>
+      </div>
+    `;
+    tl.appendChild(div);
+
+    const actions = div.querySelector(`#actions-${step.id}`);
+
+    if (!done) {
+      const markBtn = document.createElement('button');
+      markBtn.className = 'btn-primary btn-small';
+      markBtn.textContent = active ? 'Mark done' : (i === 0 || state.completedAt[STEPS[i-1]?.id]) ? 'Start now' : '';
+      if (markBtn.textContent) {
+        markBtn.onclick = () => markDone(step.id, i);
+        actions.appendChild(markBtn);
+      }
+
+      if (active && step.defaultMins) {
+        const timerBtn = document.createElement('button');
+        timerBtn.className = 'btn-secondary btn-small';
+        timerBtn.textContent = `Set ${step.defaultMins}min timer`;
+        timerBtn.onclick = () => startTimer(step.id, step.defaultMins);
+        actions.appendChild(timerBtn);
+      }
+    }
+  });
+
+  // Status bar
+  const activeStepObj = STEPS.find(s => s.id === state.activeStep);
+  document.getElementById('current-stage').textContent = activeStepObj ? activeStepObj.name : (Object.keys(state.completedAt).length === STEPS.length ? 'Complete' : 'Not started');
+  document.getElementById('bulk-start').textContent = state.bulkStart ? fmt(state.bulkStart) : '—';
+}
+
+// ─── Actions ─────────────────────────────────────────────────────────────────
+
+function markDone(stepId, index) {
+  const now = new Date();
+  state.completedAt[stepId] = now;
+
+  // Clear any running timer for this step
+  if (state.timers[stepId]) {
+    clearInterval(state.timers[stepId].intervalId);
+    delete state.timers[stepId];
+  }
+
+  // Set bulk start
+  if (stepId === 'fermentolyse') state.bulkStart = now;
+
+  // Advance active step
+  const nextStep = STEPS[index + 1];
+  state.activeStep = nextStep ? nextStep.id : null;
+
+  render();
+
+  // Auto-prompt Claude with context
+  const stepObj = STEPS[index];
+  autoPrompt(`${stepObj.name} done at ${fmt(now)}. What should I watch for in the next stage?`);
+}
+
+function startTimer(stepId, mins) {
+  if (state.timers[stepId]) {
+    clearInterval(state.timers[stepId].intervalId);
+  }
+  const target = new Date(Date.now() + mins * 60 * 1000);
+  const intervalId = setInterval(() => tick(stepId, target), 1000);
+  state.timers[stepId] = { target, intervalId };
+  tick(stepId, target);
+}
+
+function tick(stepId, target) {
+  const cd = document.getElementById(`cd-${stepId}`);
+  if (!cd) { clearInterval(state.timers[stepId]?.intervalId); return; }
+
+  const remaining = target - Date.now();
+  if (remaining <= 0) {
+    cd.textContent = '00:00';
+    cd.classList.add('urgent');
+    clearInterval(state.timers[stepId].intervalId);
+    // Beep via AudioContext
+    beep();
+    return;
+  }
+
+  const m = Math.floor(remaining / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+  cd.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if (remaining < 60000) cd.classList.add('urgent');
+}
+
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(offset => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + offset);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.25);
+      osc.start(ctx.currentTime + offset);
+      osc.stop(ctx.currentTime + offset + 0.25);
+    });
+  } catch(e) {}
+}
+
+// ─── Claude chat ─────────────────────────────────────────────────────────────
+
+let chatHistory = [];
+
+const SYSTEM = `You are a sourdough bread assistant helping a home baker track their bulk fermentation. 
+The baker's recipe: 1kg flour (90% white, 5% rye, 5% wholemeal), 700g water, 200g poolish, 20g salt.
+Process: fermentolyse, Bertinet slap-and-fold, 4 coil folds ~30min apart, ~6hr bulk at 19°C, shape at 40-50% rise, overnight cold proof.
+Baked in Dutch oven at 230-240°C fan, 15min lid on / 15-18min off. Three loaves per batch. Target: medium-open crumb.
+Be brief and practical. No fluff. The baker prefers direct, honest answers.`;
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  await chat(text);
+}
+
+async function autoPrompt(text) {
+  await chat(text, true);
+}
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage();
+});
+
+async function chat(userText, isAuto = false) {
+  const messages = document.getElementById('messages');
+
+  if (!isAuto) {
+    addMsg(userText, 'user');
+  }
+
+  chatHistory.push({ role: 'user', content: userText });
+
+  // Build context string
+  const ctx = buildContext();
+  const fullUserContent = ctx ? `[Bake state: ${ctx}]\n${userText}` : userText;
+  const historyToSend = [...chatHistory.slice(0, -1), { role: 'user', content: fullUserContent }];
+
+  const thinking = addMsg('…', 'claude thinking');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM,
+        messages: historyToSend,
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b => b.type === 'text')?.text || '(no response)';
+    thinking.textContent = reply;
+    thinking.classList.remove('thinking');
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    thinking.textContent = 'Error reaching Claude.';
+    thinking.classList.remove('thinking');
+  }
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addMsg(text, type) {
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg msg-${type.split(' ')[0]} ${type.includes('thinking') ? 'thinking' : ''}`;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+function buildContext() {
+  const parts = [];
+  STEPS.forEach(s => {
+    if (state.completedAt[s.id]) parts.push(`${s.name} done at ${fmt(state.completedAt[s.id])}`);
+  });
+  if (state.activeStep) {
+    const s = STEPS.find(x => x.id === state.activeStep);
+    if (s) parts.push(`Currently on: ${s.name}`);
+  }
+  return parts.join(', ');
+}
+
+function fmt(d) {
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+state.activeStep = STEPS[0].id;
+render();
+addMsg("Ready. Mark each step done as you go, or ask me anything about the bake.", 'claude');
+</script>
+</body>
+</html>

@@ -631,6 +631,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <span class="hs-label">Travel</span>
     </div>
 
+    <div class="hs-icon" onclick="openApp('sourdough')">
+      <div class="hs-icon-bg" style="--ic:#8b5c2a">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M6 13c0-3.31 2.69-6 6-6s6 2.69 6 6v1H6v-1z"/>
+          <path d="M4 14h16v1a8 8 0 0 1-16 0v-1z"/>
+          <path d="M9 6.5C9 5 10 3.5 12 3.5s3 1.5 3 3"/>
+        </svg>
+      </div>
+      <span class="hs-label">Sourdough</span>
+    </div>
+
   </div>
 </div>
 
@@ -677,6 +688,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 <!-- Travel Checklist (iframe) -->
 <div class="screen" id="screen-travel" style="overflow:hidden;padding:0">
   <iframe src="travel-checklist.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
+</div>
+
+<!-- Sourdough Timer (iframe) -->
+<div class="screen" id="screen-sourdough" style="overflow:hidden;padding:0">
+  <iframe src="sourdough-timer.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
 </div>
 
 <script>
@@ -845,7 +861,7 @@ function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); retu
 // ─────────────────────────────────────────────
 //  NAVIGATION
 // ─────────────────────────────────────────────
-const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist' };
+const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough' };
 
 function openApp(id) {
   currentTab = id;
