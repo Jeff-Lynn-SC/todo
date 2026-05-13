@@ -248,6 +248,27 @@
 
   .hidden { display: none; }
 
+  /* Timer alert overlay */
+  #timer-alert {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: var(--amber);
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 40px 24px;
+  }
+  #timer-alert.show { display: flex; animation: flashAmber 0.6s infinite; }
+  @keyframes flashAmber {
+    0%, 100% { background: var(--amber); }
+    50%       { background: var(--rust); }
+  }
+  #timer-alert .alert-icon { font-size: 5rem; margin-bottom: 16px; animation: pulse 0.5s infinite; }
+  #timer-alert h2 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 800; color: var(--cream); margin-bottom: 8px; }
+  #timer-alert p  { font-size: 1rem; color: var(--cream); margin-bottom: 32px; opacity: 0.9; }
+  #timer-alert button {
+    background: var(--cream); color: var(--rust); border: none;
+    font-family: 'DM Mono', monospace; font-size: 1.1rem; font-weight: 700;
+    padding: 16px 40px; cursor: pointer; border-radius: 4px;
+  }
+
   /* API key modal */
   #key-modal {
     display: none; position: fixed; inset: 0;
@@ -289,6 +310,14 @@
 </style>
 </head>
 <body>
+
+<!-- Timer alert overlay -->
+<div id="timer-alert">
+  <div class="alert-icon">⏰</div>
+  <h2 id="alert-step-name">Time's up!</h2>
+  <p id="alert-step-msg">Time to move to the next step.</p>
+  <button onclick="dismissTimerAlert()">Got it</button>
+</div>
 
 <!-- API key modal -->
 <div id="key-modal">
@@ -435,6 +464,9 @@ function startTimer(stepId, mins) {
   tick(stepId, target);
 }
 
+let timerAlarmInterval = null;
+let timerVibrateInterval = null;
+
 function tick(stepId, target) {
   const cd = document.getElementById(`cd-${stepId}`);
   if (!cd) { clearInterval(state.timers[stepId]?.intervalId); return; }
@@ -444,8 +476,7 @@ function tick(stepId, target) {
     cd.textContent = '00:00';
     cd.classList.add('urgent');
     clearInterval(state.timers[stepId].intervalId);
-    // Beep via AudioContext
-    beep();
+    triggerTimerAlert(stepId);
     return;
   }
 
@@ -455,20 +486,57 @@ function tick(stepId, target) {
   if (remaining < 60000) cd.classList.add('urgent');
 }
 
-function beep() {
+function triggerTimerAlert(stepId) {
+  const step = STEPS.find(s => s.id === stepId);
+  document.getElementById('alert-step-name').textContent = step ? `${step.name} — time's up!` : "Time's up!";
+  document.getElementById('alert-step-msg').textContent  = step ? `Your ${step.defaultMins} minute timer has finished.` : 'Time to move to the next step.';
+  document.getElementById('timer-alert').classList.add('show');
+
+  playAlarm();
+  startTimerVibrate();
+
+  // Re-fire alarm every 8 seconds until dismissed
+  timerAlarmInterval = setInterval(() => {
+    if (document.getElementById('timer-alert').classList.contains('show')) playAlarm();
+  }, 8000);
+}
+
+function playAlarm() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [0, 0.3, 0.6].forEach(offset => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime + offset);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.25);
-      osc.start(ctx.currentTime + offset);
-      osc.stop(ctx.currentTime + offset + 0.25);
+    const pattern = [880, 660, 880, 660, 880, 660, 880, 660];
+    pattern.forEach((freq, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq;
+      o.type = 'square';
+      const t = ctx.currentTime + i * 0.18;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.5, t + 0.02);
+      g.gain.setValueAtTime(0.5, t + 0.14);
+      g.gain.linearRampToValueAtTime(0, t + 0.18);
+      o.start(t); o.stop(t + 0.18);
     });
   } catch(e) {}
+}
+
+function startTimerVibrate() {
+  if (!('vibrate' in navigator)) return;
+  const pattern = [400, 150, 400, 150, 600];
+  navigator.vibrate(pattern);
+  timerVibrateInterval = setInterval(() => {
+    if (document.getElementById('timer-alert').classList.contains('show')) {
+      navigator.vibrate(pattern);
+    }
+  }, 2000);
+}
+
+function dismissTimerAlert() {
+  document.getElementById('timer-alert').classList.remove('show');
+  if (timerAlarmInterval)  { clearInterval(timerAlarmInterval);  timerAlarmInterval  = null; }
+  if (timerVibrateInterval){ clearInterval(timerVibrateInterval); timerVibrateInterval = null; }
+  if ('vibrate' in navigator) navigator.vibrate(0);
 }
 
 // ─── API key ─────────────────────────────────────────────────────────────────
