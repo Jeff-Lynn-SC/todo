@@ -343,7 +343,7 @@
 </div>
 
 <h1>Sourdough</h1>
-<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.5</p>
+<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.6</p>
 
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
@@ -481,13 +481,13 @@ function markDone(stepId, index) {
   const nextStep = STEPS[index + 1];
   state.activeStep = nextStep ? nextStep.id : null;
 
+  saveState();
+  render(); // render first so countdown div exists before startTimer ticks
+
   // Auto-start first-check timer if next step needs one
   if (nextStep?.firstCheckMins) {
     startTimer(nextStep.id, nextStep.firstCheckMins);
   }
-
-  saveState();
-  render();
 
   // Auto-prompt Claude with context
   const stepObj = STEPS[index];
@@ -517,6 +517,9 @@ function tick(stepId, target) {
     cd.textContent = '00:00';
     cd.classList.add('urgent');
     clearInterval(state.timers[stepId].intervalId);
+    delete state.timers[stepId]; // clear so "Not yet" button becomes visible
+    saveState();
+    render();
     triggerTimerAlert(stepId);
     return;
   }
