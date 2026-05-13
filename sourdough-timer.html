@@ -247,9 +247,59 @@
   .status-bar span { color: var(--brown); font-weight: 500; }
 
   .hidden { display: none; }
+
+  /* API key modal */
+  #key-modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(245,240,232,0.96);
+    align-items: center; justify-content: center;
+    z-index: 9999; padding: 1.5rem;
+  }
+  #key-modal.show { display: flex; }
+  #key-box {
+    background: #fff; border: 2px solid var(--dark);
+    box-shadow: 5px 5px 0 var(--dark);
+    padding: 1.75rem; width: 100%; max-width: 360px;
+    display: flex; flex-direction: column; gap: 0.85rem;
+    font-family: 'DM Mono', monospace;
+  }
+  #key-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); }
+  #key-msg   { font-size: 0.72rem; color: var(--rust); min-height: 1em; }
+  #key-input {
+    font-family: 'DM Mono', monospace; font-size: 0.82rem;
+    border: 2px solid var(--dark); background: var(--cream);
+    padding: 0.5rem 0.65rem; outline: none; width: 100%;
+  }
+  #key-hint { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+  #key-save {
+    font-family: 'DM Mono', monospace; font-size: 0.8rem;
+    background: var(--dark); color: var(--cream); border: none;
+    padding: 0.6rem 1.2rem; cursor: pointer; align-self: flex-start;
+  }
+  .chat-label-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  #key-change-btn {
+    font-family: 'DM Mono', monospace; font-size: 0.62rem;
+    background: none; border: 1px solid var(--muted); color: var(--muted);
+    padding: 3px 8px; cursor: pointer; letter-spacing: 0.05em;
+  }
+  #key-change-btn:hover { border-color: var(--brown); color: var(--brown); }
 </style>
 </head>
 <body>
+
+<!-- API key modal -->
+<div id="key-modal">
+  <div id="key-box">
+    <div id="key-title">Anthropic API Key</div>
+    <div id="key-msg"></div>
+    <input id="key-input" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+    <div id="key-hint">Get yours at <b>console.anthropic.com</b> → API Keys. Stored only on this device.</div>
+    <button id="key-save">Save key</button>
+  </div>
+</div>
 
 <h1>Sourdough</h1>
 <p class="subtitle">Bulk fermentation tracker</p>
@@ -262,7 +312,10 @@
 <div class="timeline" id="timeline"></div>
 
 <div class="chat-section">
-  <div class="chat-label">Ask the baker</div>
+  <div class="chat-label-row">
+    <div class="chat-label" style="margin-bottom:0">Ask the baker</div>
+    <button id="key-change-btn" onclick="showKeyModal()">API key</button>
+  </div>
   <div class="messages" id="messages"></div>
   <div class="chat-input-row">
     <input class="chat-input" id="chat-input" type="text" placeholder="How's the dough feeling?" />
@@ -418,6 +471,27 @@ function beep() {
   } catch(e) {}
 }
 
+// ─── API key ─────────────────────────────────────────────────────────────────
+
+const getKey = () => localStorage.getItem('anthropic_key');
+
+function showKeyModal(msg) {
+  document.getElementById('key-modal').classList.add('show');
+  document.getElementById('key-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('key-input').focus(), 120);
+}
+
+document.getElementById('key-save').addEventListener('click', () => {
+  const v = document.getElementById('key-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('anthropic_key', v);
+  document.getElementById('key-input').value = '';
+  document.getElementById('key-modal').classList.remove('show');
+});
+document.getElementById('key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('key-save').click();
+});
+
 // ─── Claude chat ─────────────────────────────────────────────────────────────
 
 let chatHistory = [];
@@ -458,19 +532,33 @@ async function chat(userText, isAuto = false) {
   const fullUserContent = ctx ? `[Bake state: ${ctx}]\n${userText}` : userText;
   const historyToSend = [...chatHistory.slice(0, -1), { role: 'user', content: fullUserContent }];
 
+  const key = getKey();
+  if (!key) { showKeyModal('Add your Anthropic API key to use the chat.'); return; }
+
   const thinking = addMsg('…', 'claude thinking');
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: SYSTEM,
         messages: historyToSend,
       })
     });
+    if (res.status === 401) {
+      thinking.remove();
+      showKeyModal('Key rejected — please check and re-enter.');
+      localStorage.removeItem('anthropic_key');
+      return;
+    }
     const data = await res.json();
     const reply = data.content?.find(b => b.type === 'text')?.text || '(no response)';
     thinking.textContent = reply;
@@ -515,6 +603,7 @@ function fmt(d) {
 state.activeStep = STEPS[0].id;
 render();
 addMsg("Ready. Mark each step done as you go, or ask me anything about the bake.", 'claude');
+if (!getKey()) showKeyModal();
 </script>
 </body>
 </html>
