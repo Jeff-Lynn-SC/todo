@@ -343,7 +343,7 @@
 </div>
 
 <h1>Sourdough</h1>
-<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.6</p>
+<p class="subtitle">Bulk fermentation tracker &nbsp;·&nbsp; v1.7</p>
 
 <div class="status-bar">
   <div>Stage: <span id="current-stage">—</span></div>
@@ -508,6 +508,16 @@ function startTimer(stepId, mins) {
 let timerAlarmInterval = null;
 let timerVibrateInterval = null;
 
+// Persistent AudioContext — must be created/resumed during a user gesture for iOS
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+// Unlock on first interaction so timer-fired alarms can play on iOS
+document.addEventListener('touchstart', () => { try { getAudioCtx().resume(); } catch(e){} }, { once: true });
+document.addEventListener('click',      () => { try { getAudioCtx().resume(); } catch(e){} }, { once: true });
+
 function tick(stepId, target) {
   const cd = document.getElementById(`cd-${stepId}`);
   if (!cd) { clearInterval(state.timers[stepId]?.intervalId); return; }
@@ -555,20 +565,22 @@ function triggerTimerAlert(stepId) {
 
 function playAlarm() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const pattern = [880, 660, 880, 660, 880, 660, 880, 660];
-    pattern.forEach((freq, i) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freq;
-      o.type = 'square';
-      const t = ctx.currentTime + i * 0.18;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.5, t + 0.02);
-      g.gain.setValueAtTime(0.5, t + 0.14);
-      g.gain.linearRampToValueAtTime(0, t + 0.18);
-      o.start(t); o.stop(t + 0.18);
+    const ctx = getAudioCtx();
+    ctx.resume().then(() => {
+      const pattern = [880, 660, 880, 660, 880, 660, 880, 660];
+      pattern.forEach((freq, i) => {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value = freq;
+        o.type = 'square';
+        const t = ctx.currentTime + i * 0.18;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.5, t + 0.02);
+        g.gain.setValueAtTime(0.5, t + 0.14);
+        g.gain.linearRampToValueAtTime(0, t + 0.18);
+        o.start(t); o.stop(t + 0.18);
+      });
     });
   } catch(e) {}
 }
