@@ -324,7 +324,11 @@
   <div class="alert-icon">⏰</div>
   <h2 id="alert-step-name">Time's up!</h2>
   <p id="alert-step-msg">Time to move to the next step.</p>
-  <button onclick="dismissTimerAlert()">Got it</button>
+  <div id="alert-btns" style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;">
+    <button id="alert-got-it" onclick="dismissTimerAlert()">Got it</button>
+    <button id="alert-not-yet" style="display:none;background:rgba(255,255,255,0.2);color:var(--cream);border:2px solid var(--cream);font-family:'DM Mono',monospace;font-size:1rem;padding:14px;border-radius:4px;cursor:pointer;" onclick="checkNotReady()">Not yet — 30 more mins</button>
+    <button id="alert-ready" style="display:none;background:var(--cream);color:var(--rust);border:none;font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:700;padding:16px;border-radius:4px;cursor:pointer;" onclick="checkReady()">Ready! Pre-shape now</button>
+  </div>
 </div>
 
 <!-- API key modal -->
@@ -365,13 +369,15 @@
 // ─── State ───────────────────────────────────────────────────────────────────
 
 const STEPS = [
-  { id: 'fermentolyse', label: 'Step 1', name: 'Fermentolyse', defaultMins: 45 },
-  { id: 'salt',         label: 'Step 2', name: 'Salt',         defaultMins: 30 },
-  { id: 'sf1',          label: 'Step 3', name: 'S&F 1',        defaultMins: 30 },
-  { id: 'sf2',          label: 'Step 4', name: 'S&F 2',        defaultMins: 30 },
-  { id: 'sf3',          label: 'Step 5', name: 'S&F 3',        defaultMins: 30 },
-  { id: 'sf4',          label: 'Step 6', name: 'S&F 4',        defaultMins: 30 },
-  { id: 'shape',        label: 'Step 7', name: 'Shape',        defaultMins: null },
+  { id: 'fermentolyse', label: 'Step 1', name: 'Fermentolyse',        defaultMins: 45  },
+  { id: 'salt',         label: 'Step 2', name: 'Salt',                defaultMins: 30  },
+  { id: 'sf1',          label: 'Step 3', name: 'S&F 1',               defaultMins: 30  },
+  { id: 'sf2',          label: 'Step 4', name: 'S&F 2',               defaultMins: 30  },
+  { id: 'sf3',          label: 'Step 5', name: 'S&F 3',               defaultMins: 30  },
+  { id: 'sf4',          label: 'Step 6', name: 'S&F 4',               defaultMins: 30  },
+  { id: 'preshapecheck',label: 'Step 7', name: 'Ready to pre-shape?', defaultMins: 30, checkLoop: true },
+  { id: 'preshape',     label: 'Step 8', name: 'Pre-shape',           defaultMins: 30  },
+  { id: 'shape',        label: 'Step 9', name: 'Final shape',         defaultMins: null},
 ];
 
 let state = {
@@ -413,20 +419,35 @@ function render() {
     const actions = div.querySelector(`#actions-${step.id}`);
 
     if (!done) {
-      const markBtn = document.createElement('button');
-      markBtn.className = 'btn-primary btn-small';
-      markBtn.textContent = active ? 'Mark done' : (i === 0 || state.completedAt[STEPS[i-1]?.id]) ? 'Start now' : '';
-      if (markBtn.textContent) {
-        markBtn.onclick = () => markDone(step.id, i);
-        actions.appendChild(markBtn);
-      }
+      if (active && step.checkLoop) {
+        // Check-loop step: Ready + Not yet buttons
+        const readyBtn = document.createElement('button');
+        readyBtn.className = 'btn-primary btn-small';
+        readyBtn.textContent = 'Ready! Pre-shape now';
+        readyBtn.onclick = () => markDone(step.id, i);
+        actions.appendChild(readyBtn);
 
-      if (active && step.defaultMins) {
-        const timerBtn = document.createElement('button');
-        timerBtn.className = 'btn-secondary btn-small';
-        timerBtn.textContent = `Set ${step.defaultMins}min timer`;
-        timerBtn.onclick = () => startTimer(step.id, step.defaultMins);
-        actions.appendChild(timerBtn);
+        const notYetBtn = document.createElement('button');
+        notYetBtn.className = 'btn-secondary btn-small';
+        notYetBtn.textContent = 'Not yet — check in 30 min';
+        notYetBtn.onclick = () => { startTimer(step.id, step.defaultMins); render(); };
+        actions.appendChild(notYetBtn);
+      } else {
+        const markBtn = document.createElement('button');
+        markBtn.className = 'btn-primary btn-small';
+        markBtn.textContent = active ? 'Mark done' : (i === 0 || state.completedAt[STEPS[i-1]?.id]) ? 'Start now' : '';
+        if (markBtn.textContent) {
+          markBtn.onclick = () => markDone(step.id, i);
+          actions.appendChild(markBtn);
+        }
+
+        if (active && step.defaultMins) {
+          const timerBtn = document.createElement('button');
+          timerBtn.className = 'btn-secondary btn-small';
+          timerBtn.textContent = `Set ${step.defaultMins}min timer`;
+          timerBtn.onclick = () => startTimer(step.id, step.defaultMins);
+          actions.appendChild(timerBtn);
+        }
       }
     }
   });
@@ -499,8 +520,16 @@ function tick(stepId, target) {
 
 function triggerTimerAlert(stepId) {
   const step = STEPS.find(s => s.id === stepId);
-  document.getElementById('alert-step-name').textContent = step ? `${step.name} — time's up!` : "Time's up!";
-  document.getElementById('alert-step-msg').textContent  = step ? `Your ${step.defaultMins} minute timer has finished.` : 'Time to move to the next step.';
+  const isCheck = step?.checkLoop;
+
+  document.getElementById('alert-step-name').textContent = isCheck ? 'Time to check!' : (step ? `${step.name} — time's up!` : "Time's up!");
+  document.getElementById('alert-step-msg').textContent  = isCheck ? 'Is the dough ready to pre-shape? (40–50% rise, domed, bubbles on surface)' : (step ? `Your ${step.defaultMins} minute timer has finished.` : 'Time to move to the next step.');
+
+  document.getElementById('alert-got-it').style.display  = isCheck ? 'none' : 'block';
+  document.getElementById('alert-not-yet').style.display = isCheck ? 'block' : 'none';
+  document.getElementById('alert-ready').style.display   = isCheck ? 'block' : 'none';
+
+  document.getElementById('timer-alert')._checkStepId = isCheck ? stepId : null;
   document.getElementById('timer-alert').classList.add('show');
 
   playAlarm();
@@ -548,6 +577,21 @@ function dismissTimerAlert() {
   if (timerAlarmInterval)  { clearInterval(timerAlarmInterval);  timerAlarmInterval  = null; }
   if (timerVibrateInterval){ clearInterval(timerVibrateInterval); timerVibrateInterval = null; }
   if ('vibrate' in navigator) navigator.vibrate(0);
+}
+
+function checkNotReady() {
+  const stepId = document.getElementById('timer-alert')._checkStepId;
+  dismissTimerAlert();
+  if (stepId) startTimer(stepId, 30);
+}
+
+function checkReady() {
+  const stepId = document.getElementById('timer-alert')._checkStepId;
+  dismissTimerAlert();
+  if (stepId) {
+    const i = STEPS.findIndex(s => s.id === stepId);
+    if (i !== -1) markDone(stepId, i);
+  }
 }
 
 // ─── API key ─────────────────────────────────────────────────────────────────
