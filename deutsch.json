@@ -1,0 +1,38 @@
+{
+  "2026-05-14": {
+    "monologue": {
+      "done": false,
+      "topic": "",
+      "notes": ""
+    },
+    "sentences": {
+      "done": false,
+      "positive": "",
+      "negative": "",
+      "overall": ""
+    },
+    "radio": {
+      "done": true,
+      "notes": ""
+    },
+    "conversation": {
+      "done": false,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
+  }
+}
