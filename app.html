@@ -108,9 +108,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.6rem 0;
-  padding: 0.5rem 1.5rem 1rem;
+  padding: 0.5rem 1.5rem 1.5rem;
   justify-items: center;
   align-content: start;
+  flex: 1; min-height: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 
 .hs-icon {
@@ -642,6 +644,18 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <span class="hs-label">Sourdough</span>
     </div>
 
+    <div class="hs-icon" onclick="openApp('deutsch')">
+      <div class="hs-icon-bg" style="--ic:#b8860b; position:relative">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <line x1="9" y1="9" x2="15" y2="9"/>
+          <line x1="9" y1="13" x2="13" y2="13"/>
+        </svg>
+        <span id="deutsch-badge" style="position:absolute;top:6px;right:6px;width:9px;height:9px;background:#c0392b;border-radius:50%;display:none;pointer-events:none"></span>
+      </div>
+      <span class="hs-label">Deutsch</span>
+    </div>
+
   </div>
 </div>
 
@@ -695,6 +709,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   <iframe src="sourdough-timer.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
 </div>
 
+<!-- Deutsch Practice (iframe) -->
+<div class="screen" id="screen-deutsch" style="overflow:hidden;padding:0">
+  <iframe src="deutsch.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
+</div>
+
 <script>
 // ─────────────────────────────────────────────
 //  CONFIG
@@ -718,6 +737,7 @@ let viewMonth = viewDate.getMonth();
 let calStore    = { days: {}, spans: [] };
 let jeffTasks   = [];
 let maryamTasks = [];
+let deutschData = {};
 let currentTab  = 'cal';
 
 // ── event owner helpers ───────────────────────
@@ -813,10 +833,11 @@ function parseFile(meta) {
 async function loadAll() {
   if (!getPat()) { showPat(); return; }
 
-  const [cm, jm, mm] = await Promise.all([
+  const [cm, jm, mm, dm] = await Promise.all([
     ghGet('events.json'),
     ghGet('tasks.json'),
-    ghGet('maryam-tasks.json')
+    ghGet('maryam-tasks.json'),
+    ghGet('deutsch.json')
   ]);
 
   if (cm) {
@@ -828,13 +849,26 @@ async function loadAll() {
 
   if (jm) { const d = parseFile(jm); if (Array.isArray(d)) { jeffTasks.length = 0; jeffTasks.push(...d); } }
   if (mm) { const d = parseFile(mm); if (Array.isArray(d)) { maryamTasks.length = 0; maryamTasks.push(...d); } }
+  if (dm) { const d = parseFile(dm); if (d && typeof d === 'object' && !Array.isArray(d)) deutschData = d; }
 
   renderAll();
+  updateDeutschBadge();
 }
 
 function saveCal()    { ghPut('events.json',      calStore,    'update calendar'); }
 function saveJeff()   { ghPut('tasks.json',        jeffTasks,   'update jeff'); }
 function saveMaryam() { ghPut('maryam-tasks.json', maryamTasks, 'update maryam'); }
+
+function updateDeutschBadge() {
+  const key    = dkFromDate(new Date());
+  // Prefer the localStorage cache written by deutsch.html (always up-to-date)
+  let src = deutschData;
+  try { const c = localStorage.getItem('deutsch_data'); if (c) src = JSON.parse(c); } catch {}
+  const d      = src[key];
+  const allDone = d && d.monologue?.done && d.cooking?.done && d.onboard?.done && d.sentences?.done;
+  const badge  = document.getElementById('deutsch-badge');
+  if (badge) badge.style.display = allDone ? 'none' : 'block';
+}
 
 function renderAll() { renderCal(); renderJeff(); renderMaryam(); }
 
@@ -861,7 +895,7 @@ function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); retu
 // ─────────────────────────────────────────────
 //  NAVIGATION
 // ─────────────────────────────────────────────
-const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough' };
+const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough', deutsch:'Deutsch' };
 
 function openApp(id) {
   currentTab = id;
@@ -880,6 +914,7 @@ function goHome() {
   document.getElementById('screen-launcher').classList.add('active');
   document.getElementById('appHdr').style.display = 'none';
   tickClock();
+  updateDeutschBadge();
 }
 
 // ── clock ──────────────────────────────────
