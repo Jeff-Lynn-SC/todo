@@ -287,10 +287,14 @@ function fmtKey(k) {
 }
 function initDay() {
   return {
-    monologue: { done: false, topic: '', notes: '' },
-    cooking:   { done: false, recipe: '' },
-    onboard:   { done: false },
-    sentences: { done: false, positive: '', negative: '', overall: '' }
+    monologue:    { done: false, topic: '', notes: '' },
+    sentences:    { done: false, positive: '', negative: '', overall: '' },
+    radio:        { done: false, notes: '' },
+    conversation: { done: false, notes: '' },
+    reading:      { done: false, title: '' },
+    tv:           { done: false, title: '' },
+    cooking:      { done: false, recipe: '' },
+    onboard:      { done: false }
   };
 }
 
@@ -528,6 +532,10 @@ function renderCards() {
 
   c.appendChild(makeMonologueCard(data));
   c.appendChild(makeSentencesCard(data));
+  c.appendChild(makeRadioCard(data));
+  c.appendChild(makeConversationCard(data));
+  c.appendChild(makeReadingCard(data));
+  c.appendChild(makeTvCard(data));
   c.appendChild(makeCookingCard(data));
   c.appendChild(makeOnboardCard(data));
 }
@@ -674,6 +682,66 @@ function makeSentencesCard(data) {
   return card;
 }
 
+function makeRadioCard(data) {
+  const r    = data.radio;
+  const card = baseCard(r.done, true);
+  card.appendChild(cardTop('📻', 'Radio hören', 'BONUS',
+    'Hör einem deutschen Sender zu — WDR, Bayern 3, Deutschlandfunk…',
+    r.done, () => { data.radio.done = !data.radio.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du gehört?</div>';
+  const i = document.createElement('input'); i.className = 'field-inp';
+  i.placeholder = 'e.g. Deutschlandfunk Nachrichten, Bayern 3…'; i.value = r.notes || '';
+  i.addEventListener('input', () => { data.radio.notes = i.value; scheduleSave(); });
+  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
+  return card;
+}
+
+function makeConversationCard(data) {
+  const cv   = data.conversation;
+  const card = baseCard(cv.done, true);
+  card.appendChild(cardTop('💬', 'Echte Gespräche', 'BONUS',
+    'Führe ein echtes Gespräch auf Deutsch — persönlich, online oder am Telefon.',
+    cv.done, () => { data.conversation.done = !data.conversation.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Notizen / Notes</div>';
+  const i = document.createElement('input'); i.className = 'field-inp';
+  i.placeholder = 'Who with, what about, new words…'; i.value = cv.notes || '';
+  i.addEventListener('input', () => { data.conversation.notes = i.value; scheduleSave(); });
+  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
+  return card;
+}
+
+function makeReadingCard(data) {
+  const r    = data.reading;
+  const card = baseCard(r.done, true);
+  card.appendChild(cardTop('📖', 'Lesen', 'BONUS',
+    'Lies etwas auf Deutsch — Artikel, Buch, Zeitung, Website…',
+    r.done, () => { data.reading.done = !data.reading.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du gelesen?</div>';
+  const i = document.createElement('input'); i.className = 'field-inp';
+  i.placeholder = 'e.g. Der Spiegel, Harry Potter, sueddeutsche.de…'; i.value = r.title || '';
+  i.addEventListener('input', () => { data.reading.title = i.value; scheduleSave(); });
+  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
+  return card;
+}
+
+function makeTvCard(data) {
+  const tv   = data.tv;
+  const card = baseCard(tv.done, true);
+  card.appendChild(cardTop('📺', 'Fernsehen', 'BONUS',
+    'Schau etwas auf Deutsch — Nachrichten, Serie, Film, YouTube…',
+    tv.done, () => { data.tv.done = !data.tv.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du geschaut?</div>';
+  const i = document.createElement('input'); i.className = 'field-inp';
+  i.placeholder = 'e.g. Tagesschau, Dark, Ein Dreiviertel Jahr…'; i.value = tv.title || '';
+  i.addEventListener('input', () => { data.tv.title = i.value; scheduleSave(); });
+  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
+  return card;
+}
+
 function makeCookingCard(data) {
   const c    = data.cooking;
   const card = baseCard(c.done, true);
@@ -735,10 +803,14 @@ function renderHistory() {
     const dots = document.createElement('div');
     dots.className = 'hist-dots';
     [
-      { v: d.monologue?.done, core: true },
-      { v: d.sentences?.done, core: true },
-      { v: d.cooking?.done,   core: false },
-      { v: d.onboard?.done,   core: false }
+      { v: d.monologue?.done,    core: true },
+      { v: d.sentences?.done,    core: true },
+      { v: d.radio?.done,        core: false },
+      { v: d.conversation?.done, core: false },
+      { v: d.reading?.done,      core: false },
+      { v: d.tv?.done,           core: false },
+      { v: d.cooking?.done,      core: false },
+      { v: d.onboard?.done,      core: false }
     ].forEach(({ v, core }) => {
       const dot = document.createElement('div');
       dot.className = 'hist-dot' + (v ? ' done' : '') + (core ? ' core' : '');
@@ -817,6 +889,36 @@ function buildHistEdit(k, d, entry) {
   wrap.appendChild(field('Etwas Positives heute war…',   d.sentences?.positive, v => { d.sentences.positive = v; }));
   wrap.appendChild(field('Etwas Schwieriges heute war…', d.sentences?.negative, v => { d.sentences.negative = v; }));
   wrap.appendChild(field('Insgesamt war heute…',         d.sentences?.overall,  v => { d.sentences.overall  = v; }));
+
+  // Bonus toggles
+  [
+    { key: 'radio',        emoji: '📻', label: 'Radio',         noteKey: 'notes' },
+    { key: 'conversation', emoji: '💬', label: 'Gespräche',     noteKey: 'notes' },
+    { key: 'reading',      emoji: '📖', label: 'Lesen',         noteKey: 'title' },
+    { key: 'tv',           emoji: '📺', label: 'Fernsehen',     noteKey: 'title' },
+    { key: 'cooking',      emoji: '🍳', label: 'Kochen',        noteKey: 'recipe' },
+    { key: 'onboard',      emoji: '🚂', label: 'Unterwegs',     noteKey: null }
+  ].forEach(({ key, emoji, label, noteKey }) => {
+    if (!d[key]) d[key] = { done: false };
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
+    const chk = document.createElement('div');
+    chk.className = 'card-check' + (d[key].done ? ' checked' : '');
+    chk.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
+    chk.addEventListener('click', () => {
+      d[key].done = !d[key].done;
+      chk.className = 'card-check' + (d[key].done ? ' checked' : '');
+      scheduleSave();
+    });
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:0.72rem;color:var(--muted);';
+    lbl.textContent = `${emoji} ${label}`;
+    row.appendChild(chk); row.appendChild(lbl);
+    wrap.appendChild(row);
+    if (noteKey) {
+      wrap.appendChild(field('', d[key][noteKey], v => { d[key][noteKey] = v; }));
+    }
+  });
 
   return wrap;
 }
