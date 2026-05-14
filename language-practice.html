@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>English Practice</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:    #1a1a1a;
+  --paper:  #fffef9;
+  --bg:     #f5f0e8;
+  --muted:  #888;
+  --border: #d8d4cc;
+  --en:     #c9980a;
+  --en-bg:  #fdf3d8;
+  --en-dk:  #7a5a08;
+  --good:   #4a7c59;
+  --good-bg:#d8f0e2;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  min-height: 100%; background: var(--bg);
+  font-family: 'DM Mono', monospace; color: var(--ink);
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.page {
+  padding: calc(var(--safe-t) + 0.75rem) 1rem calc(var(--safe-b) + 2.5rem);
+  max-width: 500px; margin: 0 auto;
+}
+
+/* ── header ── */
+.page-hdr { padding: 1rem 0; border-bottom: 2px solid var(--ink); margin-bottom: 1.25rem; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.35rem; }
+.page-meta {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+  font-size: 0.68rem; color: var(--muted); margin-bottom: 0.5rem;
+}
+.streak-badge {
+  background: var(--en-bg); color: var(--en-dk);
+  border: 1px solid var(--en); padding: 2px 8px; border-radius: 2px; font-weight: 500;
+}
+.prog-bar  { height: 2px; background: var(--border); }
+.prog-fill { height: 100%; background: var(--en); transition: width 0.4s ease; }
+
+/* ── cards ── */
+.card {
+  background: var(--paper); border: 1.5px solid var(--border);
+  border-left: 4px solid var(--en); margin-bottom: 0.85rem; padding: 0.9rem 1rem;
+  transition: opacity 0.2s;
+}
+.card.card-bonus { border-left-color: var(--border); }
+.card.card-done  { border-left-color: var(--good); opacity: 0.72; }
+.card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+.card-check {
+  width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px;
+  border: 2px solid var(--border); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.card-check.checked { background: var(--good); border-color: var(--good); }
+.card-check.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: bold; }
+.card-info  { flex: 1; min-width: 0; }
+.card-title {
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em; color: var(--en-dk);
+  margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.card-badge {
+  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--bg); color: var(--muted); border: 1px solid var(--border);
+  padding: 1px 5px; border-radius: 2px; font-weight: 400;
+}
+.card-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.55; }
+
+/* ── inputs ── */
+.card-inputs { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.field-lbl {
+  font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 3px;
+}
+.field-inp {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: none; border-bottom: 1.5px solid var(--border);
+  background: transparent; outline: none; color: var(--ink); padding: 3px 0; width: 100%;
+}
+.field-inp:focus { border-bottom-color: var(--en); }
+.field-ta {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: 1.5px solid var(--border); background: var(--bg);
+  outline: none; color: var(--ink); padding: 0.5rem;
+  width: 100%; resize: vertical; min-height: 72px; line-height: 1.55;
+}
+.field-ta:focus { border-color: var(--en); }
+
+/* ── timer ── */
+.timer-wrap {
+  margin-top: 0.85rem; padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  display: flex; align-items: center; gap: 0.85rem;
+}
+.timer-display {
+  font-size: 2.4rem; font-weight: 400; letter-spacing: -2px;
+  color: var(--ink); line-height: 1; min-width: 4.2rem; transition: color 0.3s;
+}
+.timer-display.running  { color: var(--en); }
+.timer-display.finished { color: var(--good); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
+.timer-display.running { animation: pulse 1s ease-in-out infinite; }
+.timer-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.timer-start {
+  background: var(--en); color: white; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.4rem 0.9rem; cursor: pointer; border-radius: 2px;
+}
+.timer-start.paused { background: var(--muted); }
+.timer-reset {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  color: var(--muted); padding: 0.4rem 0.75rem; cursor: pointer; border-radius: 2px;
+}
+
+/* ── transcript ── */
+.transcript-wrap { margin-top: 0.75rem; }
+.transcript-box {
+  font-size: 0.8rem; color: #555; line-height: 1.65;
+  min-height: 2.5rem; padding: 0.5rem 0.6rem;
+  background: var(--bg); border: 1px dashed var(--border);
+  white-space: pre-wrap; word-break: break-word;
+}
+.transcript-box.listening { border-color: var(--en); }
+.transcript-box .interim  { color: #bbb; font-style: italic; }
+.transcript-box.empty::before { content: 'Listening\2026'; color: #bbb; font-style: italic; }
+
+/* ── sentences ── */
+.sentence-row { display: flex; flex-direction: column; gap: 3px; }
+.sentence-prompt { font-size: 0.65rem; color: var(--muted); font-style: italic; }
+.sentence-inp {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: none; border-bottom: 1.5px solid var(--border);
+  background: transparent; outline: none; color: var(--ink); padding: 3px 0; width: 100%;
+}
+.sentence-inp:focus { border-bottom-color: var(--en); }
+
+/* ── AI review ── */
+.review-block {
+  margin-top: 0.85rem;
+  background: var(--en-bg); border: 1px solid var(--en);
+  border-left: 3px solid var(--en); padding: 0.75rem 0.85rem;
+}
+.review-hdr {
+  font-size: 0.6rem; color: var(--en-dk); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 500;
+}
+.review-body { font-size: 0.78rem; color: #444; line-height: 1.7; white-space: pre-wrap; }
+.review-body strong { color: var(--en-dk); font-weight: 500; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.review-loading { font-size: 0.75rem; color: var(--muted); animation: blink 1.2s ease infinite; }
+.review-btn {
+  display: inline-block; margin-top: 0.75rem;
+  background: none; border: 1.5px solid var(--en); color: var(--en-dk);
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  padding: 0.38rem 0.85rem; cursor: pointer; border-radius: 2px;
+}
+.review-btn:active { background: var(--en-bg); }
+.no-ai-note { font-size: 0.67rem; color: var(--muted); margin-top: 0.6rem; font-style: italic; }
+
+/* ── mark-core button ── */
+.mark-core-btn {
+  width: 100%; margin-bottom: 0.85rem;
+  background: var(--en); color: white; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  padding: 0.7rem 1rem; cursor: pointer; border-radius: 2px; letter-spacing: 0.04em;
+}
+.mark-core-btn.all-done {
+  background: var(--good-bg); color: var(--good);
+  border: 1.5px solid var(--good); cursor: default;
+}
+
+/* ── section header ── */
+.section-hdr {
+  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.75rem 0 0.4rem; border-top: 1px solid var(--border); margin-top: 0.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.toggle-btn {
+  background: none; border: none; font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; color: var(--en); cursor: pointer; padding: 0;
+}
+
+/* ── history ── */
+.hist-entry { border-bottom: 1px solid var(--border); padding: 0.7rem 0; }
+.hist-entry:last-child { border-bottom: none; }
+.hist-date { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--muted); cursor: pointer; }
+.hist-dots { display: flex; gap: 3px; }
+.hist-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.hist-dot.done { background: var(--good); }
+.hist-dot.core { width: 8px; height: 8px; }
+.hist-edit {
+  padding-top: 0.6rem; border-top: 1px dashed var(--border); margin-top: 0.5rem;
+  display: flex; flex-direction: column; gap: 0.65rem;
+}
+
+/* ── save indicator ── */
+.save-indicator {
+  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.06em;
+  min-height: 1.2em; text-align: right; padding: 0.25rem 0 0;
+}
+
+/* ── modals ── */
+.modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(245,240,232,0.96);
+  align-items: center; justify-content: center; z-index: 9999; padding: 1.5rem;
+}
+.modal.show { display: flex; }
+.modal-box {
+  background: var(--paper); border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink); padding: 1.75rem; width: 100%; max-width: 360px;
+  display: flex; flex-direction: column; gap: 0.85rem;
+}
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+.modal-msg   { font-size: 0.72rem; color: #c0392b; min-height: 1em; }
+.modal-inp {
+  font-family: 'DM Mono', monospace; font-size: 0.82rem;
+  border: 2px solid var(--ink); background: var(--bg);
+  padding: 0.5rem 0.65rem; outline: none; width: 100%;
+}
+.modal-hint { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+.modal-save {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  background: var(--ink); color: var(--paper); border: none;
+  padding: 0.6rem 1.2rem; cursor: pointer; align-self: flex-start; border-radius: 2px;
+}
+</style>
+</head>
+<body>
+
+<!-- Username modal -->
+<div id="user-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">Welcome!</div>
+    <div class="modal-msg" id="user-msg"></div>
+    <input id="user-input" class="modal-inp" type="text" placeholder="Your first name" autocomplete="off" spellcheck="false">
+    <div class="modal-hint">Enter your name to start. Your progress will be saved automatically.</div>
+    <button id="user-save" class="modal-save">Start practising →</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-hdr">
+    <div class="page-title">English Practice</div>
+    <div class="page-meta">
+      <span id="todayDate">—</span>
+      <span class="streak-badge" id="streakBadge">🔥 — days</span>
+      <span id="progText" style="color:var(--muted)">0/2 core</span>
+      <span id="userLabel" style="font-size:0.62rem;color:var(--en);cursor:pointer" onclick="showUserModal()"></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="exerciseCards"></div>
+  <div class="save-indicator" id="saveIndicator"></div>
+
+  <div class="section-hdr">
+    history
+    <button class="toggle-btn" id="toggleHist" onclick="toggleHistory()">hide</button>
+  </div>
+  <div id="histArea"></div>
+</div>
+
+<script>
+// ── TEACHER CONFIGURATION ──────────────────────────────────────────────────────
+// Fill in these four values, then share the URL with your students.
+// See worker.js for instructions on setting up the Cloudflare Worker.
+//
+// Supabase setup — run this SQL once in your Supabase project's SQL editor:
+//
+//   create table practice_entries (
+//     id         bigserial primary key,
+//     username   text not null,
+//     date_key   text not null,
+//     data       jsonb not null default '{}',
+//     updated_at timestamptz default now(),
+//     unique(username, date_key)
+//   );
+//   alter table practice_entries enable row level security;
+//   create policy "public rw" on practice_entries
+//     for all using (true) with check (true);
+//
+const WORKER_URL   = '';   // e.g. 'https://english-ai.yourname.workers.dev'
+const CLASS_CODE   = '';   // e.g. 'class2026' — match this in the Worker settings
+const SUPABASE_URL = '';   // e.g. 'https://abcdefgh.supabase.co'
+const SUPABASE_KEY = '';   // your Supabase anon/public key
+// ──────────────────────────────────────────────────────────────────────────────
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtKey(k) {
+  const [y, m, d] = k.split('-').map(Number);
+  return `${DAYS[new Date(y, m-1, d).getDay()]}, ${d} ${MONTHS[m-1]}`;
+}
+function initDay() {
+  return {
+    monologue:    { done: false, topic: '', notes: '', transcript: '', review: '' },
+    sentences:    { done: false, positive: '', negative: '', overall: '', review: '' },
+    radio:        { done: false, notes: '' },
+    conversation: { done: false, notes: '' },
+    reading:      { done: false, title: '' },
+    tv:           { done: false, title: '' },
+    cooking:      { done: false, recipe: '' },
+    onboard:      { done: false }
+  };
+}
+
+// ── Username ──────────────────────────────────────────────────────────────────
+const getUsername = () => localStorage.getItem('ep_username');
+
+function showUserModal(msg) {
+  document.getElementById('user-modal').classList.add('show');
+  document.getElementById('user-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('user-input').focus(), 120);
+}
+document.getElementById('user-save').addEventListener('click', () => {
+  const v = document.getElementById('user-input').value.trim();
+  if (!v) { document.getElementById('user-msg').textContent = 'Please enter your name.'; return; }
+  localStorage.setItem('ep_username', v);
+  document.getElementById('user-modal').classList.remove('show');
+  document.getElementById('userLabel').textContent = v;
+  loadData();
+});
+document.getElementById('user-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('user-save').click();
+});
+
+// ── Supabase ──────────────────────────────────────────────────────────────────
+async function sbUpsert(username, dateKey, data) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return true; // localStorage-only mode
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/practice_entries`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ username, date_key: dateKey, data, updated_at: new Date().toISOString() })
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+async function sbGetAll(username) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return {};
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/practice_entries?username=eq.${encodeURIComponent(username)}&select=date_key,data&order=date_key.desc`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) return {};
+    const rows = await res.json();
+    const result = {};
+    rows.forEach(r => { result[r.date_key] = r.data; });
+    return result;
+  } catch { return {}; }
+}
+
+// ── AI via Cloudflare Worker ───────────────────────────────────────────────────
+async function callAI(prompt) {
+  if (!WORKER_URL) return null;
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-class-code': CLASS_CODE },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.content?.[0]?.text || null;
+  } catch { return null; }
+}
+
+const aiEnabled = () => !!WORKER_URL;
+
+function renderMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+async function reviewMonologue(dayKey) {
+  const d = store[dayKey]; if (!d || !aiEnabled()) return;
+  const transcript = d.monologue.transcript?.trim();
+  const topic      = d.monologue.topic?.trim();
+  if (!transcript && !topic) return;
+
+  d.monologue.review = '…reviewing';
+  renderCards();
+
+  const text = transcript || `[No transcript — topic was: ${topic}]`;
+  const review = await callAI(
+`You are a warm, encouraging English language tutor. A learner just did their 1-minute spoken English monologue.
+
+Topic: "${topic || 'not specified'}"
+Transcription: "${text}"
+
+Write a short review (4–6 sentences) covering:
+1. What they did well (vocabulary, sentence structure, effort)
+2. One or two specific corrections with the fix shown
+3. One better phrase or word they could use
+4. A brief encouraging sign-off
+
+Friendly tone, concise, no headers — just flowing prose.`
+  );
+
+  d.monologue.review = review || 'Could not get a review — please try again.';
+  scheduleSave();
+  renderCards();
+}
+
+async function reviewSentences(dayKey) {
+  const d = store[dayKey]; if (!d || !aiEnabled()) return;
+  const s = d.sentences;
+  const filled = [s.positive, s.negative, s.overall].filter(x => x?.trim());
+  if (!filled.length) return;
+
+  d.sentences.review = '…reviewing';
+  renderCards();
+
+  const lines = [];
+  if (s.positive?.trim()) lines.push(`Something positive today was: "${s.positive}"`);
+  if (s.negative?.trim()) lines.push(`Something difficult today was: "${s.negative}"`);
+  if (s.overall?.trim())  lines.push(`Overall today was: "${s.overall}"`);
+
+  const review = await callAI(
+`You are a warm, encouraging English language tutor. A learner wrote their three daily English reflection sentences.
+
+${lines.join('\n')}
+
+Write a short review (3–5 sentences):
+1. For each sentence: note what is good, then correct any grammar or word-choice issues (show the corrected version)
+2. End with a brief encouraging comment
+
+Friendly tone, concise, no bullet points — just clear prose with inline corrections shown in quotes.`
+  );
+
+  d.sentences.review = review || 'Could not get a review — please try again.';
+  scheduleSave();
+  renderCards();
+}
+
+// ── Speech recognition ─────────────────────────────────────────────────────────
+let recognition = null;
+let monoFinal   = '';
+let monoInterim = '';
+
+function startSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  monoInterim = '';
+  if (recognition) { try { recognition.stop(); } catch {} }
+  recognition = new SR();
+  recognition.lang           = 'en-US';
+  recognition.continuous     = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) monoFinal += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    monoInterim = interim;
+    updateTranscriptDOM();
+  };
+  recognition.onerror = () => {};
+  recognition.onend   = () => { if (timer.running) { try { recognition.start(); } catch {} } };
+  recognition.start();
+}
+
+function stopSpeechRecognition() {
+  if (recognition) { try { recognition.stop(); } catch {} recognition = null; }
+  monoInterim = '';
+}
+
+function updateTranscriptDOM() {
+  const box = document.getElementById('mono-transcript');
+  if (!box) return;
+  box.innerHTML = '';
+  if (monoFinal) box.appendChild(document.createTextNode(monoFinal));
+  if (monoInterim) {
+    const sp = document.createElement('span'); sp.className = 'interim'; sp.textContent = monoInterim; box.appendChild(sp);
+  }
+  if (!monoFinal && !monoInterim) box.classList.add('empty'); else box.classList.remove('empty');
+  if (timer.running) box.classList.add('listening'); else box.classList.remove('listening');
+}
+
+// ── Timer ──────────────────────────────────────────────────────────────────────
+const timer = { running: false, seconds: 60, intervalId: null };
+function fmtSecs(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+function timerTick() {
+  timer.seconds--;
+  const disp = document.getElementById('mono-timer-disp');
+  if (disp) disp.textContent = fmtSecs(timer.seconds);
+  if (timer.seconds <= 0) {
+    timer.running = false; clearInterval(timer.intervalId); timer.intervalId = null;
+    stopSpeechRecognition(); playBeep();
+    const key = todayKey();
+    store[key].monologue.transcript = monoFinal.trim();
+    store[key].monologue.done = true;
+    store[key].sentences.done = true;
+    scheduleSave(); render(); reviewMonologue(key);
+  }
+}
+
+function timerStart() {
+  if (timer.running || timer.seconds <= 0) return;
+  timer.running = true; timer.intervalId = setInterval(timerTick, 1000);
+  startSpeechRecognition(); updateTimerDOM();
+}
+function timerPause() {
+  timer.running = false; clearInterval(timer.intervalId); timer.intervalId = null;
+  stopSpeechRecognition(); updateTimerDOM();
+}
+function timerReset() {
+  timerPause(); timer.seconds = 60; monoFinal = ''; monoInterim = '';
+  updateTimerDOM(); updateTranscriptDOM();
+}
+function updateTimerDOM() {
+  const disp  = document.getElementById('mono-timer-disp');
+  const start = document.getElementById('mono-timer-start');
+  const reset = document.getElementById('mono-timer-reset');
+  if (!disp) return;
+  disp.textContent = fmtSecs(timer.seconds);
+  disp.className   = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
+  if (start) { start.textContent = timer.running ? 'pause' : 'start'; start.className = 'timer-start' + (timer.running ? ' paused' : ''); }
+  if (reset)   reset.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const g   = ctx.createGain(); g.connect(ctx.destination);
+    [0, 0.2, 0.4].forEach(t => {
+      const o = ctx.createOscillator(); o.connect(g);
+      o.frequency.value = 660; o.type = 'sine';
+      g.gain.setValueAtTime(0.25, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.18);
+    });
+  } catch {}
+}
+
+// ── Store ──────────────────────────────────────────────────────────────────────
+let store      = {};
+let histVisible = true;
+let saveTimer   = null;
+
+async function loadData() {
+  const username = getUsername(); if (!username) { showUserModal(); return; }
+  document.getElementById('userLabel').textContent = username;
+
+  // Instant render from localStorage cache
+  const cached = localStorage.getItem('ep_data_' + username);
+  if (cached) { try { store = JSON.parse(cached); } catch { store = {}; } }
+  const key = todayKey();
+  if (!store[key]) store[key] = initDay();
+  render();
+
+  // Then sync from Supabase
+  const remote = await sbGetAll(username);
+  if (Object.keys(remote).length) {
+    const todayLocal = store[key];
+    Object.assign(store, remote);
+    if (todayLocal) {
+      const r = remote[key] || initDay();
+      store[key] = {
+        monologue:    todayLocal.monologue?.transcript ? todayLocal.monologue : r.monologue,
+        sentences:    (todayLocal.sentences?.positive || todayLocal.sentences?.negative) ? todayLocal.sentences : r.sentences,
+        radio:        todayLocal.radio?.notes    ? todayLocal.radio        : (r.radio        || { done: false, notes: '' }),
+        conversation: todayLocal.conversation?.notes ? todayLocal.conversation : (r.conversation || { done: false, notes: '' }),
+        reading:      todayLocal.reading?.title  ? todayLocal.reading      : (r.reading      || { done: false, title: '' }),
+        tv:           todayLocal.tv?.title       ? todayLocal.tv           : (r.tv           || { done: false, title: '' }),
+        cooking:      todayLocal.cooking?.recipe ? todayLocal.cooking      : (r.cooking      || { done: false, recipe: '' }),
+        onboard:      { done: todayLocal.onboard?.done || r.onboard?.done }
+      };
+    }
+    localStorage.setItem('ep_data_' + username, JSON.stringify(store));
+    render();
+  }
+}
+
+function scheduleSave(dayKey) {
+  if (saveTimer) clearTimeout(saveTimer);
+  document.getElementById('saveIndicator').textContent = '…';
+  saveTimer = setTimeout(() => doSave(dayKey), 1400);
+}
+
+async function doSave(dayKey) {
+  const username = getUsername(); if (!username) return;
+  const k = dayKey || todayKey();
+  localStorage.setItem('ep_data_' + username, JSON.stringify(store));
+  const ok = await sbUpsert(username, k, store[k]);
+  const el = document.getElementById('saveIndicator');
+  el.textContent = ok ? 'saved \u2713' : (SUPABASE_URL ? 'save failed' : 'saved locally');
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function updateMeta() {
+  const key = todayKey(), d = store[key] || initDay();
+  const coreDone = [d.monologue.done, d.sentences.done].filter(Boolean).length;
+  document.getElementById('progText').textContent    = `${coreDone}/2 core`;
+  document.getElementById('progFill').style.width    = `${coreDone / 2 * 100}%`;
+  document.getElementById('streakBadge').textContent = `\uD83D\uDD25 ${calcStreak()} days`;
+}
+
+function calcStreak() {
+  const today = todayKey(); let streak = 0;
+  const check = new Date();
+  for (let i = 0; i < 365; i++) {
+    const k = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+    const d = store[k];
+    if (d?.monologue?.done && d?.sentences?.done) streak++;
+    else if (k !== today) break;
+    check.setDate(check.getDate() - 1);
+  }
+  return streak;
+}
+
+function render() {
+  document.getElementById('todayDate').textContent = fmtKey(todayKey());
+  updateMeta(); renderCards();
+  if (histVisible) renderHistory();
+}
+
+function renderCards() {
+  const key  = todayKey(), data = store[key];
+  const c    = document.getElementById('exerciseCards');
+  if (!data.radio)        data.radio        = { done: false, notes: '' };
+  if (!data.conversation) data.conversation = { done: false, notes: '' };
+  if (!data.reading)      data.reading      = { done: false, title: '' };
+  if (!data.tv)           data.tv           = { done: false, title: '' };
+  if (!data.cooking)      data.cooking      = { done: false, recipe: '' };
+  if (!data.onboard)      data.onboard      = { done: false };
+  c.innerHTML = '';
+
+  const coreDone = data.monologue.done && data.sentences.done;
+  const coreBtn  = document.createElement('button');
+  coreBtn.className   = 'mark-core-btn' + (coreDone ? ' all-done' : '');
+  coreBtn.textContent = coreDone ? '\u2713 Core exercises done today' : 'Mark both core exercises done';
+  if (!coreDone) {
+    coreBtn.addEventListener('click', () => { data.monologue.done = true; data.sentences.done = true; scheduleSave(); render(); });
+  }
+  c.appendChild(coreBtn);
+
+  c.appendChild(makeMonologueCard(data, key));
+  c.appendChild(makeSentencesCard(data, key));
+  c.appendChild(makeRadioCard(data));
+  c.appendChild(makeConversationCard(data));
+  c.appendChild(makeReadingCard(data));
+  c.appendChild(makeTvCard(data));
+  c.appendChild(makeCookingCard(data));
+  c.appendChild(makeOnboardCard(data));
+}
+
+// ── Card helpers ───────────────────────────────────────────────────────────────
+function baseCard(isDone, isBonus) {
+  const card = document.createElement('div');
+  card.className = 'card' + (isDone ? ' card-done' : isBonus ? ' card-bonus' : '');
+  return card;
+}
+function cardTop(emoji, titleText, badgeText, descText, isDone, onCheck) {
+  const top   = document.createElement('div'); top.className = 'card-top';
+  const check = document.createElement('div');
+  check.className = 'card-check' + (isDone ? ' checked' : '');
+  check.addEventListener('click', onCheck);
+  const info  = document.createElement('div'); info.className = 'card-info';
+  const title = document.createElement('div'); title.className = 'card-title'; title.textContent = `${emoji} ${titleText}`;
+  if (badgeText) { const b = document.createElement('span'); b.className = 'card-badge'; b.textContent = badgeText; title.appendChild(b); }
+  const desc = document.createElement('div'); desc.className = 'card-desc'; desc.textContent = descText;
+  info.appendChild(title); info.appendChild(desc); top.appendChild(check); top.appendChild(info);
+  return top;
+}
+function inputField(labelText, val, onInput, isArea, dayKey) {
+  const g = document.createElement('div');
+  if (labelText) { const l = document.createElement('div'); l.className = 'field-lbl'; l.textContent = labelText; g.appendChild(l); }
+  const inp = document.createElement(isArea ? 'textarea' : 'input');
+  inp.className = isArea ? 'field-ta' : 'field-inp';
+  inp.value = val || '';
+  if (isArea) inp.style.minHeight = '56px';
+  inp.addEventListener('input', () => { onInput(inp.value); scheduleSave(dayKey); });
+  g.appendChild(inp); return g;
+}
+
+// ── Monologue card ─────────────────────────────────────────────────────────────
+function makeMonologueCard(data, dayKey) {
+  const m    = data.monologue;
+  const card = baseCard(m.done, false);
+  card.appendChild(cardTop('\uD83C\uDF99', 'One-minute monologue', 'CORE',
+    'Choose any topic and speak in English for one minute — out loud or in your head.',
+    m.done, () => { data.monologue.done = !data.monologue.done; scheduleSave(); render(); }));
+
+  const timerWrap = document.createElement('div'); timerWrap.className = 'timer-wrap';
+  const disp = document.createElement('div');
+  disp.id = 'mono-timer-disp';
+  disp.className = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
+  disp.textContent = fmtSecs(timer.seconds);
+  const btns = document.createElement('div'); btns.className = 'timer-btns';
+  const startBtn = document.createElement('button');
+  startBtn.id = 'mono-timer-start';
+  startBtn.className = 'timer-start' + (timer.running ? ' paused' : '');
+  startBtn.textContent = timer.running ? 'pause' : 'start';
+  startBtn.addEventListener('click', () => { timer.running ? timerPause() : timerStart(); });
+  const resetBtn = document.createElement('button');
+  resetBtn.id = 'mono-timer-reset'; resetBtn.className = 'timer-reset'; resetBtn.textContent = 'reset';
+  resetBtn.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
+  resetBtn.addEventListener('click', timerReset);
+  btns.appendChild(startBtn); btns.appendChild(resetBtn);
+  timerWrap.appendChild(disp); timerWrap.appendChild(btns);
+  card.appendChild(timerWrap);
+
+  const twrap = document.createElement('div'); twrap.className = 'transcript-wrap';
+  const tlbl = document.createElement('div'); tlbl.className = 'field-lbl'; tlbl.textContent = 'Transcript';
+  const tbox = document.createElement('div');
+  tbox.id = 'mono-transcript'; tbox.className = 'transcript-box';
+  const savedTranscript = m.transcript || monoFinal;
+  if (savedTranscript) {
+    tbox.textContent = savedTranscript;
+    if (monoInterim) { const sp = document.createElement('span'); sp.className = 'interim'; sp.textContent = monoInterim; tbox.appendChild(sp); }
+  } else if (monoInterim) {
+    const sp = document.createElement('span'); sp.className = 'interim'; sp.textContent = monoInterim; tbox.appendChild(sp);
+  } else {
+    tbox.classList.add('empty');
+  }
+  if (timer.running) tbox.classList.add('listening');
+  twrap.appendChild(tlbl); twrap.appendChild(tbox);
+  card.appendChild(twrap);
+
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs'; inputs.style.marginTop = '0.75rem';
+  inputs.appendChild(inputField('Topic', m.topic, v => { data.monologue.topic = v; }));
+  inputs.appendChild(inputField('Notes', m.notes, v => { data.monologue.notes = v; }, true));
+  card.appendChild(inputs);
+
+  card.appendChild(makeReviewBlock(m.review, dayKey, () => reviewMonologue(dayKey),
+    'Get AI review', !(m.transcript || m.topic)));
+  return card;
+}
+
+// ── Sentences card ─────────────────────────────────────────────────────────────
+function makeSentencesCard(data, dayKey) {
+  const s    = data.sentences;
+  const card = baseCard(s.done, false);
+  card.appendChild(cardTop('\uD83C\uDF19', 'Before bed \u2014 three sentences', 'CORE',
+    'Write three sentences in English about your day.',
+    s.done, () => { data.sentences.done = !data.sentences.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  [
+    { key: 'positive', prompt: 'Something positive today was\u2026',  ph: 'I had a good lunch\u2026' },
+    { key: 'negative', prompt: 'Something difficult today was\u2026', ph: 'I was very tired\u2026'    },
+    { key: 'overall',  prompt: 'Overall today was\u2026',             ph: 'a good day.'               }
+  ].forEach(({ key, prompt, ph }) => {
+    const row = document.createElement('div'); row.className = 'sentence-row';
+    const lbl = document.createElement('div'); lbl.className = 'sentence-prompt'; lbl.textContent = prompt;
+    const inp = document.createElement('input'); inp.className = 'sentence-inp'; inp.placeholder = ph; inp.value = s[key] || '';
+    inp.addEventListener('input', () => { data.sentences[key] = inp.value; scheduleSave(); });
+    row.appendChild(lbl); row.appendChild(inp); inputs.appendChild(row);
+  });
+  card.appendChild(inputs);
+  const hasSentences = !!(s.positive || s.negative || s.overall);
+  card.appendChild(makeReviewBlock(s.review, dayKey, () => reviewSentences(dayKey), 'Review my sentences', !hasSentences));
+  return card;
+}
+
+function makeReviewBlock(reviewText, dayKey, trigger, btnLabel, hidden) {
+  const wrap = document.createElement('div');
+  if (reviewText && reviewText !== '\u2026reviewing') {
+    const block = document.createElement('div'); block.className = 'review-block';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '\u2746 Claude\u2019s review';
+    const body  = document.createElement('div'); body.className = 'review-body';
+    body.innerHTML = renderMarkdown(reviewText);
+    block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
+  } else if (reviewText === '\u2026reviewing') {
+    const block = document.createElement('div'); block.className = 'review-block';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '\u2746 Claude\u2019s review';
+    const body  = document.createElement('div'); body.className = 'review-loading'; body.textContent = 'Reviewing your English\u2026';
+    block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
+  } else if (!hidden) {
+    if (aiEnabled()) {
+      const btn = document.createElement('button'); btn.className = 'review-btn'; btn.textContent = btnLabel;
+      btn.addEventListener('click', trigger); wrap.appendChild(btn);
+    } else {
+      const note = document.createElement('div'); note.className = 'no-ai-note';
+      note.textContent = 'AI reviews not available \u2014 ask your teacher.';
+      wrap.appendChild(note);
+    }
+  }
+  return wrap;
+}
+
+// ── Bonus cards ────────────────────────────────────────────────────────────────
+function makeRadioCard(data) {
+  const r = data.radio, card = baseCard(r.done, true);
+  card.appendChild(cardTop('\uD83D\uDCFB', 'Listen to English radio', 'BONUS',
+    'BBC Radio, podcasts, anything in English \u2014 10 minutes counts.',
+    r.done, () => { data.radio.done = !data.radio.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('What did you listen to?', r.notes, v => { data.radio.notes = v; }));
+  card.appendChild(inputs); return card;
+}
+function makeConversationCard(data) {
+  const cv = data.conversation, card = baseCard(cv.done, true);
+  card.appendChild(cardTop('\uD83D\uDCAC', 'Real conversation', 'BONUS',
+    'Have a real conversation in English \u2014 in person, online, or by phone.',
+    cv.done, () => { data.conversation.done = !data.conversation.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('Notes', cv.notes, v => { data.conversation.notes = v; }));
+  card.appendChild(inputs); return card;
+}
+function makeReadingCard(data) {
+  const r = data.reading, card = baseCard(r.done, true);
+  card.appendChild(cardTop('\uD83D\uDCD6', 'Read in English', 'BONUS',
+    'An article, a book, a website \u2014 anything in English.',
+    r.done, () => { data.reading.done = !data.reading.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('What did you read?', r.title, v => { data.reading.title = v; }));
+  card.appendChild(inputs); return card;
+}
+function makeTvCard(data) {
+  const tv = data.tv, card = baseCard(tv.done, true);
+  card.appendChild(cardTop('\uD83D\uDCFA', 'Watch in English', 'BONUS',
+    'A series, film, or YouTube video in English \u2014 subtitles are fine.',
+    tv.done, () => { data.tv.done = !data.tv.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('What did you watch?', tv.title, v => { data.tv.title = v; }));
+  card.appendChild(inputs); return card;
+}
+function makeCookingCard(data) {
+  const c = data.cooking, card = baseCard(c.done, true);
+  card.appendChild(cardTop('\uD83C\uDF73', 'Cook with an English recipe', 'BONUS',
+    'Try a recipe from an English-language website or cookbook.',
+    c.done, () => { data.cooking.done = !data.cooking.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('Recipe name', c.recipe, v => { data.cooking.recipe = v; }));
+  card.appendChild(inputs); return card;
+}
+function makeOnboardCard(data) {
+  const card = baseCard(data.onboard.done, true);
+  card.appendChild(cardTop('\uD83D\uDE82', 'Think in English on the go', 'BONUS',
+    'Describe your surroundings or invent stories in English \u2014 in your head.',
+    data.onboard.done, () => { data.onboard.done = !data.onboard.done; scheduleSave(); render(); }));
+  return card;
+}
+
+// ── History ────────────────────────────────────────────────────────────────────
+function toggleHistory() {
+  histVisible = !histVisible;
+  document.getElementById('histArea').style.display = histVisible ? '' : 'none';
+  document.getElementById('toggleHist').textContent  = histVisible ? 'hide' : 'show';
+  if (histVisible) renderHistory();
+}
+
+function renderHistory() {
+  const area = document.getElementById('histArea'), todKey = todayKey();
+  const keys = Object.keys(store).sort().reverse().filter(k => k !== todKey);
+  if (!keys.length) {
+    area.innerHTML = '<div style="font-size:0.75rem;color:var(--muted);padding:0.75rem 0">No previous entries yet.</div>';
+    return;
+  }
+  area.innerHTML = '';
+  keys.forEach(k => {
+    if (!store[k]) store[k] = initDay();
+    const d = store[k];
+    const entry   = document.createElement('div'); entry.className = 'hist-entry';
+    const dateRow = document.createElement('div'); dateRow.className = 'hist-date'; dateRow.textContent = fmtKey(k);
+    const dots    = document.createElement('div'); dots.className = 'hist-dots';
+    [
+      { v: d.monologue?.done,    core: true  },
+      { v: d.sentences?.done,    core: true  },
+      { v: d.radio?.done,        core: false },
+      { v: d.conversation?.done, core: false },
+      { v: d.reading?.done,      core: false },
+      { v: d.tv?.done,           core: false },
+      { v: d.cooking?.done,      core: false },
+      { v: d.onboard?.done,      core: false }
+    ].forEach(({ v, core }) => {
+      const dot = document.createElement('div');
+      dot.className = 'hist-dot' + (v ? ' done' : '') + (core ? ' core' : '');
+      dots.appendChild(dot);
+    });
+    dateRow.appendChild(dots); entry.appendChild(dateRow);
+    dateRow.addEventListener('click', () => {
+      const ex = entry.querySelector('.hist-edit');
+      if (ex) { ex.remove(); return; }
+      entry.appendChild(buildHistEdit(k, d));
+    });
+    area.appendChild(entry);
+  });
+}
+
+function buildHistEdit(k, d) {
+  const wrap = document.createElement('div'); wrap.className = 'hist-edit';
+
+  function fi(lbl, val, cb, isArea) {
+    const g = document.createElement('div');
+    if (lbl) { const l = document.createElement('div'); l.className = 'field-lbl'; l.textContent = lbl; g.appendChild(l); }
+    const inp = document.createElement(isArea ? 'textarea' : 'input');
+    inp.className = isArea ? 'field-ta' : 'field-inp'; inp.value = val || '';
+    if (isArea) inp.style.minHeight = '48px';
+    inp.addEventListener('input', () => { cb(inp.value); scheduleSave(k); });
+    g.appendChild(inp); return g;
+  }
+  function toggle(emoji, lbl, key) {
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
+    const chk = document.createElement('div');
+    chk.className = 'card-check' + (d[key]?.done ? ' checked' : '');
+    chk.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
+    chk.addEventListener('click', () => { d[key].done = !d[key].done; chk.className = 'card-check' + (d[key].done ? ' checked' : ''); scheduleSave(k); });
+    const label = document.createElement('span'); label.style.cssText = 'font-size:0.72rem;color:var(--en-dk);font-weight:500;'; label.textContent = `${emoji} ${lbl}`;
+    row.appendChild(chk); row.appendChild(label); return row;
+  }
+
+  if (!d.monologue) d.monologue = { done: false, topic: '', notes: '', transcript: '', review: '' };
+  if (!d.sentences) d.sentences = { done: false, positive: '', negative: '', overall: '', review: '' };
+
+  wrap.appendChild(toggle('\uD83C\uDF99', 'Monologue done', 'monologue'));
+  wrap.appendChild(fi('Topic', d.monologue.topic, v => { d.monologue.topic = v; }));
+  wrap.appendChild(fi('Notes', d.monologue.notes, v => { d.monologue.notes = v; }, true));
+  if (d.monologue.transcript) wrap.appendChild(fi('Transcript', d.monologue.transcript, v => { d.monologue.transcript = v; }, true));
+
+  wrap.appendChild(toggle('\uD83C\uDF19', 'Sentences done', 'sentences'));
+  wrap.appendChild(fi('Something positive today was\u2026', d.sentences.positive, v => { d.sentences.positive = v; }));
+  wrap.appendChild(fi('Something difficult today was\u2026', d.sentences.negative, v => { d.sentences.negative = v; }));
+  wrap.appendChild(fi('Overall today was\u2026', d.sentences.overall, v => { d.sentences.overall = v; }));
+
+  [
+    { key: 'radio',        emoji: '\uD83D\uDCFB', label: 'Radio',              noteKey: 'notes'  },
+    { key: 'conversation', emoji: '\uD83D\uDCAC', label: 'Conversation',       noteKey: 'notes'  },
+    { key: 'reading',      emoji: '\uD83D\uDCD6', label: 'Reading',            noteKey: 'title'  },
+    { key: 'tv',           emoji: '\uD83D\uDCFA', label: 'Watch',              noteKey: 'title'  },
+    { key: 'cooking',      emoji: '\uD83C\uDF73', label: 'Cooking',            noteKey: 'recipe' },
+    { key: 'onboard',      emoji: '\uD83D\uDE82', label: 'Think in English',   noteKey: null     }
+  ].forEach(({ key, emoji, label, noteKey }) => {
+    if (!d[key]) d[key] = { done: false };
+    wrap.appendChild(toggle(emoji, label, key));
+    if (noteKey) wrap.appendChild(fi('', d[key][noteKey], v => { d[key][noteKey] = v; }));
+  });
+
+  return wrap;
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+const nd = new Date();
+document.getElementById('todayDate').textContent = `${DAYS[nd.getDay()]}, ${nd.getDate()} ${MONTHS[nd.getMonth()]}`;
+const u = getUsername();
+if (u) { document.getElementById('userLabel').textContent = u; loadData(); }
+else   { showUserModal(); }
+</script>
+</body>
+</html>
