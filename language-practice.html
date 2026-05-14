@@ -127,11 +127,14 @@ html, body {
 .transcript-wrap { margin-top: 0.75rem; }
 .transcript-box {
   font-size: 0.8rem; color: #555; line-height: 1.65;
-  min-height: 2.5rem; max-height: 160px; overflow-y: auto;
+  min-height: 2.5rem; max-height: 160px; overflow-y: scroll;
   padding: 0.5rem 0.6rem;
   background: var(--bg); border: 1px dashed var(--border);
   white-space: pre-wrap; word-break: break-word;
 }
+.transcript-box::-webkit-scrollbar { width: 6px; }
+.transcript-box::-webkit-scrollbar-track { background: var(--border); }
+.transcript-box::-webkit-scrollbar-thumb { background: var(--en); border-radius: 3px; }
 .transcript-box.listening { border-color: var(--en); }
 .transcript-box .interim  { color: #bbb; font-style: italic; }
 .transcript-box.empty::before { content: 'Listening\2026'; color: #bbb; font-style: italic; }
