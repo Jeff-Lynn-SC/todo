@@ -635,16 +635,24 @@ async function loadData() {
       Object.keys(remote).forEach(k => { if (k !== key) store[k] = remote[k]; });
       if (remote[key]) {
         const loc = store[key], rem = remote[key];
-        store[key] = {
-          monologue:    rem.monologue?.notes?.length > (loc.monologue?.notes?.length || 0) ? rem.monologue : loc.monologue,
-          sentences:    rem.sentences?.positive ? rem.sentences : loc.sentences,
-          radio:        rem.radio?.notes    ? rem.radio        : (loc.radio        || { done: false, notes: '' }),
-          conversation: rem.conversation?.notes ? rem.conversation : (loc.conversation || { done: false, notes: '' }),
-          reading:      rem.reading?.title  ? rem.reading      : (loc.reading      || { done: false, title: '' }),
-          tv:           rem.tv?.title       ? rem.tv           : (loc.tv           || { done: false, title: '' }),
-          cooking:      rem.cooking?.recipe ? rem.cooking      : (loc.cooking      || { done: false, recipe: '' }),
-          onboard:      { done: loc.onboard?.done || rem.onboard?.done }
-        };
+        // If local today is completely fresh (new browser), just use remote
+        const locEmpty = !loc.monologue?.done && !loc.sentences?.done &&
+          !loc.monologue?.transcript && !loc.monologue?.topic && !loc.monologue?.notes &&
+          !loc.sentences?.positive && !loc.sentences?.negative && !loc.sentences?.overall;
+        if (locEmpty) {
+          store[key] = rem;
+        } else {
+          store[key] = {
+            monologue:    rem.monologue?.done || rem.monologue?.notes?.length > (loc.monologue?.notes?.length || 0) ? rem.monologue : loc.monologue,
+            sentences:    rem.sentences?.done || rem.sentences?.positive ? rem.sentences : loc.sentences,
+            radio:        rem.radio?.notes    ? rem.radio        : (loc.radio        || { done: false, notes: '' }),
+            conversation: rem.conversation?.notes ? rem.conversation : (loc.conversation || { done: false, notes: '' }),
+            reading:      rem.reading?.title  ? rem.reading      : (loc.reading      || { done: false, title: '' }),
+            tv:           rem.tv?.title       ? rem.tv           : (loc.tv           || { done: false, title: '' }),
+            cooking:      rem.cooking?.recipe ? rem.cooking      : (loc.cooking      || { done: false, recipe: '' }),
+            onboard:      { done: loc.onboard?.done || rem.onboard?.done }
+          };
+        }
       }
     } catch {}
     localStorage.setItem('deutsch_data', JSON.stringify(store));
