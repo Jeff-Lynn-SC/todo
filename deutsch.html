@@ -29,7 +29,6 @@ html, body {
   font-family: 'DM Mono', monospace; color: var(--ink);
   overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
-
 .page {
   padding: calc(var(--safe-t) + 0.75rem) 1rem calc(var(--safe-b) + 2.5rem);
   max-width: 500px; margin: 0 auto;
@@ -37,13 +36,10 @@ html, body {
 
 /* ── header ── */
 .page-hdr {
-  padding: 1rem 0 1rem;
-  border-bottom: 2px solid var(--ink);
-  margin-bottom: 1.25rem;
+  padding: 1rem 0; border-bottom: 2px solid var(--ink); margin-bottom: 1.25rem;
 }
 .page-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem; color: var(--ink); margin-bottom: 0.35rem;
+  font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.35rem;
 }
 .page-meta {
   display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
@@ -51,41 +47,31 @@ html, body {
 }
 .streak-badge {
   background: var(--de-bg); color: var(--de-dk);
-  border: 1px solid var(--de);
-  padding: 2px 8px; border-radius: 2px; font-weight: 500;
+  border: 1px solid var(--de); padding: 2px 8px; border-radius: 2px; font-weight: 500;
 }
 .prog-bar  { height: 2px; background: var(--border); }
 .prog-fill { height: 100%; background: var(--de); transition: width 0.4s ease; }
 
 /* ── cards ── */
 .card {
-  background: var(--paper);
-  border: 1.5px solid var(--border);
-  border-left: 4px solid var(--de);
-  margin-bottom: 0.85rem;
-  padding: 0.9rem 1rem;
+  background: var(--paper); border: 1.5px solid var(--border);
+  border-left: 4px solid var(--de); margin-bottom: 0.85rem; padding: 0.9rem 1rem;
   transition: opacity 0.2s;
 }
-.card.card-core  { border-left-color: var(--de); }
 .card.card-bonus { border-left-color: var(--border); }
 .card.card-done  { border-left-color: var(--good); opacity: 0.72; }
-
 .card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
-
 .card-check {
   width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px;
   border: 2px solid var(--border); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
 }
 .card-check.checked { background: var(--good); border-color: var(--good); }
 .card-check.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: bold; }
-
 .card-info  { flex: 1; min-width: 0; }
 .card-title {
-  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em;
-  color: var(--de-dk); margin-bottom: 0.2rem;
-  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em; color: var(--de-dk);
+  margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem;
 }
 .card-badge {
   font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
@@ -103,8 +89,7 @@ html, body {
 .field-inp {
   font-family: 'DM Mono', monospace; font-size: 0.82rem;
   border: none; border-bottom: 1.5px solid var(--border);
-  background: transparent; outline: none; color: var(--ink);
-  padding: 3px 0; width: 100%;
+  background: transparent; outline: none; color: var(--ink); padding: 3px 0; width: 100%;
 }
 .field-inp:focus { border-bottom-color: var(--de); }
 .field-ta {
@@ -123,12 +108,11 @@ html, body {
 }
 .timer-display {
   font-size: 2.4rem; font-weight: 400; letter-spacing: -2px;
-  color: var(--ink); line-height: 1; min-width: 4.2rem;
-  transition: color 0.3s;
+  color: var(--ink); line-height: 1; min-width: 4.2rem; transition: color 0.3s;
 }
-.timer-display.running { color: var(--de); }
+.timer-display.running  { color: var(--de); }
 .timer-display.finished { color: var(--good); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.55} }
 .timer-display.running { animation: pulse 1s ease-in-out infinite; }
 .timer-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .timer-start {
@@ -143,26 +127,64 @@ html, body {
   color: var(--muted); padding: 0.4rem 0.75rem; cursor: pointer; border-radius: 2px;
 }
 
+/* ── transcript ── */
+.transcript-wrap { margin-top: 0.75rem; }
+.transcript-box {
+  font-size: 0.8rem; color: #555; line-height: 1.65;
+  min-height: 2.5rem; padding: 0.5rem 0.6rem;
+  background: var(--bg); border: 1px dashed var(--border);
+  white-space: pre-wrap; word-break: break-word;
+}
+.transcript-box.listening { border-color: var(--de); }
+.transcript-box .interim { color: #bbb; font-style: italic; }
+.transcript-box.empty::before { content: 'Listening…'; color: #bbb; font-style: italic; }
+
 /* ── sentences ── */
 .sentence-row { display: flex; flex-direction: column; gap: 3px; }
 .sentence-prompt { font-size: 0.65rem; color: var(--muted); font-style: italic; }
 .sentence-inp {
   font-family: 'DM Mono', monospace; font-size: 0.82rem;
   border: none; border-bottom: 1.5px solid var(--border);
-  background: transparent; outline: none; color: var(--ink);
-  padding: 3px 0; width: 100%;
+  background: transparent; outline: none; color: var(--ink); padding: 3px 0; width: 100%;
 }
 .sentence-inp:focus { border-bottom-color: var(--de); }
+
+/* ── AI review ── */
+.review-block {
+  margin-top: 0.85rem;
+  background: var(--de-bg); border: 1px solid var(--de);
+  border-left: 3px solid var(--de); padding: 0.75rem 0.85rem;
+}
+.review-hdr {
+  font-size: 0.6rem; color: var(--de-dk); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 0.5rem; font-weight: 500;
+}
+.review-body {
+  font-size: 0.78rem; color: #444; line-height: 1.7; white-space: pre-wrap;
+}
+.review-body strong { color: var(--de-dk); font-weight: 500; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.review-loading { font-size: 0.75rem; color: var(--muted); animation: blink 1.2s ease infinite; }
+
+.review-btn {
+  display: inline-block; margin-top: 0.75rem;
+  background: none; border: 1.5px solid var(--de); color: var(--de-dk);
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  padding: 0.38rem 0.85rem; cursor: pointer; border-radius: 2px;
+}
+.review-btn:active { background: var(--de-bg); }
+.api-key-nudge {
+  font-size: 0.67rem; color: var(--muted); margin-top: 0.6rem; font-style: italic;
+}
+.api-key-nudge a { color: var(--de); cursor: pointer; }
 
 /* ── mark-core button ── */
 .mark-core-btn {
   width: 100%; margin-bottom: 0.85rem;
   background: var(--de); color: white; border: none;
   font-family: 'DM Mono', monospace; font-size: 0.8rem;
-  padding: 0.7rem 1rem; cursor: pointer; border-radius: 2px;
-  letter-spacing: 0.04em;
+  padding: 0.7rem 1rem; cursor: pointer; border-radius: 2px; letter-spacing: 0.04em;
 }
-.mark-core-btn:active { opacity: 0.85; }
 .mark-core-btn.all-done {
   background: var(--good-bg); color: var(--good);
   border: 1.5px solid var(--good); cursor: default;
@@ -170,9 +192,8 @@ html, body {
 
 /* ── section header ── */
 .section-hdr {
-  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em;
-  text-transform: uppercase; padding: 0.75rem 0 0.4rem;
-  border-top: 1px solid var(--border); margin-top: 0.5rem;
+  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.75rem 0 0.4rem; border-top: 1px solid var(--border); margin-top: 0.5rem;
   display: flex; align-items: center; justify-content: space-between;
 }
 .toggle-btn {
@@ -181,24 +202,17 @@ html, body {
 }
 
 /* ── history ── */
-.hist-entry {
-  border-bottom: 1px solid var(--border);
-  padding: 0.7rem 0; cursor: pointer;
-}
+.hist-entry { border-bottom: 1px solid var(--border); padding: 0.7rem 0; }
 .hist-entry:last-child { border-bottom: none; }
-.hist-date {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.7rem; color: var(--muted);
-}
+.hist-date { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; color: var(--muted); cursor: pointer; }
 .hist-dots { display: flex; gap: 3px; }
 .hist-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
 .hist-dot.done { background: var(--good); }
 .hist-dot.core { width: 8px; height: 8px; }
-.hist-detail {
-  font-size: 0.75rem; color: #555; line-height: 1.65;
-  padding-top: 0.5rem; border-top: 1px dashed var(--border); margin-top: 0.5rem;
+.hist-edit {
+  padding-top: 0.6rem; border-top: 1px dashed var(--border); margin-top: 0.5rem;
+  display: flex; flex-direction: column; gap: 0.65rem;
 }
-.hist-detail em { color: var(--muted); font-style: normal; }
 
 /* ── save indicator ── */
 .save-indicator {
@@ -206,29 +220,27 @@ html, body {
   min-height: 1.2em; text-align: right; padding: 0.25rem 0 0;
 }
 
-/* ── PAT modal ── */
-#pat-modal {
+/* ── modals ── */
+.modal {
   display: none; position: fixed; inset: 0;
   background: rgba(245,240,232,0.96);
-  align-items: center; justify-content: center;
-  z-index: 9999; padding: 1.5rem;
+  align-items: center; justify-content: center; z-index: 9999; padding: 1.5rem;
 }
-#pat-modal.show { display: flex; }
-#pat-box {
+.modal.show { display: flex; }
+.modal-box {
   background: var(--paper); border: 2px solid var(--ink);
-  box-shadow: 5px 5px 0 var(--ink);
-  padding: 1.75rem; width: 100%; max-width: 360px;
+  box-shadow: 5px 5px 0 var(--ink); padding: 1.75rem; width: 100%; max-width: 360px;
   display: flex; flex-direction: column; gap: 0.85rem;
 }
-#pat-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
-#pat-msg   { font-size: 0.72rem; color: #c0392b; min-height: 1em; }
-#pat-input {
+.modal-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+.modal-msg   { font-size: 0.72rem; color: #c0392b; min-height: 1em; }
+.modal-inp {
   font-family: 'DM Mono', monospace; font-size: 0.82rem;
   border: 2px solid var(--ink); background: var(--bg);
   padding: 0.5rem 0.65rem; outline: none; width: 100%;
 }
-#pat-hint  { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
-#pat-save  {
+.modal-hint { font-size: 0.65rem; color: var(--muted); line-height: 1.5; }
+.modal-save {
   font-family: 'DM Mono', monospace; font-size: 0.8rem;
   background: var(--ink); color: var(--paper); border: none;
   padding: 0.6rem 1.2rem; cursor: pointer; align-self: flex-start; border-radius: 2px;
@@ -237,13 +249,25 @@ html, body {
 </head>
 <body>
 
-<div id="pat-modal">
-  <div id="pat-box">
-    <div id="pat-title">GitHub Token</div>
-    <div id="pat-msg"></div>
-    <input id="pat-input" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
-    <div id="pat-hint">Same token as the main Home app.</div>
-    <button id="pat-save">Save token</button>
+<!-- GitHub PAT modal -->
+<div id="pat-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">GitHub Token</div>
+    <div class="modal-msg" id="pat-msg"></div>
+    <input id="pat-input" class="modal-inp" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+    <div class="modal-hint">Same token as the main Home app.</div>
+    <button id="pat-save" class="modal-save">Save token</button>
+  </div>
+</div>
+
+<!-- Anthropic API key modal -->
+<div id="ai-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">Anthropic API Key</div>
+    <div class="modal-msg" id="ai-msg"></div>
+    <input id="ai-input" class="modal-inp" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+    <div class="modal-hint">Get your key at <strong>console.anthropic.com</strong>. Used only to review your German — stored locally, never sent anywhere else.</div>
+    <button id="ai-save" class="modal-save">Save key</button>
   </div>
 </div>
 
@@ -254,12 +278,12 @@ html, body {
       <span id="todayDate">—</span>
       <span class="streak-badge" id="streakBadge">🔥 — days</span>
       <span id="progText" style="color:var(--muted)">0/2 core</span>
+      <span id="aiKeyStatus" style="font-size:0.62rem;color:var(--muted);cursor:pointer" onclick="showAiModal()"></span>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
 
   <div id="exerciseCards"></div>
-
   <div class="save-indicator" id="saveIndicator"></div>
 
   <div class="section-hdr">
@@ -287,8 +311,8 @@ function fmtKey(k) {
 }
 function initDay() {
   return {
-    monologue:    { done: false, topic: '', notes: '' },
-    sentences:    { done: false, positive: '', negative: '', overall: '' },
+    monologue:    { done: false, topic: '', notes: '', transcript: '', review: '' },
+    sentences:    { done: false, positive: '', negative: '', overall: '', review: '' },
     radio:        { done: false, notes: '' },
     conversation: { done: false, notes: '' },
     reading:      { done: false, title: '' },
@@ -298,9 +322,8 @@ function initDay() {
   };
 }
 
-// ── PAT / GitHub ──────────────────────────────────
+// ── PAT ──────────────────────────────────────────
 const getPat = () => localStorage.getItem('gh_pat');
-
 function showPat(msg) {
   document.getElementById('pat-modal').classList.add('show');
   document.getElementById('pat-msg').textContent = msg || '';
@@ -317,6 +340,29 @@ document.getElementById('pat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('pat-save').click();
 });
 
+// ── Anthropic key ─────────────────────────────────
+const getAiKey = () => localStorage.getItem('anthropic_key');
+function showAiModal(msg) {
+  document.getElementById('ai-modal').classList.add('show');
+  document.getElementById('ai-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('ai-input').focus(), 120);
+}
+document.getElementById('ai-save').addEventListener('click', () => {
+  const v = document.getElementById('ai-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('anthropic_key', v);
+  document.getElementById('ai-modal').classList.remove('show');
+  updateAiKeyStatus();
+});
+document.getElementById('ai-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('ai-save').click();
+});
+function updateAiKeyStatus() {
+  const el = document.getElementById('aiKeyStatus');
+  el.textContent = getAiKey() ? '✦ AI reviews on' : '+ add AI key for reviews';
+}
+
+// ── GitHub ────────────────────────────────────────
 async function ghGet(path) {
   const pat = getPat();
   if (!pat) { showPat(); return null; }
@@ -328,44 +374,199 @@ async function ghGet(path) {
   return res.json();
 }
 async function ghPut(path, data, msg) {
-  const pat = getPat();
-  if (!pat) return null;
+  const pat = getPat(); if (!pat) return null;
   const current = await ghGet(path);
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
   const body = { message: msg, content };
   if (current) body.sha = current.sha;
   const res = await fetch(ghUrl(path), {
     method: 'PUT',
-    headers: {
-      Authorization: `token ${pat}`,
-      Accept: 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
+    headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   return res.ok ? res.json() : null;
 }
 
-// ── timer state (survives card re-renders) ────────
+// ── Claude API ────────────────────────────────────
+async function callClaude(prompt) {
+  const key = getAiKey();
+  if (!key) { showAiModal('Add your Anthropic key to get AI reviews.'); return null; }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (res.status === 401) { localStorage.removeItem('anthropic_key'); showAiModal('API key rejected — please re-enter.'); return null; }
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.content?.[0]?.text || null;
+}
+
+function renderMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+async function reviewMonologue(dayKey) {
+  const d = store[dayKey];
+  if (!d) return;
+  const transcript = d.monologue.transcript?.trim();
+  const topic      = d.monologue.topic?.trim();
+  if (!transcript && !topic) return;
+  if (!getAiKey()) return;
+
+  d.monologue.review = '…reviewing';
+  renderCards();
+
+  const text = transcript || `[No transcript — topic was: ${topic}]`;
+  const review = await callClaude(
+`You are a warm, encouraging German language tutor. A learner just did their 1-minute spoken German monologue.
+
+Topic: "${topic || 'not specified'}"
+Transcription: "${text}"
+
+Write a short review (4–6 sentences) covering:
+1. What they did well (vocabulary, sentence structure, effort)
+2. One or two specific corrections with the fix shown
+3. One better phrase or word they could use
+4. A brief encouraging sign-off
+
+Write in a friendly tone. Use German examples inline. Keep it tight — no headers, just flowing prose.`
+  );
+
+  d.monologue.review = review || 'Could not get review — check your API key.';
+  scheduleSave();
+  renderCards();
+}
+
+async function reviewSentences(dayKey) {
+  const d = store[dayKey];
+  if (!d) return;
+  const s = d.sentences;
+  const filled = [s.positive, s.negative, s.overall].filter(x => x?.trim());
+  if (!filled.length) return;
+  if (!getAiKey()) return;
+
+  d.sentences.review = '…reviewing';
+  renderCards();
+
+  const lines = [];
+  if (s.positive?.trim()) lines.push(`Etwas Positives heute war: "${s.positive}"`);
+  if (s.negative?.trim()) lines.push(`Etwas Schwieriges heute war: "${s.negative}"`);
+  if (s.overall?.trim())  lines.push(`Insgesamt war heute: "${s.overall}"`);
+
+  const review = await callClaude(
+`You are a warm, encouraging German language tutor. A learner wrote their three daily German reflection sentences.
+
+${lines.join('\n')}
+
+Write a short review (3–5 sentences):
+1. For each sentence: note what's good, then correct any grammar or word-choice issues (show the corrected version)
+2. End with a brief encouraging comment
+
+Friendly tone, concise, no bullet points — just clear prose with inline corrections shown in quotes.`
+  );
+
+  d.sentences.review = review || 'Could not get review — check your API key.';
+  scheduleSave();
+  renderCards();
+}
+
+// ── Speech recognition ────────────────────────────
+let recognition  = null;
+let monoFinal    = '';
+let monoInterim  = '';
+
+function startSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  monoInterim = '';
+  if (recognition) { try { recognition.stop(); } catch {} }
+  recognition = new SR();
+  recognition.lang = 'de-DE';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) monoFinal += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    monoInterim = interim;
+    updateTranscriptDOM();
+  };
+
+  recognition.onerror = () => {};
+  recognition.onend = () => {
+    if (timer.running) {
+      // Auto-restart if still timing (SpeechRecognition times out on silence)
+      try { recognition.start(); } catch {}
+    }
+  };
+
+  recognition.start();
+}
+
+function stopSpeechRecognition() {
+  if (recognition) { try { recognition.stop(); } catch {} recognition = null; }
+  monoInterim = '';
+}
+
+function updateTranscriptDOM() {
+  const box = document.getElementById('mono-transcript');
+  if (!box) return;
+  box.innerHTML = '';
+  if (monoFinal) {
+    const f = document.createTextNode(monoFinal);
+    box.appendChild(f);
+  }
+  if (monoInterim) {
+    const span = document.createElement('span');
+    span.className = 'interim';
+    span.textContent = monoInterim;
+    box.appendChild(span);
+  }
+  if (!monoFinal && !monoInterim) box.classList.add('empty');
+  else box.classList.remove('empty');
+  if (timer.running) box.classList.add('listening');
+  else box.classList.remove('listening');
+}
+
+// ── Timer ─────────────────────────────────────────
 const timer = { running: false, seconds: 60, intervalId: null };
 
-function fmtSecs(s) {
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
+function fmtSecs(s) { return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
 
 function timerTick() {
   timer.seconds--;
   const disp = document.getElementById('mono-timer-disp');
   if (disp) disp.textContent = fmtSecs(timer.seconds);
   if (timer.seconds <= 0) {
-    timerStop();
+    timer.running = false;
+    clearInterval(timer.intervalId);
+    timer.intervalId = null;
+    stopSpeechRecognition();
     playBeep();
-    // Auto-mark both core exercises done
     const key = todayKey();
+    store[key].monologue.transcript = monoFinal.trim();
     store[key].monologue.done = true;
     store[key].sentences.done = true;
     scheduleSave();
     render();
+    reviewMonologue(key);
   }
 }
 
@@ -373,66 +574,52 @@ function timerStart() {
   if (timer.running || timer.seconds <= 0) return;
   timer.running = true;
   timer.intervalId = setInterval(timerTick, 1000);
+  startSpeechRecognition();
   updateTimerDOM();
 }
-
 function timerPause() {
   timer.running = false;
-  clearInterval(timer.intervalId);
-  timer.intervalId = null;
+  clearInterval(timer.intervalId); timer.intervalId = null;
+  stopSpeechRecognition();
   updateTimerDOM();
 }
-
 function timerReset() {
   timerPause();
   timer.seconds = 60;
+  monoFinal = ''; monoInterim = '';
   updateTimerDOM();
+  updateTranscriptDOM();
 }
-
-function timerStop() {
-  timer.running = false;
-  if (timer.intervalId) clearInterval(timer.intervalId);
-  timer.intervalId = null;
-}
-
 function updateTimerDOM() {
   const disp  = document.getElementById('mono-timer-disp');
   const start = document.getElementById('mono-timer-start');
   const reset = document.getElementById('mono-timer-reset');
   if (!disp) return;
-  disp.textContent = fmtSecs(timer.seconds);
-  disp.className = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
-  if (start) {
-    start.textContent = timer.running ? 'pause' : 'start';
-    start.className = 'timer-start' + (timer.running ? ' paused' : '');
-  }
-  if (reset) reset.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
+  disp.textContent  = fmtSecs(timer.seconds);
+  disp.className    = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
+  if (start) { start.textContent = timer.running ? 'pause' : 'start'; start.className = 'timer-start' + (timer.running ? ' paused' : ''); }
+  if (reset)   reset.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
 }
 
 function playBeep() {
   try {
-    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
-    const gain = ctx.createGain();
-    gain.connect(ctx.destination);
-    [0, 0.18, 0.36].forEach(t => {
-      const osc = ctx.createOscillator();
-      osc.connect(gain);
-      osc.frequency.value = 660;
-      osc.type = 'sine';
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + t);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.15);
-      osc.start(ctx.currentTime + t);
-      osc.stop(ctx.currentTime + t + 0.15);
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const g   = ctx.createGain(); g.connect(ctx.destination);
+    [0, 0.2, 0.4].forEach(t => {
+      const o = ctx.createOscillator(); o.connect(g);
+      o.frequency.value = 660; o.type = 'sine';
+      g.gain.setValueAtTime(0.25, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.18);
     });
   } catch {}
 }
 
-// ── store ─────────────────────────────────────────
+// ── Store ─────────────────────────────────────────
 let store = {};
 let histVisible = true;
-let saveTimer = null;
+let saveTimer   = null;
 
-// ── load ──────────────────────────────────────────
 async function loadData() {
   if (!getPat()) { showPat(); return; }
   const cached = localStorage.getItem('deutsch_data');
@@ -449,10 +636,14 @@ async function loadData() {
       if (remote[key]) {
         const loc = store[key], rem = remote[key];
         store[key] = {
-          monologue: rem.monologue?.notes?.length > (loc.monologue?.notes?.length || 0) ? rem.monologue : loc.monologue,
-          cooking:   rem.cooking?.recipe ? rem.cooking : loc.cooking,
-          onboard:   { done: loc.onboard?.done || rem.onboard?.done },
-          sentences: rem.sentences?.positive ? rem.sentences : loc.sentences
+          monologue:    rem.monologue?.notes?.length > (loc.monologue?.notes?.length || 0) ? rem.monologue : loc.monologue,
+          sentences:    rem.sentences?.positive ? rem.sentences : loc.sentences,
+          radio:        rem.radio?.notes    ? rem.radio        : (loc.radio        || { done: false, notes: '' }),
+          conversation: rem.conversation?.notes ? rem.conversation : (loc.conversation || { done: false, notes: '' }),
+          reading:      rem.reading?.title  ? rem.reading      : (loc.reading      || { done: false, title: '' }),
+          tv:           rem.tv?.title       ? rem.tv           : (loc.tv           || { done: false, title: '' }),
+          cooking:      rem.cooking?.recipe ? rem.cooking      : (loc.cooking      || { done: false, recipe: '' }),
+          onboard:      { done: loc.onboard?.done || rem.onboard?.done }
         };
       }
     } catch {}
@@ -461,7 +652,6 @@ async function loadData() {
   }
 }
 
-// ── save ──────────────────────────────────────────
 function scheduleSave() {
   if (saveTimer) clearTimeout(saveTimer);
   document.getElementById('saveIndicator').textContent = '…';
@@ -475,29 +665,24 @@ async function doSave() {
   setTimeout(() => { el.textContent = ''; }, 2500);
 }
 
-// ── render ────────────────────────────────────────
+// ── Render ────────────────────────────────────────
 function updateMeta() {
-  const key = todayKey();
-  const d   = store[key] || initDay();
-  const coreDone  = [d.monologue.done, d.sentences.done].filter(Boolean).length;
-  document.getElementById('progText').textContent  = `${coreDone}/2 core`;
-  document.getElementById('progFill').style.width  = `${coreDone / 2 * 100}%`;
+  const key = todayKey(), d = store[key] || initDay();
+  const coreDone = [d.monologue.done, d.sentences.done].filter(Boolean).length;
+  document.getElementById('progText').textContent   = `${coreDone}/2 core`;
+  document.getElementById('progFill').style.width   = `${coreDone / 2 * 100}%`;
   document.getElementById('streakBadge').textContent = `🔥 ${calcStreak()} days`;
+  updateAiKeyStatus();
 }
 
 function calcStreak() {
-  const today = todayKey();
-  let streak = 0;
+  const today = todayKey(); let streak = 0;
   const check = new Date();
   for (let i = 0; i < 365; i++) {
     const k = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
     const d = store[k];
-    const complete = d?.monologue?.done && d?.sentences?.done;
-    if (complete) {
-      streak++;
-    } else if (k !== today) {
-      break;
-    }
+    if (d?.monologue?.done && d?.sentences?.done) streak++;
+    else if (k !== today) break;
     check.setDate(check.getDate() - 1);
   }
   return streak;
@@ -505,33 +690,26 @@ function calcStreak() {
 
 function render() {
   document.getElementById('todayDate').textContent = fmtKey(todayKey());
-  updateMeta();
-  renderCards();
+  updateMeta(); renderCards();
   if (histVisible) renderHistory();
 }
 
 function renderCards() {
-  const key  = todayKey();
-  const data = store[key];
+  const key  = todayKey(), data = store[key];
   const c    = document.getElementById('exerciseCards');
   c.innerHTML = '';
 
-  // Mark core done button
   const coreDone = data.monologue.done && data.sentences.done;
   const coreBtn  = document.createElement('button');
   coreBtn.className   = 'mark-core-btn' + (coreDone ? ' all-done' : '');
   coreBtn.textContent = coreDone ? '✓ Core exercises done today' : 'Mark both core exercises done';
   if (!coreDone) {
-    coreBtn.addEventListener('click', () => {
-      data.monologue.done = true;
-      data.sentences.done = true;
-      scheduleSave(); render();
-    });
+    coreBtn.addEventListener('click', () => { data.monologue.done = true; data.sentences.done = true; scheduleSave(); render(); });
   }
   c.appendChild(coreBtn);
 
-  c.appendChild(makeMonologueCard(data));
-  c.appendChild(makeSentencesCard(data));
+  c.appendChild(makeMonologueCard(data, key));
+  c.appendChild(makeSentencesCard(data, key));
   c.appendChild(makeRadioCard(data));
   c.appendChild(makeConversationCard(data));
   c.appendChild(makeReadingCard(data));
@@ -540,271 +718,214 @@ function renderCards() {
   c.appendChild(makeOnboardCard(data));
 }
 
-// ── card builders ─────────────────────────────────
+// ── Card helpers ──────────────────────────────────
 function baseCard(isDone, isBonus) {
   const card = document.createElement('div');
-  card.className = 'card' + (isDone ? ' card-done' : isBonus ? ' card-bonus' : ' card-core');
+  card.className = 'card' + (isDone ? ' card-done' : isBonus ? ' card-bonus' : '');
   return card;
 }
-
 function cardTop(emoji, titleText, badgeText, descText, isDone, onCheck) {
-  const top   = document.createElement('div');
-  top.className = 'card-top';
-
+  const top   = document.createElement('div'); top.className = 'card-top';
   const check = document.createElement('div');
   check.className = 'card-check' + (isDone ? ' checked' : '');
   check.addEventListener('click', onCheck);
-
-  const info  = document.createElement('div');
-  info.className = 'card-info';
-
-  const title = document.createElement('div');
-  title.className = 'card-title';
-  title.textContent = `${emoji} ${titleText}`;
-  if (badgeText) {
-    const badge = document.createElement('span');
-    badge.className   = 'card-badge';
-    badge.textContent = badgeText;
-    title.appendChild(badge);
-  }
-
-  const desc = document.createElement('div');
-  desc.className   = 'card-desc';
-  desc.textContent = descText;
-
-  info.appendChild(title);
-  info.appendChild(desc);
-  top.appendChild(check);
-  top.appendChild(info);
+  const info  = document.createElement('div'); info.className = 'card-info';
+  const title = document.createElement('div'); title.className = 'card-title'; title.textContent = `${emoji} ${titleText}`;
+  if (badgeText) { const b = document.createElement('span'); b.className = 'card-badge'; b.textContent = badgeText; title.appendChild(b); }
+  const desc = document.createElement('div'); desc.className = 'card-desc'; desc.textContent = descText;
+  info.appendChild(title); info.appendChild(desc); top.appendChild(check); top.appendChild(info);
   return top;
 }
+function inputField(labelText, val, onInput, isArea) {
+  const g = document.createElement('div');
+  if (labelText) { const l = document.createElement('div'); l.className = 'field-lbl'; l.textContent = labelText; g.appendChild(l); }
+  const inp = document.createElement(isArea ? 'textarea' : 'input');
+  inp.className = isArea ? 'field-ta' : 'field-inp';
+  inp.value = val || '';
+  if (isArea) inp.style.minHeight = '56px';
+  inp.addEventListener('input', () => { onInput(inp.value); scheduleSave(); });
+  g.appendChild(inp); return g;
+}
 
-function makeMonologueCard(data) {
+// ── Monologue card ────────────────────────────────
+function makeMonologueCard(data, dayKey) {
   const m    = data.monologue;
   const card = baseCard(m.done, false);
-  card.appendChild(cardTop(
-    '🎙', 'Einminütiges Gespräch', 'CORE',
-    'Wähle ein Thema und sprich eine Minute lang auf Deutsch — laut oder im Kopf.',
-    m.done,
-    () => { data.monologue.done = !data.monologue.done; scheduleSave(); render(); }
-  ));
+  card.appendChild(cardTop('🎙', 'Einminütiges Gespräch', 'CORE',
+    'Wähle ein Thema, drücke Start und sprich eine Minute lang auf Deutsch.',
+    m.done, () => { data.monologue.done = !data.monologue.done; scheduleSave(); render(); }));
 
   // Timer
-  const timerWrap = document.createElement('div');
-  timerWrap.className = 'timer-wrap';
-
+  const timerWrap = document.createElement('div'); timerWrap.className = 'timer-wrap';
   const disp = document.createElement('div');
   disp.id = 'mono-timer-disp';
   disp.className = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
   disp.textContent = fmtSecs(timer.seconds);
-
-  const btns = document.createElement('div');
-  btns.className = 'timer-btns';
-
+  const btns = document.createElement('div'); btns.className = 'timer-btns';
   const startBtn = document.createElement('button');
   startBtn.id = 'mono-timer-start';
   startBtn.className = 'timer-start' + (timer.running ? ' paused' : '');
   startBtn.textContent = timer.running ? 'pause' : 'start';
   startBtn.addEventListener('click', () => { timer.running ? timerPause() : timerStart(); });
-
   const resetBtn = document.createElement('button');
-  resetBtn.id = 'mono-timer-reset';
-  resetBtn.className = 'timer-reset';
-  resetBtn.textContent = 'reset';
+  resetBtn.id = 'mono-timer-reset'; resetBtn.className = 'timer-reset'; resetBtn.textContent = 'reset';
   resetBtn.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
   resetBtn.addEventListener('click', timerReset);
-
-  btns.appendChild(startBtn);
-  btns.appendChild(resetBtn);
-  timerWrap.appendChild(disp);
-  timerWrap.appendChild(btns);
+  btns.appendChild(startBtn); btns.appendChild(resetBtn);
+  timerWrap.appendChild(disp); timerWrap.appendChild(btns);
   card.appendChild(timerWrap);
 
+  // Live / saved transcript
+  const twrap = document.createElement('div'); twrap.className = 'transcript-wrap';
+  const tlbl = document.createElement('div'); tlbl.className = 'field-lbl'; tlbl.textContent = 'Transcript';
+  const tbox = document.createElement('div');
+  tbox.id = 'mono-transcript'; tbox.className = 'transcript-box';
+  const savedTranscript = m.transcript || monoFinal;
+  if (savedTranscript) {
+    tbox.textContent = savedTranscript;
+    if (monoInterim) { const sp = document.createElement('span'); sp.className = 'interim'; sp.textContent = monoInterim; tbox.appendChild(sp); }
+  } else if (monoInterim) {
+    const sp = document.createElement('span'); sp.className = 'interim'; sp.textContent = monoInterim; tbox.appendChild(sp);
+  } else {
+    tbox.classList.add('empty');
+  }
+  if (timer.running) tbox.classList.add('listening');
+  twrap.appendChild(tlbl); twrap.appendChild(tbox);
+  card.appendChild(twrap);
+
   // Topic + notes
-  const inputs = document.createElement('div');
-  inputs.className = 'card-inputs';
-  inputs.style.marginTop = '0.75rem';
-
-  const tg = document.createElement('div');
-  tg.innerHTML = '<div class="field-lbl">Thema / Topic</div>';
-  const ti = document.createElement('input');
-  ti.className   = 'field-inp';
-  ti.placeholder = 'e.g. Mein Wochenende, Das Wetter, Meine Familie…';
-  ti.value       = m.topic || '';
-  ti.addEventListener('input', () => { data.monologue.topic = ti.value; scheduleSave(); });
-  tg.appendChild(ti);
-
-  const ng = document.createElement('div');
-  ng.innerHTML = '<div class="field-lbl">Notizen / Notes</div>';
-  const na = document.createElement('textarea');
-  na.className   = 'field-ta';
-  na.placeholder = 'New words, useful phrases, anything worth remembering…';
-  na.value       = m.notes || '';
-  na.addEventListener('input', () => { data.monologue.notes = na.value; scheduleSave(); });
-  ng.appendChild(na);
-
-  inputs.appendChild(tg);
-  inputs.appendChild(ng);
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs'; inputs.style.marginTop = '0.75rem';
+  inputs.appendChild(inputField('Thema / Topic', m.topic, v => { data.monologue.topic = v; }));
+  inputs.appendChild(inputField('Notizen / Notes', m.notes, v => { data.monologue.notes = v; }, true));
   card.appendChild(inputs);
+
+  // AI review
+  const reviewWrap = makeReviewBlock(m.review, dayKey, () => reviewMonologue(dayKey),
+    'Get AI review', !(m.transcript || m.topic));
+  card.appendChild(reviewWrap);
   return card;
 }
 
-function makeSentencesCard(data) {
+// ── Sentences card ────────────────────────────────
+function makeSentencesCard(data, dayKey) {
   const s    = data.sentences;
   const card = baseCard(s.done, false);
-  card.appendChild(cardTop(
-    '🌙', 'Vor dem Schlafen — drei Sätze', 'CORE',
+  card.appendChild(cardTop('🌙', 'Vor dem Schlafen — drei Sätze', 'CORE',
     'Schreibe drei Sätze auf Deutsch über deinen Tag.',
-    s.done,
-    () => { data.sentences.done = !data.sentences.done; scheduleSave(); render(); }
-  ));
-
-  const inputs = document.createElement('div');
-  inputs.className = 'card-inputs';
-
+    s.done, () => { data.sentences.done = !data.sentences.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
   [
-    { key: 'positive', prompt: 'Etwas Positives heute war…',    ph: 'Das Wetter war schön…' },
-    { key: 'negative', prompt: 'Etwas Schwieriges heute war…',  ph: 'Ich war müde…' },
-    { key: 'overall',  prompt: 'Insgesamt war heute…',          ph: 'ein guter Tag.' }
+    { key: 'positive', prompt: 'Etwas Positives heute war…',   ph: 'Das Wetter war schön…' },
+    { key: 'negative', prompt: 'Etwas Schwieriges heute war…', ph: 'Ich war müde…' },
+    { key: 'overall',  prompt: 'Insgesamt war heute…',         ph: 'ein guter Tag.' }
   ].forEach(({ key, prompt, ph }) => {
-    const row = document.createElement('div');
-    row.className = 'sentence-row';
-    const lbl = document.createElement('div');
-    lbl.className = 'sentence-prompt'; lbl.textContent = prompt;
-    const inp = document.createElement('input');
-    inp.className = 'sentence-inp'; inp.placeholder = ph; inp.value = s[key] || '';
+    const row = document.createElement('div'); row.className = 'sentence-row';
+    const lbl = document.createElement('div'); lbl.className = 'sentence-prompt'; lbl.textContent = prompt;
+    const inp = document.createElement('input'); inp.className = 'sentence-inp'; inp.placeholder = ph; inp.value = s[key] || '';
     inp.addEventListener('input', () => { data.sentences[key] = inp.value; scheduleSave(); });
-    row.appendChild(lbl); row.appendChild(inp);
-    inputs.appendChild(row);
+    row.appendChild(lbl); row.appendChild(inp); inputs.appendChild(row);
   });
-
   card.appendChild(inputs);
+  const hasSentences = !!(s.positive || s.negative || s.overall);
+  card.appendChild(makeReviewBlock(s.review, dayKey, () => reviewSentences(dayKey), 'Review my sentences', !hasSentences));
   return card;
 }
 
+function makeReviewBlock(reviewText, dayKey, trigger, btnLabel, hidden) {
+  const wrap = document.createElement('div');
+  if (reviewText && reviewText !== '…reviewing') {
+    const block = document.createElement('div'); block.className = 'review-block';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '✦ Claude's review';
+    const body  = document.createElement('div'); body.className = 'review-body';
+    body.innerHTML = renderMarkdown(reviewText);
+    block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
+  } else if (reviewText === '…reviewing') {
+    const block = document.createElement('div'); block.className = 'review-block';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '✦ Claude's review';
+    const body  = document.createElement('div'); body.className = 'review-loading'; body.textContent = 'Reviewing your German…';
+    block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
+  } else if (!hidden) {
+    const btn = document.createElement('button'); btn.className = 'review-btn'; btn.textContent = btnLabel;
+    btn.addEventListener('click', trigger); wrap.appendChild(btn);
+    if (!getAiKey()) {
+      const nudge = document.createElement('div'); nudge.className = 'api-key-nudge';
+      nudge.innerHTML = 'Needs an Anthropic API key. <a onclick="showAiModal()">Add key →</a>';
+      wrap.appendChild(nudge);
+    }
+  }
+  return wrap;
+}
+
+// ── Bonus cards ───────────────────────────────────
 function makeRadioCard(data) {
-  const r    = data.radio;
-  const card = baseCard(r.done, true);
-  card.appendChild(cardTop('📻', 'Radio hören', 'BONUS',
-    'Hör einem deutschen Sender zu — WDR, Bayern 3, Deutschlandfunk…',
+  const r = data.radio; const card = baseCard(r.done, true);
+  card.appendChild(cardTop('📻', 'Radio hören', 'BONUS', 'Hör einem deutschen Sender zu — WDR, Bayern 3, Deutschlandfunk…',
     r.done, () => { data.radio.done = !data.radio.done; scheduleSave(); render(); }));
   const inputs = document.createElement('div'); inputs.className = 'card-inputs';
-  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du gehört?</div>';
-  const i = document.createElement('input'); i.className = 'field-inp';
-  i.placeholder = 'e.g. Deutschlandfunk Nachrichten, Bayern 3…'; i.value = r.notes || '';
-  i.addEventListener('input', () => { data.radio.notes = i.value; scheduleSave(); });
-  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
-  return card;
+  inputs.appendChild(inputField('Was hast du gehört?', r.notes, v => { data.radio.notes = v; }));
+  card.appendChild(inputs); return card;
 }
-
 function makeConversationCard(data) {
-  const cv   = data.conversation;
-  const card = baseCard(cv.done, true);
-  card.appendChild(cardTop('💬', 'Echte Gespräche', 'BONUS',
-    'Führe ein echtes Gespräch auf Deutsch — persönlich, online oder am Telefon.',
+  const cv = data.conversation; const card = baseCard(cv.done, true);
+  card.appendChild(cardTop('💬', 'Echte Gespräche', 'BONUS', 'Führe ein echtes Gespräch auf Deutsch — persönlich, online oder am Telefon.',
     cv.done, () => { data.conversation.done = !data.conversation.done; scheduleSave(); render(); }));
   const inputs = document.createElement('div'); inputs.className = 'card-inputs';
-  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Notizen / Notes</div>';
-  const i = document.createElement('input'); i.className = 'field-inp';
-  i.placeholder = 'Who with, what about, new words…'; i.value = cv.notes || '';
-  i.addEventListener('input', () => { data.conversation.notes = i.value; scheduleSave(); });
-  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
-  return card;
+  inputs.appendChild(inputField('Notizen / Notes', cv.notes, v => { data.conversation.notes = v; }));
+  card.appendChild(inputs); return card;
 }
-
 function makeReadingCard(data) {
-  const r    = data.reading;
-  const card = baseCard(r.done, true);
-  card.appendChild(cardTop('📖', 'Lesen', 'BONUS',
-    'Lies etwas auf Deutsch — Artikel, Buch, Zeitung, Website…',
+  const r = data.reading; const card = baseCard(r.done, true);
+  card.appendChild(cardTop('📖', 'Lesen', 'BONUS', 'Lies etwas auf Deutsch — Artikel, Buch, Zeitung, Website…',
     r.done, () => { data.reading.done = !data.reading.done; scheduleSave(); render(); }));
   const inputs = document.createElement('div'); inputs.className = 'card-inputs';
-  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du gelesen?</div>';
-  const i = document.createElement('input'); i.className = 'field-inp';
-  i.placeholder = 'e.g. Der Spiegel, Harry Potter, sueddeutsche.de…'; i.value = r.title || '';
-  i.addEventListener('input', () => { data.reading.title = i.value; scheduleSave(); });
-  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
-  return card;
+  inputs.appendChild(inputField('Was hast du gelesen?', r.title, v => { data.reading.title = v; }));
+  card.appendChild(inputs); return card;
 }
-
 function makeTvCard(data) {
-  const tv   = data.tv;
-  const card = baseCard(tv.done, true);
-  card.appendChild(cardTop('📺', 'Fernsehen', 'BONUS',
-    'Schau etwas auf Deutsch — Nachrichten, Serie, Film, YouTube…',
+  const tv = data.tv; const card = baseCard(tv.done, true);
+  card.appendChild(cardTop('📺', 'Fernsehen', 'BONUS', 'Schau etwas auf Deutsch — Nachrichten, Serie, Film, YouTube…',
     tv.done, () => { data.tv.done = !data.tv.done; scheduleSave(); render(); }));
   const inputs = document.createElement('div'); inputs.className = 'card-inputs';
-  const g = document.createElement('div'); g.innerHTML = '<div class="field-lbl">Was hast du geschaut?</div>';
-  const i = document.createElement('input'); i.className = 'field-inp';
-  i.placeholder = 'e.g. Tagesschau, Dark, Ein Dreiviertel Jahr…'; i.value = tv.title || '';
-  i.addEventListener('input', () => { data.tv.title = i.value; scheduleSave(); });
-  g.appendChild(i); inputs.appendChild(g); card.appendChild(inputs);
-  return card;
+  inputs.appendChild(inputField('Was hast du geschaut?', tv.title, v => { data.tv.title = v; }));
+  card.appendChild(inputs); return card;
 }
-
 function makeCookingCard(data) {
-  const c    = data.cooking;
-  const card = baseCard(c.done, true);
-  card.appendChild(cardTop(
-    '🍳', 'Kochen auf Deutsch', 'BONUS',
-    'Probiere ein neues Rezept von einer deutschsprachigen Website — chefkoch.de, lecker.de…',
-    c.done,
-    () => { data.cooking.done = !data.cooking.done; scheduleSave(); render(); }
-  ));
-  const inputs = document.createElement('div');
-  inputs.className = 'card-inputs';
-  const rg = document.createElement('div');
-  rg.innerHTML = '<div class="field-lbl">Rezept / Recipe</div>';
-  const ri = document.createElement('input');
-  ri.className = 'field-inp'; ri.placeholder = 'e.g. Apfelkuchen, Sauerbraten…'; ri.value = c.recipe || '';
-  ri.addEventListener('input', () => { data.cooking.recipe = ri.value; scheduleSave(); });
-  rg.appendChild(ri); inputs.appendChild(rg); card.appendChild(inputs);
-  return card;
+  const c = data.cooking; const card = baseCard(c.done, true);
+  card.appendChild(cardTop('🍳', 'Kochen auf Deutsch', 'BONUS', 'Probiere ein neues Rezept von einer deutschsprachigen Website.',
+    c.done, () => { data.cooking.done = !data.cooking.done; scheduleSave(); render(); }));
+  const inputs = document.createElement('div'); inputs.className = 'card-inputs';
+  inputs.appendChild(inputField('Rezept / Recipe', c.recipe, v => { data.cooking.recipe = v; }));
+  card.appendChild(inputs); return card;
 }
-
 function makeOnboardCard(data) {
   const card = baseCard(data.onboard.done, true);
-  card.appendChild(cardTop(
-    '🚂', 'Unterwegs lernen', 'BONUS',
-    'Schau dir andere Menschen an und erfinde für jede Person eine Geschichte auf Deutsch.',
-    data.onboard.done,
-    () => { data.onboard.done = !data.onboard.done; scheduleSave(); render(); }
-  ));
+  card.appendChild(cardTop('🚂', 'Unterwegs lernen', 'BONUS', 'Erfinde Geschichten für andere Menschen auf Deutsch — im Kopf.',
+    data.onboard.done, () => { data.onboard.done = !data.onboard.done; scheduleSave(); render(); }));
   return card;
 }
 
-// ── history ────────────────────────────────────────
+// ── History ───────────────────────────────────────
 function toggleHistory() {
   histVisible = !histVisible;
   document.getElementById('histArea').style.display = histVisible ? '' : 'none';
-  document.getElementById('toggleHist').textContent = histVisible ? 'hide' : 'show';
+  document.getElementById('toggleHist').textContent  = histVisible ? 'hide' : 'show';
   if (histVisible) renderHistory();
 }
 
 function renderHistory() {
-  const area   = document.getElementById('histArea');
-  const todKey = todayKey();
-  const keys   = Object.keys(store).sort().reverse().filter(k => k !== todKey);
-  if (keys.length === 0) {
-    area.innerHTML = '<div style="font-size:0.75rem;color:var(--muted);padding:0.75rem 0">No previous entries yet.</div>';
-    return;
-  }
+  const area = document.getElementById('histArea'), todKey = todayKey();
+  const keys = Object.keys(store).sort().reverse().filter(k => k !== todKey);
+  if (!keys.length) { area.innerHTML = '<div style="font-size:0.75rem;color:var(--muted);padding:0.75rem 0">No previous entries yet.</div>'; return; }
   area.innerHTML = '';
   keys.forEach(k => {
     if (!store[k]) store[k] = initDay();
-    const d     = store[k];
-    const entry = document.createElement('div');
-    entry.className = 'hist-entry';
-
-    // Date row with dots
-    const dateRow = document.createElement('div');
-    dateRow.className = 'hist-date';
-    dateRow.textContent = fmtKey(k);
-    const dots = document.createElement('div');
-    dots.className = 'hist-dots';
+    const d = store[k];
+    const entry = document.createElement('div'); entry.className = 'hist-entry';
+    const dateRow = document.createElement('div'); dateRow.className = 'hist-date'; dateRow.textContent = fmtKey(k);
+    const dots = document.createElement('div'); dots.className = 'hist-dots';
     [
-      { v: d.monologue?.done,    core: true },
-      { v: d.sentences?.done,    core: true },
+      { v: d.monologue?.done,    core: true  },
+      { v: d.sentences?.done,    core: true  },
       { v: d.radio?.done,        core: false },
       { v: d.conversation?.done, core: false },
       { v: d.reading?.done,      core: false },
@@ -816,120 +937,83 @@ function renderHistory() {
       dot.className = 'hist-dot' + (v ? ' done' : '') + (core ? ' core' : '');
       dots.appendChild(dot);
     });
-    dateRow.appendChild(dots);
-    entry.appendChild(dateRow);
-
-    // Tap to expand editable form
-    dateRow.style.cursor = 'pointer';
+    dateRow.appendChild(dots); entry.appendChild(dateRow);
     dateRow.addEventListener('click', () => {
-      const existing = entry.querySelector('.hist-edit');
-      if (existing) { existing.remove(); return; }
-      entry.appendChild(buildHistEdit(k, d, entry));
+      const ex = entry.querySelector('.hist-edit');
+      if (ex) { ex.remove(); return; }
+      entry.appendChild(buildHistEdit(k, d));
     });
-
     area.appendChild(entry);
   });
 }
 
-function buildHistEdit(k, d, entry) {
-  const wrap = document.createElement('div');
-  wrap.className = 'hist-edit';
-  wrap.style.cssText = 'padding-top:0.6rem;border-top:1px dashed var(--border);margin-top:0.5rem;display:flex;flex-direction:column;gap:0.65rem;';
+function buildHistEdit(k, d) {
+  const wrap = document.createElement('div'); wrap.className = 'hist-edit';
 
-  function field(labelText, val, onInput, isArea) {
+  function fi(lbl, val, cb, isArea) {
     const g = document.createElement('div');
-    const l = document.createElement('div');
-    l.className = 'field-lbl'; l.textContent = labelText;
+    if (lbl) { const l = document.createElement('div'); l.className = 'field-lbl'; l.textContent = lbl; g.appendChild(l); }
     const inp = document.createElement(isArea ? 'textarea' : 'input');
-    inp.className = isArea ? 'field-ta' : 'field-inp';
-    inp.value = val || '';
-    if (isArea) inp.style.minHeight = '56px';
-    inp.addEventListener('input', () => { onInput(inp.value); scheduleSave(); });
-    g.appendChild(l); g.appendChild(inp);
-    return g;
+    inp.className = isArea ? 'field-ta' : 'field-inp'; inp.value = val || '';
+    if (isArea) inp.style.minHeight = '48px';
+    inp.addEventListener('input', () => { cb(inp.value); scheduleSave(); });
+    g.appendChild(inp); return g;
+  }
+  function toggle(emoji, lbl, key) {
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
+    const chk = document.createElement('div');
+    chk.className = 'card-check' + (d[key]?.done ? ' checked' : '');
+    chk.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
+    chk.addEventListener('click', () => { d[key].done = !d[key].done; chk.className = 'card-check' + (d[key].done ? ' checked' : ''); scheduleSave(); });
+    const label = document.createElement('span'); label.style.cssText = 'font-size:0.72rem;color:var(--de-dk);font-weight:500;'; label.textContent = `${emoji} ${lbl}`;
+    row.appendChild(chk); row.appendChild(label); return row;
   }
 
-  // Monologue done toggle
-  const mRow = document.createElement('div');
-  mRow.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
-  const mCheck = document.createElement('div');
-  mCheck.className = 'card-check' + (d.monologue?.done ? ' checked' : '');
-  mCheck.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
-  mCheck.addEventListener('click', () => {
-    d.monologue.done = !d.monologue.done;
-    mCheck.className = 'card-check' + (d.monologue.done ? ' checked' : '');
-    scheduleSave(); renderHistory();
-  });
-  const mLbl = document.createElement('span');
-  mLbl.style.cssText = 'font-size:0.72rem;color:var(--de-dk);font-weight:500;';
-  mLbl.textContent = '🎙 Monologue done';
-  mRow.appendChild(mCheck); mRow.appendChild(mLbl);
-  wrap.appendChild(mRow);
+  if (!d.monologue) d.monologue = { done: false, topic: '', notes: '', transcript: '', review: '' };
+  if (!d.sentences) d.sentences = { done: false, positive: '', negative: '', overall: '', review: '' };
 
-  wrap.appendChild(field('Thema / Topic',    d.monologue?.topic, v => { d.monologue.topic = v; }));
-  wrap.appendChild(field('Notizen / Notes',  d.monologue?.notes, v => { d.monologue.notes = v; }, true));
+  wrap.appendChild(toggle('🎙', 'Monologue done', 'monologue'));
+  wrap.appendChild(fi('Thema / Topic', d.monologue.topic, v => { d.monologue.topic = v; }));
+  wrap.appendChild(fi('Notizen / Notes', d.monologue.notes, v => { d.monologue.notes = v; }, true));
+  if (d.monologue.transcript) {
+    wrap.appendChild(fi('Transcript', d.monologue.transcript, v => { d.monologue.transcript = v; }, true));
+  }
 
-  // Sentences done toggle
-  const sRow = document.createElement('div');
-  sRow.style.cssText = 'display:flex;align-items:center;gap:0.6rem;margin-top:0.2rem;';
-  const sCheck = document.createElement('div');
-  sCheck.className = 'card-check' + (d.sentences?.done ? ' checked' : '');
-  sCheck.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
-  sCheck.addEventListener('click', () => {
-    d.sentences.done = !d.sentences.done;
-    sCheck.className = 'card-check' + (d.sentences.done ? ' checked' : '');
-    scheduleSave(); renderHistory();
-  });
-  const sLbl = document.createElement('span');
-  sLbl.style.cssText = 'font-size:0.72rem;color:var(--de-dk);font-weight:500;';
-  sLbl.textContent = '🌙 Sentences done';
-  sRow.appendChild(sCheck); sRow.appendChild(sLbl);
-  wrap.appendChild(sRow);
-
-  wrap.appendChild(field('Etwas Positives heute war…',   d.sentences?.positive, v => { d.sentences.positive = v; }));
-  wrap.appendChild(field('Etwas Schwieriges heute war…', d.sentences?.negative, v => { d.sentences.negative = v; }));
-  wrap.appendChild(field('Insgesamt war heute…',         d.sentences?.overall,  v => { d.sentences.overall  = v; }));
+  wrap.appendChild(toggle('🌙', 'Sentences done', 'sentences'));
+  wrap.appendChild(fi('Etwas Positives heute war…', d.sentences.positive, v => { d.sentences.positive = v; }));
+  wrap.appendChild(fi('Etwas Schwieriges heute war…', d.sentences.negative, v => { d.sentences.negative = v; }));
+  wrap.appendChild(fi('Insgesamt war heute…', d.sentences.overall, v => { d.sentences.overall = v; }));
 
   // Bonus toggles
   [
-    { key: 'radio',        emoji: '📻', label: 'Radio',         noteKey: 'notes' },
-    { key: 'conversation', emoji: '💬', label: 'Gespräche',     noteKey: 'notes' },
-    { key: 'reading',      emoji: '📖', label: 'Lesen',         noteKey: 'title' },
-    { key: 'tv',           emoji: '📺', label: 'Fernsehen',     noteKey: 'title' },
-    { key: 'cooking',      emoji: '🍳', label: 'Kochen',        noteKey: 'recipe' },
-    { key: 'onboard',      emoji: '🚂', label: 'Unterwegs',     noteKey: null }
+    { key: 'radio',        emoji: '📻', label: 'Radio',       noteKey: 'notes' },
+    { key: 'conversation', emoji: '💬', label: 'Gespräche',   noteKey: 'notes' },
+    { key: 'reading',      emoji: '📖', label: 'Lesen',       noteKey: 'title' },
+    { key: 'tv',           emoji: '📺', label: 'Fernsehen',   noteKey: 'title' },
+    { key: 'cooking',      emoji: '🍳', label: 'Kochen',      noteKey: 'recipe' },
+    { key: 'onboard',      emoji: '🚂', label: 'Unterwegs',   noteKey: null }
   ].forEach(({ key, emoji, label, noteKey }) => {
     if (!d[key]) d[key] = { done: false };
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
-    const chk = document.createElement('div');
-    chk.className = 'card-check' + (d[key].done ? ' checked' : '');
-    chk.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
-    chk.addEventListener('click', () => {
-      d[key].done = !d[key].done;
-      chk.className = 'card-check' + (d[key].done ? ' checked' : '');
-      scheduleSave();
-    });
-    const lbl = document.createElement('span');
-    lbl.style.cssText = 'font-size:0.72rem;color:var(--muted);';
-    lbl.textContent = `${emoji} ${label}`;
-    row.appendChild(chk); row.appendChild(lbl);
-    wrap.appendChild(row);
-    if (noteKey) {
-      wrap.appendChild(field('', d[key][noteKey], v => { d[key][noteKey] = v; }));
-    }
+    wrap.appendChild(toggle(emoji, label, key));
+    if (noteKey) wrap.appendChild(fi('', d[key][noteKey], v => { d[key][noteKey] = v; }));
   });
 
   return wrap;
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderMarkdown(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
 }
 
-// ── init ──────────────────────────────────────────
+// ── Init ──────────────────────────────────────────
 const nd = new Date();
 document.getElementById('todayDate').textContent = `${DAYS[nd.getDay()]}, ${nd.getDate()} ${MONTHS[nd.getMonth()]}`;
+updateAiKeyStatus();
 if (!getPat()) showPat(); else loadData();
 </script>
 </body>
