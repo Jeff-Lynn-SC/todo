@@ -835,13 +835,13 @@ function makeReviewBlock(reviewText, dayKey, trigger, btnLabel, hidden) {
   const wrap = document.createElement('div');
   if (reviewText && reviewText !== '…reviewing') {
     const block = document.createElement('div'); block.className = 'review-block';
-    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '✦ Claude's review';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = "✦ Claude\u2019s review";
     const body  = document.createElement('div'); body.className = 'review-body';
     body.innerHTML = renderMarkdown(reviewText);
     block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
   } else if (reviewText === '…reviewing') {
     const block = document.createElement('div'); block.className = 'review-block';
-    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = '✦ Claude's review';
+    const hdr   = document.createElement('div'); hdr.className = 'review-hdr'; hdr.textContent = "✦ Claude\u2019s review";
     const body  = document.createElement('div'); body.className = 'review-loading'; body.textContent = 'Reviewing your German…';
     block.appendChild(hdr); block.appendChild(body); wrap.appendChild(block);
   } else if (!hidden) {
