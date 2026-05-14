@@ -127,7 +127,8 @@ html, body {
 .transcript-wrap { margin-top: 0.75rem; }
 .transcript-box {
   font-size: 0.8rem; color: #555; line-height: 1.65;
-  min-height: 2.5rem; padding: 0.5rem 0.6rem;
+  min-height: 2.5rem; max-height: 160px; overflow-y: auto;
+  padding: 0.5rem 0.6rem;
   background: var(--bg); border: 1px dashed var(--border);
   white-space: pre-wrap; word-break: break-word;
 }
@@ -508,6 +509,7 @@ function updateTranscriptDOM() {
   }
   if (!monoFinal && !monoInterim) box.classList.add('empty'); else box.classList.remove('empty');
   if (timer.running) box.classList.add('listening'); else box.classList.remove('listening');
+  box.scrollTop = box.scrollHeight;
 }
 
 // ── Timer ──────────────────────────────────────────────────────────────────────
