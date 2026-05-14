@@ -370,7 +370,7 @@ async function ghGet(path) {
     headers: { Authorization: `token ${pat}`, Accept: 'application/vnd.github.v3+json' }
   });
   if (res.status === 401) { localStorage.removeItem('gh_pat'); showPat('Token rejected — please re-enter.'); return null; }
-  if (!res.ok) return null;
+  if (!res.ok) { document.getElementById('saveIndicator').textContent = `GitHub error ${res.status}`; return null; }
   return res.json();
 }
 async function ghPut(path, data, msg) {
@@ -631,7 +631,7 @@ async function loadData() {
   const meta = await ghGet(FILE);
   if (meta) {
     try {
-      const remote = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+      const remote = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/[\n\r\s]/g, '')))));
       Object.keys(remote).forEach(k => { if (k !== key) store[k] = remote[k]; });
       if (remote[key]) {
         const loc = store[key], rem = remote[key];
