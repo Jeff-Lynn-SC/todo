@@ -264,9 +264,9 @@ html, body {
 
   <div class="section-hdr">
     history
-    <button class="toggle-btn" id="toggleHist" onclick="toggleHistory()">show</button>
+    <button class="toggle-btn" id="toggleHist" onclick="toggleHistory()">hide</button>
   </div>
-  <div id="histArea" style="display:none"></div>
+  <div id="histArea"></div>
 </div>
 
 <script>
@@ -425,7 +425,7 @@ function playBeep() {
 
 // ── store ─────────────────────────────────────────
 let store = {};
-let histVisible = false;
+let histVisible = true;
 let saveTimer = null;
 
 // ── load ──────────────────────────────────────────
@@ -723,9 +723,12 @@ function renderHistory() {
   }
   area.innerHTML = '';
   keys.forEach(k => {
+    if (!store[k]) store[k] = initDay();
     const d     = store[k];
     const entry = document.createElement('div');
     entry.className = 'hist-entry';
+
+    // Date row with dots
     const dateRow = document.createElement('div');
     dateRow.className = 'hist-date';
     dateRow.textContent = fmtKey(k);
@@ -743,23 +746,79 @@ function renderHistory() {
     });
     dateRow.appendChild(dots);
     entry.appendChild(dateRow);
-    entry.addEventListener('click', () => {
-      const existing = entry.querySelector('.hist-detail');
+
+    // Tap to expand editable form
+    dateRow.style.cursor = 'pointer';
+    dateRow.addEventListener('click', () => {
+      const existing = entry.querySelector('.hist-edit');
       if (existing) { existing.remove(); return; }
-      const detail = document.createElement('div');
-      detail.className = 'hist-detail';
-      const lines = [];
-      if (d.monologue?.topic)    lines.push(`<em>🎙 Thema:</em> ${esc(d.monologue.topic)}`);
-      if (d.monologue?.notes)    lines.push(`<em>Notizen:</em> ${esc(d.monologue.notes).replace(/\n/g,'<br>')}`);
-      if (d.sentences?.positive) lines.push(`<em>✓</em> ${esc(d.sentences.positive)}`);
-      if (d.sentences?.negative) lines.push(`<em>✗</em> ${esc(d.sentences.negative)}`);
-      if (d.sentences?.overall)  lines.push(`<em>→</em> ${esc(d.sentences.overall)}`);
-      if (d.cooking?.recipe)     lines.push(`<em>🍳</em> ${esc(d.cooking.recipe)}`);
-      detail.innerHTML = lines.length ? lines.join('<br>') : 'No notes recorded.';
-      entry.appendChild(detail);
+      entry.appendChild(buildHistEdit(k, d, entry));
     });
+
     area.appendChild(entry);
   });
+}
+
+function buildHistEdit(k, d, entry) {
+  const wrap = document.createElement('div');
+  wrap.className = 'hist-edit';
+  wrap.style.cssText = 'padding-top:0.6rem;border-top:1px dashed var(--border);margin-top:0.5rem;display:flex;flex-direction:column;gap:0.65rem;';
+
+  function field(labelText, val, onInput, isArea) {
+    const g = document.createElement('div');
+    const l = document.createElement('div');
+    l.className = 'field-lbl'; l.textContent = labelText;
+    const inp = document.createElement(isArea ? 'textarea' : 'input');
+    inp.className = isArea ? 'field-ta' : 'field-inp';
+    inp.value = val || '';
+    if (isArea) inp.style.minHeight = '56px';
+    inp.addEventListener('input', () => { onInput(inp.value); scheduleSave(); });
+    g.appendChild(l); g.appendChild(inp);
+    return g;
+  }
+
+  // Monologue done toggle
+  const mRow = document.createElement('div');
+  mRow.style.cssText = 'display:flex;align-items:center;gap:0.6rem;';
+  const mCheck = document.createElement('div');
+  mCheck.className = 'card-check' + (d.monologue?.done ? ' checked' : '');
+  mCheck.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
+  mCheck.addEventListener('click', () => {
+    d.monologue.done = !d.monologue.done;
+    mCheck.className = 'card-check' + (d.monologue.done ? ' checked' : '');
+    scheduleSave(); renderHistory();
+  });
+  const mLbl = document.createElement('span');
+  mLbl.style.cssText = 'font-size:0.72rem;color:var(--de-dk);font-weight:500;';
+  mLbl.textContent = '🎙 Monologue done';
+  mRow.appendChild(mCheck); mRow.appendChild(mLbl);
+  wrap.appendChild(mRow);
+
+  wrap.appendChild(field('Thema / Topic',    d.monologue?.topic, v => { d.monologue.topic = v; }));
+  wrap.appendChild(field('Notizen / Notes',  d.monologue?.notes, v => { d.monologue.notes = v; }, true));
+
+  // Sentences done toggle
+  const sRow = document.createElement('div');
+  sRow.style.cssText = 'display:flex;align-items:center;gap:0.6rem;margin-top:0.2rem;';
+  const sCheck = document.createElement('div');
+  sCheck.className = 'card-check' + (d.sentences?.done ? ' checked' : '');
+  sCheck.style.cssText = 'width:18px;height:18px;flex-shrink:0;';
+  sCheck.addEventListener('click', () => {
+    d.sentences.done = !d.sentences.done;
+    sCheck.className = 'card-check' + (d.sentences.done ? ' checked' : '');
+    scheduleSave(); renderHistory();
+  });
+  const sLbl = document.createElement('span');
+  sLbl.style.cssText = 'font-size:0.72rem;color:var(--de-dk);font-weight:500;';
+  sLbl.textContent = '🌙 Sentences done';
+  sRow.appendChild(sCheck); sRow.appendChild(sLbl);
+  wrap.appendChild(sRow);
+
+  wrap.appendChild(field('Etwas Positives heute war…',   d.sentences?.positive, v => { d.sentences.positive = v; }));
+  wrap.appendChild(field('Etwas Schwieriges heute war…', d.sentences?.negative, v => { d.sentences.negative = v; }));
+  wrap.appendChild(field('Insgesamt war heute…',         d.sentences?.overall,  v => { d.sentences.overall  = v; }));
+
+  return wrap;
 }
 
 function esc(s) {
