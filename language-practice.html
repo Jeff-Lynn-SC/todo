@@ -474,7 +474,13 @@ function startSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return;
   monoInterim = '';
-  if (recognition) { try { recognition.stop(); } catch {} }
+  // Nullify handlers on old instance before replacing it, to prevent cascade
+  if (recognition) {
+    recognition.onresult = null;
+    recognition.onerror  = null;
+    recognition.onend    = null;
+    try { recognition.stop(); } catch {}
+  }
   recognition = new SR();
   recognition.lang           = 'en-US';
   recognition.continuous     = true;
@@ -490,8 +496,8 @@ function startSpeechRecognition() {
     updateTranscriptDOM();
   };
   recognition.onerror = () => {};
-  recognition.onend   = () => { if (timer.running) startSpeechRecognition(); };
-  recognition.start();
+  recognition.onend   = () => { if (timer.running) setTimeout(startSpeechRecognition, 100); };
+  try { recognition.start(); } catch {}
 }
 
 function stopSpeechRecognition() {
