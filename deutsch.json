@@ -8,10 +8,11 @@
       "review": "# Deine Bewertung\n\nDas war ein großartiger Anfang! Du hast dich trauen, frei zu sprechen, und das ist wirklich wichtig. Dein Thema über Sauerteigbrot war interessant, und ich höre, dass du viele relevante Wörter kennst — \"backen,\" \"schmecken,\" \"seit\" — das ist toll!\n\nBei ein paar kleinen Dingen können wir dir helfen: Statt \"Sauerteig Brot gemacht gebrochen\" könntest du sagen **\"Ich mache gerne Sauerteigbrot\"** — das ist viel klarer. Auch bei \"ich habe gebacken Brot seit 2014\" ist es besser: **\"Ich backe Brot seit 2014\"** (im Präsens) oder **\"Ich backe seit 2014 Brot\"** (mit besserer Wortstellung).\n\nEin kleiner Tipp: Statt \"schmeckt besser als Brot\" könntest du sagen **\"schmeckt besser als meins\"** — das ist natürlicher!\n\nDu machst wirklich Fortschritte, und dein Mut, zu sprechen, ist inspirierend. Weiter so! 🌟"
     },
     "sentences": {
-      "done": false,
+      "done": true,
       "positive": "Ich habe einege gut Brot gebacken und mach ein App gut mich und meine Studenten ",
       "negative": "Das Wetter war nicht so gut und ich war langsam zu beginnen mein Arbeit ",
-      "overall": "Endlich warning glücklich"
+      "overall": "Endlich warning glücklich",
+      "review": "…reviewing"
     },
     "radio": {
       "done": true,
