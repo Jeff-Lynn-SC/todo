@@ -66,14 +66,12 @@ html, body {
   padding: 0.9rem 1rem;
   transition: opacity 0.2s;
 }
-.card.card-done {
-  border-left-color: var(--good);
-  opacity: 0.72;
-}
+.card.card-core  { border-left-color: var(--de); }
+.card.card-bonus { border-left-color: var(--border); }
+.card.card-done  { border-left-color: var(--good); opacity: 0.72; }
 
-.card-top {
-  display: flex; align-items: flex-start; gap: 0.75rem;
-}
+.card-top { display: flex; align-items: flex-start; gap: 0.75rem; }
+
 .card-check {
   width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px;
   border: 2px solid var(--border); cursor: pointer;
@@ -83,16 +81,21 @@ html, body {
 .card-check.checked { background: var(--good); border-color: var(--good); }
 .card-check.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: bold; }
 
-.card-info { flex: 1; min-width: 0; }
+.card-info  { flex: 1; min-width: 0; }
 .card-title {
   font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em;
   color: var(--de-dk); margin-bottom: 0.2rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.card-badge {
+  font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--bg); color: var(--muted); border: 1px solid var(--border);
+  padding: 1px 5px; border-radius: 2px; font-weight: 400;
 }
 .card-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.55; }
 
-/* ── card input area ── */
+/* ── inputs ── */
 .card-inputs { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.7rem; }
-
 .field-lbl {
   font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em;
   text-transform: uppercase; margin-bottom: 3px;
@@ -112,6 +115,35 @@ html, body {
 }
 .field-ta:focus { border-color: var(--de); }
 
+/* ── timer ── */
+.timer-wrap {
+  margin-top: 0.85rem; padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+  display: flex; align-items: center; gap: 0.85rem;
+}
+.timer-display {
+  font-size: 2.4rem; font-weight: 400; letter-spacing: -2px;
+  color: var(--ink); line-height: 1; min-width: 4.2rem;
+  transition: color 0.3s;
+}
+.timer-display.running { color: var(--de); }
+.timer-display.finished { color: var(--good); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+.timer-display.running { animation: pulse 1s ease-in-out infinite; }
+.timer-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.timer-start {
+  background: var(--de); color: white; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  padding: 0.4rem 0.9rem; cursor: pointer; border-radius: 2px;
+}
+.timer-start.paused { background: var(--muted); }
+.timer-reset {
+  background: none; border: 1.5px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: 0.75rem;
+  color: var(--muted); padding: 0.4rem 0.75rem; cursor: pointer; border-radius: 2px;
+}
+
+/* ── sentences ── */
 .sentence-row { display: flex; flex-direction: column; gap: 3px; }
 .sentence-prompt { font-size: 0.65rem; color: var(--muted); font-style: italic; }
 .sentence-inp {
@@ -121,6 +153,20 @@ html, body {
   padding: 3px 0; width: 100%;
 }
 .sentence-inp:focus { border-bottom-color: var(--de); }
+
+/* ── mark-core button ── */
+.mark-core-btn {
+  width: 100%; margin-bottom: 0.85rem;
+  background: var(--de); color: white; border: none;
+  font-family: 'DM Mono', monospace; font-size: 0.8rem;
+  padding: 0.7rem 1rem; cursor: pointer; border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+.mark-core-btn:active { opacity: 0.85; }
+.mark-core-btn.all-done {
+  background: var(--good-bg); color: var(--good);
+  border: 1.5px solid var(--good); cursor: default;
+}
 
 /* ── section header ── */
 .section-hdr {
@@ -147,6 +193,7 @@ html, body {
 .hist-dots { display: flex; gap: 3px; }
 .hist-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
 .hist-dot.done { background: var(--good); }
+.hist-dot.core { width: 8px; height: 8px; }
 .hist-detail {
   font-size: 0.75rem; color: #555; line-height: 1.65;
   padding-top: 0.5rem; border-top: 1px dashed var(--border); margin-top: 0.5rem;
@@ -206,7 +253,7 @@ html, body {
     <div class="page-meta">
       <span id="todayDate">—</span>
       <span class="streak-badge" id="streakBadge">🔥 — days</span>
-      <span id="progText" style="color:var(--muted)">0 / 4 done</span>
+      <span id="progText" style="color:var(--muted)">0/2 core</span>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
@@ -234,12 +281,10 @@ function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
 function fmtKey(k) {
   const [y, m, d] = k.split('-').map(Number);
   return `${DAYS[new Date(y, m-1, d).getDay()]}, ${d} ${MONTHS[m-1]}`;
 }
-
 function initDay() {
   return {
     monologue: { done: false, topic: '', notes: '' },
@@ -257,7 +302,6 @@ function showPat(msg) {
   document.getElementById('pat-msg').textContent = msg || '';
   setTimeout(() => document.getElementById('pat-input').focus(), 120);
 }
-
 document.getElementById('pat-save').addEventListener('click', () => {
   const v = document.getElementById('pat-input').value.trim();
   if (!v) return;
@@ -279,7 +323,6 @@ async function ghGet(path) {
   if (!res.ok) return null;
   return res.json();
 }
-
 async function ghPut(path, data, msg) {
   const pat = getPat();
   if (!pat) return null;
@@ -299,7 +342,88 @@ async function ghPut(path, data, msg) {
   return res.ok ? res.json() : null;
 }
 
-// ── state ─────────────────────────────────────────
+// ── timer state (survives card re-renders) ────────
+const timer = { running: false, seconds: 60, intervalId: null };
+
+function fmtSecs(s) {
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function timerTick() {
+  timer.seconds--;
+  const disp = document.getElementById('mono-timer-disp');
+  if (disp) disp.textContent = fmtSecs(timer.seconds);
+  if (timer.seconds <= 0) {
+    timerStop();
+    playBeep();
+    // Auto-mark both core exercises done
+    const key = todayKey();
+    store[key].monologue.done = true;
+    store[key].sentences.done = true;
+    scheduleSave();
+    render();
+  }
+}
+
+function timerStart() {
+  if (timer.running || timer.seconds <= 0) return;
+  timer.running = true;
+  timer.intervalId = setInterval(timerTick, 1000);
+  updateTimerDOM();
+}
+
+function timerPause() {
+  timer.running = false;
+  clearInterval(timer.intervalId);
+  timer.intervalId = null;
+  updateTimerDOM();
+}
+
+function timerReset() {
+  timerPause();
+  timer.seconds = 60;
+  updateTimerDOM();
+}
+
+function timerStop() {
+  timer.running = false;
+  if (timer.intervalId) clearInterval(timer.intervalId);
+  timer.intervalId = null;
+}
+
+function updateTimerDOM() {
+  const disp  = document.getElementById('mono-timer-disp');
+  const start = document.getElementById('mono-timer-start');
+  const reset = document.getElementById('mono-timer-reset');
+  if (!disp) return;
+  disp.textContent = fmtSecs(timer.seconds);
+  disp.className = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
+  if (start) {
+    start.textContent = timer.running ? 'pause' : 'start';
+    start.className = 'timer-start' + (timer.running ? ' paused' : '');
+  }
+  if (reset) reset.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
+}
+
+function playBeep() {
+  try {
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    [0, 0.18, 0.36].forEach(t => {
+      const osc = ctx.createOscillator();
+      osc.connect(gain);
+      osc.frequency.value = 660;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + t);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.15);
+      osc.start(ctx.currentTime + t);
+      osc.stop(ctx.currentTime + t + 0.15);
+    });
+  } catch {}
+}
+
+// ── store ─────────────────────────────────────────
 let store = {};
 let histVisible = false;
 let saveTimer = null;
@@ -307,33 +431,24 @@ let saveTimer = null;
 // ── load ──────────────────────────────────────────
 async function loadData() {
   if (!getPat()) { showPat(); return; }
-  // Try localStorage cache first for instant render
   const cached = localStorage.getItem('deutsch_data');
-  if (cached) {
-    try { store = JSON.parse(cached); } catch { store = {}; }
-  }
+  if (cached) { try { store = JSON.parse(cached); } catch { store = {}; } }
   const key = todayKey();
   if (!store[key]) store[key] = initDay();
   render();
 
-  // Then sync from GitHub
   const meta = await ghGet(FILE);
   if (meta) {
     try {
       const remote = JSON.parse(atob(meta.content.replace(/\n/g, '')));
-      // Merge: remote wins for past days; today merges with local edits
-      Object.keys(remote).forEach(k => {
-        if (k !== key) store[k] = remote[k];
-      });
+      Object.keys(remote).forEach(k => { if (k !== key) store[k] = remote[k]; });
       if (remote[key]) {
-        // Keep whichever has more data for today
-        const local = store[key];
-        const rem   = remote[key];
+        const loc = store[key], rem = remote[key];
         store[key] = {
-          monologue: rem.monologue?.notes?.length > (local.monologue?.notes?.length || 0) ? rem.monologue : local.monologue,
-          cooking:   rem.cooking?.recipe  ? rem.cooking  : local.cooking,
-          onboard:   { done: local.onboard?.done || rem.onboard?.done },
-          sentences: rem.sentences?.positive ? rem.sentences : local.sentences
+          monologue: rem.monologue?.notes?.length > (loc.monologue?.notes?.length || 0) ? rem.monologue : loc.monologue,
+          cooking:   rem.cooking?.recipe ? rem.cooking : loc.cooking,
+          onboard:   { done: loc.onboard?.done || rem.onboard?.done },
+          sentences: rem.sentences?.positive ? rem.sentences : loc.sentences
         };
       }
     } catch {}
@@ -348,7 +463,6 @@ function scheduleSave() {
   document.getElementById('saveIndicator').textContent = '…';
   saveTimer = setTimeout(doSave, 1400);
 }
-
 async function doSave() {
   localStorage.setItem('deutsch_data', JSON.stringify(store));
   const ok = await ghPut(FILE, store, 'update deutsch journal');
@@ -361,9 +475,9 @@ async function doSave() {
 function updateMeta() {
   const key = todayKey();
   const d   = store[key] || initDay();
-  const done = [d.monologue.done, d.cooking.done, d.onboard.done, d.sentences.done].filter(Boolean).length;
-  document.getElementById('progText').textContent = `${done} / 4 done`;
-  document.getElementById('progFill').style.width = `${done / 4 * 100}%`;
+  const coreDone  = [d.monologue.done, d.sentences.done].filter(Boolean).length;
+  document.getElementById('progText').textContent  = `${coreDone}/2 core`;
+  document.getElementById('progFill').style.width  = `${coreDone / 2 * 100}%`;
   document.getElementById('streakBadge').textContent = `🔥 ${calcStreak()} days`;
 }
 
@@ -374,10 +488,12 @@ function calcStreak() {
   for (let i = 0; i < 365; i++) {
     const k = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
     const d = store[k];
-    if (!d) break;
-    const n = [d.monologue?.done, d.cooking?.done, d.onboard?.done, d.sentences?.done].filter(Boolean).length;
-    if (k === today ? n > 0 : n >= 2) streak++;
-    else break;
+    const complete = d?.monologue?.done && d?.sentences?.done;
+    if (complete) {
+      streak++;
+    } else if (k !== today) {
+      break;
+    }
     check.setDate(check.getDate() - 1);
   }
   return streak;
@@ -393,53 +509,113 @@ function render() {
 function renderCards() {
   const key  = todayKey();
   const data = store[key];
-  const container = document.getElementById('exerciseCards');
-  container.innerHTML = '';
-  container.appendChild(makeMonologueCard(data));
-  container.appendChild(makeCookingCard(data));
-  container.appendChild(makeOnboardCard(data));
-  container.appendChild(makeSentencesCard(data));
+  const c    = document.getElementById('exerciseCards');
+  c.innerHTML = '';
+
+  // Mark core done button
+  const coreDone = data.monologue.done && data.sentences.done;
+  const coreBtn  = document.createElement('button');
+  coreBtn.className   = 'mark-core-btn' + (coreDone ? ' all-done' : '');
+  coreBtn.textContent = coreDone ? '✓ Core exercises done today' : 'Mark both core exercises done';
+  if (!coreDone) {
+    coreBtn.addEventListener('click', () => {
+      data.monologue.done = true;
+      data.sentences.done = true;
+      scheduleSave(); render();
+    });
+  }
+  c.appendChild(coreBtn);
+
+  c.appendChild(makeMonologueCard(data));
+  c.appendChild(makeSentencesCard(data));
+  c.appendChild(makeCookingCard(data));
+  c.appendChild(makeOnboardCard(data));
 }
 
 // ── card builders ─────────────────────────────────
-function makeCard(emoji, titleText, descText, isDone, onCheck) {
+function baseCard(isDone, isBonus) {
   const card = document.createElement('div');
-  card.className = 'card' + (isDone ? ' card-done' : '');
+  card.className = 'card' + (isDone ? ' card-done' : isBonus ? ' card-bonus' : ' card-core');
+  return card;
+}
 
-  const top = document.createElement('div');
+function cardTop(emoji, titleText, badgeText, descText, isDone, onCheck) {
+  const top   = document.createElement('div');
   top.className = 'card-top';
 
   const check = document.createElement('div');
   check.className = 'card-check' + (isDone ? ' checked' : '');
-  check.addEventListener('click', () => { onCheck(); });
+  check.addEventListener('click', onCheck);
 
-  const info = document.createElement('div');
+  const info  = document.createElement('div');
   info.className = 'card-info';
+
   const title = document.createElement('div');
-  title.className   = 'card-title';
+  title.className = 'card-title';
   title.textContent = `${emoji} ${titleText}`;
+  if (badgeText) {
+    const badge = document.createElement('span');
+    badge.className   = 'card-badge';
+    badge.textContent = badgeText;
+    title.appendChild(badge);
+  }
+
   const desc = document.createElement('div');
   desc.className   = 'card-desc';
   desc.textContent = descText;
+
   info.appendChild(title);
   info.appendChild(desc);
-
   top.appendChild(check);
   top.appendChild(info);
-  card.appendChild(top);
-  return card;
+  return top;
 }
 
 function makeMonologueCard(data) {
   const m    = data.monologue;
-  const card = makeCard('🎙', 'Einminütiges Gespräch',
+  const card = baseCard(m.done, false);
+  card.appendChild(cardTop(
+    '🎙', 'Einminütiges Gespräch', 'CORE',
     'Wähle ein Thema und sprich eine Minute lang auf Deutsch — laut oder im Kopf.',
     m.done,
     () => { data.monologue.done = !data.monologue.done; scheduleSave(); render(); }
-  );
+  ));
 
+  // Timer
+  const timerWrap = document.createElement('div');
+  timerWrap.className = 'timer-wrap';
+
+  const disp = document.createElement('div');
+  disp.id = 'mono-timer-disp';
+  disp.className = 'timer-display' + (timer.running ? ' running' : timer.seconds === 0 ? ' finished' : '');
+  disp.textContent = fmtSecs(timer.seconds);
+
+  const btns = document.createElement('div');
+  btns.className = 'timer-btns';
+
+  const startBtn = document.createElement('button');
+  startBtn.id = 'mono-timer-start';
+  startBtn.className = 'timer-start' + (timer.running ? ' paused' : '');
+  startBtn.textContent = timer.running ? 'pause' : 'start';
+  startBtn.addEventListener('click', () => { timer.running ? timerPause() : timerStart(); });
+
+  const resetBtn = document.createElement('button');
+  resetBtn.id = 'mono-timer-reset';
+  resetBtn.className = 'timer-reset';
+  resetBtn.textContent = 'reset';
+  resetBtn.style.display = (timer.seconds < 60 && !timer.running) ? '' : 'none';
+  resetBtn.addEventListener('click', timerReset);
+
+  btns.appendChild(startBtn);
+  btns.appendChild(resetBtn);
+  timerWrap.appendChild(disp);
+  timerWrap.appendChild(btns);
+  card.appendChild(timerWrap);
+
+  // Topic + notes
   const inputs = document.createElement('div');
   inputs.className = 'card-inputs';
+  inputs.style.marginTop = '0.75rem';
 
   const tg = document.createElement('div');
   tg.innerHTML = '<div class="field-lbl">Thema / Topic</div>';
@@ -465,66 +641,32 @@ function makeMonologueCard(data) {
   return card;
 }
 
-function makeCookingCard(data) {
-  const c    = data.cooking;
-  const card = makeCard('🍳', 'Kochen auf Deutsch',
-    'Probiere ein neues Rezept von einer deutschsprachigen Website — chefkoch.de, lecker.de, etc.',
-    c.done,
-    () => { data.cooking.done = !data.cooking.done; scheduleSave(); render(); }
-  );
-
-  const inputs = document.createElement('div');
-  inputs.className = 'card-inputs';
-
-  const rg = document.createElement('div');
-  rg.innerHTML = '<div class="field-lbl">Rezept / Recipe</div>';
-  const ri = document.createElement('input');
-  ri.className   = 'field-inp';
-  ri.placeholder = 'e.g. Apfelkuchen, Sauerbraten, Kartoffelsuppe…';
-  ri.value       = c.recipe || '';
-  ri.addEventListener('input', () => { data.cooking.recipe = ri.value; scheduleSave(); });
-  rg.appendChild(ri);
-  inputs.appendChild(rg);
-  card.appendChild(inputs);
-  return card;
-}
-
-function makeOnboardCard(data) {
-  return makeCard('🚂', 'Unterwegs lernen',
-    'Schau dir andere Menschen an. Erfinde für jede Person eine Geschichte auf Deutsch — im Kopf.',
-    data.onboard.done,
-    () => { data.onboard.done = !data.onboard.done; scheduleSave(); render(); }
-  );
-}
-
 function makeSentencesCard(data) {
   const s    = data.sentences;
-  const card = makeCard('🌙', 'Vor dem Schlafen — drei Sätze',
+  const card = baseCard(s.done, false);
+  card.appendChild(cardTop(
+    '🌙', 'Vor dem Schlafen — drei Sätze', 'CORE',
     'Schreibe drei Sätze auf Deutsch über deinen Tag.',
     s.done,
     () => { data.sentences.done = !data.sentences.done; scheduleSave(); render(); }
-  );
+  ));
 
   const inputs = document.createElement('div');
   inputs.className = 'card-inputs';
 
   [
-    { key: 'positive', prompt: 'Etwas Positives heute war…',    ph: 'Das Wetter war schön. Ich habe…' },
-    { key: 'negative', prompt: 'Etwas Schwieriges heute war…',  ph: 'Ich war müde. Es hat nicht…' },
-    { key: 'overall',  prompt: 'Insgesamt war heute…',          ph: 'ein guter Tag. / anstrengend.' }
+    { key: 'positive', prompt: 'Etwas Positives heute war…',    ph: 'Das Wetter war schön…' },
+    { key: 'negative', prompt: 'Etwas Schwieriges heute war…',  ph: 'Ich war müde…' },
+    { key: 'overall',  prompt: 'Insgesamt war heute…',          ph: 'ein guter Tag.' }
   ].forEach(({ key, prompt, ph }) => {
     const row = document.createElement('div');
     row.className = 'sentence-row';
     const lbl = document.createElement('div');
-    lbl.className   = 'sentence-prompt';
-    lbl.textContent = prompt;
+    lbl.className = 'sentence-prompt'; lbl.textContent = prompt;
     const inp = document.createElement('input');
-    inp.className   = 'sentence-inp';
-    inp.placeholder = ph;
-    inp.value       = s[key] || '';
+    inp.className = 'sentence-inp'; inp.placeholder = ph; inp.value = s[key] || '';
     inp.addEventListener('input', () => { data.sentences[key] = inp.value; scheduleSave(); });
-    row.appendChild(lbl);
-    row.appendChild(inp);
+    row.appendChild(lbl); row.appendChild(inp);
     inputs.appendChild(row);
   });
 
@@ -532,13 +674,42 @@ function makeSentencesCard(data) {
   return card;
 }
 
+function makeCookingCard(data) {
+  const c    = data.cooking;
+  const card = baseCard(c.done, true);
+  card.appendChild(cardTop(
+    '🍳', 'Kochen auf Deutsch', 'BONUS',
+    'Probiere ein neues Rezept von einer deutschsprachigen Website — chefkoch.de, lecker.de…',
+    c.done,
+    () => { data.cooking.done = !data.cooking.done; scheduleSave(); render(); }
+  ));
+  const inputs = document.createElement('div');
+  inputs.className = 'card-inputs';
+  const rg = document.createElement('div');
+  rg.innerHTML = '<div class="field-lbl">Rezept / Recipe</div>';
+  const ri = document.createElement('input');
+  ri.className = 'field-inp'; ri.placeholder = 'e.g. Apfelkuchen, Sauerbraten…'; ri.value = c.recipe || '';
+  ri.addEventListener('input', () => { data.cooking.recipe = ri.value; scheduleSave(); });
+  rg.appendChild(ri); inputs.appendChild(rg); card.appendChild(inputs);
+  return card;
+}
+
+function makeOnboardCard(data) {
+  const card = baseCard(data.onboard.done, true);
+  card.appendChild(cardTop(
+    '🚂', 'Unterwegs lernen', 'BONUS',
+    'Schau dir andere Menschen an und erfinde für jede Person eine Geschichte auf Deutsch.',
+    data.onboard.done,
+    () => { data.onboard.done = !data.onboard.done; scheduleSave(); render(); }
+  ));
+  return card;
+}
+
 // ── history ────────────────────────────────────────
 function toggleHistory() {
   histVisible = !histVisible;
-  const area = document.getElementById('histArea');
-  const btn  = document.getElementById('toggleHist');
-  area.style.display = histVisible ? '' : 'none';
-  btn.textContent    = histVisible ? 'hide' : 'show';
+  document.getElementById('histArea').style.display = histVisible ? '' : 'none';
+  document.getElementById('toggleHist').textContent = histVisible ? 'hide' : 'show';
   if (histVisible) renderHistory();
 }
 
@@ -546,32 +717,32 @@ function renderHistory() {
   const area   = document.getElementById('histArea');
   const todKey = todayKey();
   const keys   = Object.keys(store).sort().reverse().filter(k => k !== todKey);
-
   if (keys.length === 0) {
     area.innerHTML = '<div style="font-size:0.75rem;color:var(--muted);padding:0.75rem 0">No previous entries yet.</div>';
     return;
   }
-
   area.innerHTML = '';
   keys.forEach(k => {
     const d     = store[k];
     const entry = document.createElement('div');
     entry.className = 'hist-entry';
-
     const dateRow = document.createElement('div');
     dateRow.className = 'hist-date';
     dateRow.textContent = fmtKey(k);
-
     const dots = document.createElement('div');
     dots.className = 'hist-dots';
-    [d.monologue?.done, d.cooking?.done, d.onboard?.done, d.sentences?.done].forEach(v => {
+    [
+      { v: d.monologue?.done, core: true },
+      { v: d.sentences?.done, core: true },
+      { v: d.cooking?.done,   core: false },
+      { v: d.onboard?.done,   core: false }
+    ].forEach(({ v, core }) => {
       const dot = document.createElement('div');
-      dot.className = 'hist-dot' + (v ? ' done' : '');
+      dot.className = 'hist-dot' + (v ? ' done' : '') + (core ? ' core' : '');
       dots.appendChild(dot);
     });
     dateRow.appendChild(dots);
     entry.appendChild(dateRow);
-
     entry.addEventListener('click', () => {
       const existing = entry.querySelector('.hist-detail');
       if (existing) { existing.remove(); return; }
@@ -580,14 +751,13 @@ function renderHistory() {
       const lines = [];
       if (d.monologue?.topic)    lines.push(`<em>🎙 Thema:</em> ${esc(d.monologue.topic)}`);
       if (d.monologue?.notes)    lines.push(`<em>Notizen:</em> ${esc(d.monologue.notes).replace(/\n/g,'<br>')}`);
-      if (d.cooking?.recipe)     lines.push(`<em>🍳 Rezept:</em> ${esc(d.cooking.recipe)}`);
       if (d.sentences?.positive) lines.push(`<em>✓</em> ${esc(d.sentences.positive)}`);
       if (d.sentences?.negative) lines.push(`<em>✗</em> ${esc(d.sentences.negative)}`);
       if (d.sentences?.overall)  lines.push(`<em>→</em> ${esc(d.sentences.overall)}`);
+      if (d.cooking?.recipe)     lines.push(`<em>🍳</em> ${esc(d.cooking.recipe)}`);
       detail.innerHTML = lines.length ? lines.join('<br>') : 'No notes recorded.';
       entry.appendChild(detail);
     });
-
     area.appendChild(entry);
   });
 }
@@ -599,9 +769,7 @@ function esc(s) {
 // ── init ──────────────────────────────────────────
 const nd = new Date();
 document.getElementById('todayDate').textContent = `${DAYS[nd.getDay()]}, ${nd.getDate()} ${MONTHS[nd.getMonth()]}`;
-
-if (!getPat()) showPat();
-else loadData();
+if (!getPat()) showPat(); else loadData();
 </script>
 </body>
 </html>
