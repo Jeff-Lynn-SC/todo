@@ -490,7 +490,7 @@ function startSpeechRecognition() {
     updateTranscriptDOM();
   };
   recognition.onerror = () => {};
-  recognition.onend   = () => { if (timer.running) { try { recognition.start(); } catch {} } };
+  recognition.onend   = () => { if (timer.running) startSpeechRecognition(); };
   recognition.start();
 }
 
