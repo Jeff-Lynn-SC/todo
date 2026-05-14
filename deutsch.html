@@ -697,6 +697,13 @@ function render() {
 function renderCards() {
   const key  = todayKey(), data = store[key];
   const c    = document.getElementById('exerciseCards');
+  // Fill missing fields for data saved before bonus exercises were added
+  if (!data.radio)        data.radio        = { done: false, notes: '' };
+  if (!data.conversation) data.conversation = { done: false, notes: '' };
+  if (!data.reading)      data.reading      = { done: false, title: '' };
+  if (!data.tv)           data.tv           = { done: false, title: '' };
+  if (!data.cooking)      data.cooking      = { done: false, recipe: '' };
+  if (!data.onboard)      data.onboard      = { done: false };
   c.innerHTML = '';
 
   const coreDone = data.monologue.done && data.sentences.done;
