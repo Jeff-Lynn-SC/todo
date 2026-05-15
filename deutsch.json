@@ -40,14 +40,14 @@
   },
   "2026-05-15": {
     "monologue": {
-      "done": false,
+      "done": true,
       "topic": "",
       "notes": "",
       "transcript": "",
       "review": ""
     },
     "sentences": {
-      "done": false,
+      "done": true,
       "positive": "",
       "negative": "",
       "overall": "",
