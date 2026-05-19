@@ -413,7 +413,9 @@ function todayStr() {
 }
 
 function nowIso() {
-  return new Date().toISOString().slice(0, 16);
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function fmtDatetime(dt) {
@@ -441,7 +443,8 @@ function readingsForRange(range) {
   if (range === 'all') return readings;
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - parseInt(range));
-  const cutStr = cutoff.toISOString().slice(0, 16);
+  const pad = n => String(n).padStart(2,'0');
+  const cutStr = `${cutoff.getFullYear()}-${pad(cutoff.getMonth()+1)}-${pad(cutoff.getDate())}T${pad(cutoff.getHours())}:${pad(cutoff.getMinutes())}`;
   return readings.filter(r => r.datetime >= cutStr);
 }
 
