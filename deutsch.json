@@ -1,4 +1,43 @@
 {
+  "2026-05-20": {
+    "monologue": {
+      "done": true,
+      "topic": "",
+      "notes": "",
+      "transcript": "guten Morgen wie geht's diesen Morgen nicht gehen nach der Market und Gemüse  Bussi",
+      "review": ""
+    },
+    "sentences": {
+      "done": true,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": false,
+      "notes": ""
+    },
+    "conversation": {
+      "done": false,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
+  },
   "2026-05-14": {
     "monologue": {
       "done": true,
