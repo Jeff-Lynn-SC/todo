@@ -222,11 +222,11 @@
       "title": ""
     },
     "tv": {
-      "done": false,
+      "done": true,
       "title": ""
     },
     "cooking": {
-      "done": false,
+      "done": true,
       "recipe": ""
     },
     "onboard": {
