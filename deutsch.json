@@ -77,6 +77,45 @@
       "done": false
     }
   },
+  "2026-05-19": {
+    "monologue": {
+      "done": false,
+      "topic": "",
+      "notes": "",
+      "transcript": "",
+      "review": ""
+    },
+    "sentences": {
+      "done": false,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": false,
+      "notes": ""
+    },
+    "conversation": {
+      "done": true,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
+  },
   "2026-05-16": {
     "monologue": {
       "done": false,
@@ -155,45 +194,6 @@
       "done": false
     }
   },
-  "2026-05-19": {
-    "monologue": {
-      "done": false,
-      "topic": "",
-      "notes": "",
-      "transcript": "",
-      "review": ""
-    },
-    "sentences": {
-      "done": false,
-      "positive": "",
-      "negative": "",
-      "overall": "",
-      "review": ""
-    },
-    "radio": {
-      "done": false,
-      "notes": ""
-    },
-    "conversation": {
-      "done": true,
-      "notes": ""
-    },
-    "reading": {
-      "done": false,
-      "title": ""
-    },
-    "tv": {
-      "done": false,
-      "title": ""
-    },
-    "cooking": {
-      "done": false,
-      "recipe": ""
-    },
-    "onboard": {
-      "done": false
-    }
-  },
   "2026-05-20": {
     "monologue": {
       "done": true,
@@ -253,7 +253,7 @@
       "notes": ""
     },
     "conversation": {
-      "done": false,
+      "done": true,
       "notes": ""
     },
     "reading": {
