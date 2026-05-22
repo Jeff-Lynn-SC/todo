@@ -77,45 +77,6 @@
       "done": false
     }
   },
-  "2026-05-19": {
-    "monologue": {
-      "done": false,
-      "topic": "",
-      "notes": "",
-      "transcript": "",
-      "review": ""
-    },
-    "sentences": {
-      "done": false,
-      "positive": "",
-      "negative": "",
-      "overall": "",
-      "review": ""
-    },
-    "radio": {
-      "done": false,
-      "notes": ""
-    },
-    "conversation": {
-      "done": true,
-      "notes": ""
-    },
-    "reading": {
-      "done": false,
-      "title": ""
-    },
-    "tv": {
-      "done": false,
-      "title": ""
-    },
-    "cooking": {
-      "done": false,
-      "recipe": ""
-    },
-    "onboard": {
-      "done": false
-    }
-  },
   "2026-05-16": {
     "monologue": {
       "done": false,
@@ -177,6 +138,45 @@
     "conversation": {
       "done": true,
       "notes": "Mit Gastfamilie "
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
+  },
+  "2026-05-19": {
+    "monologue": {
+      "done": false,
+      "topic": "",
+      "notes": "",
+      "transcript": "",
+      "review": ""
+    },
+    "sentences": {
+      "done": false,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": false,
+      "notes": ""
+    },
+    "conversation": {
+      "done": true,
+      "notes": ""
     },
     "reading": {
       "done": false,
@@ -258,6 +258,45 @@
     },
     "reading": {
       "done": true,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
+  },
+  "2026-05-22": {
+    "monologue": {
+      "done": false,
+      "topic": "",
+      "notes": "",
+      "transcript": "",
+      "review": ""
+    },
+    "sentences": {
+      "done": false,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": true,
+      "notes": ""
+    },
+    "conversation": {
+      "done": false,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
       "title": ""
     },
     "tv": {
