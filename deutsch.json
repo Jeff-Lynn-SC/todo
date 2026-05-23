@@ -310,5 +310,44 @@
     "onboard": {
       "done": false
     }
+  },
+  "2026-05-23": {
+    "monologue": {
+      "done": true,
+      "topic": "",
+      "notes": "",
+      "transcript": "Gestern ich spreche mit Jo in der Altstadt Ich denke dass sie hat gezeigt dass sie war ein Künstler Er haben gehabt Sein Foto in der Seite der Landsberger Teigblatt Und die das Artikel Es ist es ein Artikel das Regal hat hat sein Foto und ein Anderes Namen aber",
+      "review": "…reviewing"
+    },
+    "sentences": {
+      "done": true,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": false,
+      "notes": ""
+    },
+    "conversation": {
+      "done": false,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
   }
 }
