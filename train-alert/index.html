@@ -612,34 +612,36 @@
   }
 
   function splitCoords(val) {
-    // Handle Apple Maps German format: "48,15029° N, 11,46097° E"
-    // Also handles standard: "48.1501, 10.8234"
-    let cleaned = val.replace(/°/g, '').trim();
+    // Extract all decimal numbers from the string
+    // Works for: "48.14911° N, 11.46451° E" and "48,15029° N, 11,46097° E" and "48.1501, 10.8234"
 
-    // Detect German locale format (comma as decimal separator)
-    // Pattern: digits,digits optional-letter separated by various delimiters
-    const germanPattern = /(-?\d+),(\d+)\s*[NnSs]?\s*[,;]?\s*(-?\d+),(\d+)\s*[EeWw]?/;
-    const germanMatch = cleaned.match(germanPattern);
-    if (germanMatch) {
-      let la = parseFloat(germanMatch[1] + '.' + germanMatch[2]);
-      let ln = parseFloat(germanMatch[3] + '.' + germanMatch[4]);
-      // Handle S/W being negative — check original string
-      if (/\d\s*S/i.test(val)) la = -Math.abs(la);
-      if (/\d\s*W/i.test(val)) ln = -Math.abs(ln);
-      document.getElementById('lat').value = la;
-      document.getElementById('lng').value = ln;
-      return;
+    // First try to find numbers with dots (standard decimal)
+    let nums = [];
+    const dotPattern = /(-?\d+\.\d+)/g;
+    let m;
+    while ((m = dotPattern.exec(val)) !== null) nums.push(parseFloat(m[1]));
+
+    // If not enough, try German comma-decimal format
+    if (nums.length < 2) {
+      nums = [];
+      const commaPattern = /(-?\d+),(\d+)/g;
+      while ((m = commaPattern.exec(val)) !== null) nums.push(parseFloat(m[1] + '.' + m[2]));
     }
 
-    // Standard format: split on comma or whitespace
-    const parts = cleaned.split(/[,\s]+/).map(s => s.replace(/[NnSsEeWw]/g,'').trim()).filter(Boolean);
-    if (parts.length >= 2) {
-      let la = parseFloat(parts[0]);
-      let ln = parseFloat(parts[1]);
-      if (/\d\s*S/i.test(val)) la = -Math.abs(la);
-      if (/\d\s*W/i.test(val)) ln = -Math.abs(ln);
-      if (!isNaN(la)) document.getElementById('lat').value = la;
-      if (!isNaN(ln)) document.getElementById('lng').value = ln;
+    // If still not enough, try plain integers
+    if (nums.length < 2) {
+      nums = [];
+      const intPattern = /(-?\d+)/g;
+      while ((m = intPattern.exec(val)) !== null) nums.push(parseFloat(m[1]));
+    }
+
+    if (nums.length >= 2) {
+      let la = nums[0];
+      let ln = nums[1];
+      if (/\d°?\s*S/i.test(val)) la = -Math.abs(la);
+      if (/\d°?\s*W/i.test(val)) ln = -Math.abs(ln);
+      document.getElementById('lat').value = la;
+      document.getElementById('lng').value = ln;
     }
   }
 
