@@ -294,6 +294,7 @@
       <input type="text" id="stationName" placeholder="e.g. Central Station">
       <label>Paste coordinates (e.g. 48.1501, 10.8234)</label>
       <input type="text" id="coordPaste" placeholder="48.1501, 10.8234" oninput="splitCoords(this.value)">
+      <p class="tip">📍 <strong>OsmAnd:</strong> Long-press on the station → Share → View More → Share Coordinates → copy → paste above</p>
       <div class="row">
         <div>
           <label>Latitude</label>
@@ -308,7 +309,6 @@
       <input type="number" id="alertDist" value="500" min="50" max="5000">
       <button class="btn-secondary" onclick="useCurrentLocation()">📍 I'm at the station — use my location</button>
       <button class="btn-primary" style="margin-top:10px" onclick="saveStation()">Save Station</button>
-      <p class="tip">📍 <strong>OsmAnd:</strong> Long-press on the station → Share → View More → Share Coordinates → copy → paste above</p>
     </div>
   </div>
 
