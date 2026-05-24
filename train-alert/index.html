@@ -292,6 +292,8 @@
     <div id="addForm" style="display:none">
       <label>Station name</label>
       <input type="text" id="stationName" placeholder="e.g. Central Station">
+      <label>Paste coordinates (e.g. 48.1501, 10.8234)</label>
+      <input type="text" id="coordPaste" placeholder="48.1501, 10.8234" oninput="splitCoords(this.value)">
       <div class="row">
         <div>
           <label>Latitude</label>
@@ -389,6 +391,7 @@
 
     // reset form
     document.getElementById('stationName').value = '';
+    document.getElementById('coordPaste').value = '';
     document.getElementById('lat').value = '';
     document.getElementById('lng').value = '';
     document.getElementById('alertDist').value = '500';
@@ -606,6 +609,17 @@
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
     o.start(ctx.currentTime);
     o.stop(ctx.currentTime + 0.3);
+  }
+
+  function splitCoords(val) {
+    // accepts "48.1501, 10.8234" or "48.1501 10.8234" or "48.1501,10.8234"
+    const parts = val.split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const la = parseFloat(parts[0]);
+      const ln = parseFloat(parts[1]);
+      if (!isNaN(la)) document.getElementById('lat').value = la;
+      if (!isNaN(ln)) document.getElementById('lng').value = ln;
+    }
   }
 
   // --- init ---
