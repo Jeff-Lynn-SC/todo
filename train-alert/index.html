@@ -308,7 +308,7 @@
       <input type="number" id="alertDist" value="500" min="50" max="5000">
       <button class="btn-secondary" onclick="useCurrentLocation()">📍 I'm at the station — use my location</button>
       <button class="btn-primary" style="margin-top:10px" onclick="saveStation()">Save Station</button>
-      <p class="tip">Look up coordinates: <strong>maps.apple.com</strong> → drop a pin → share → copy</p>
+      <p class="tip">📍 <strong>Apple Maps:</strong> Long-press on the station → tap the address bar at the bottom → scroll down to see coordinates → tap to copy → paste above</p>
     </div>
   </div>
 
@@ -612,11 +612,32 @@
   }
 
   function splitCoords(val) {
-    // accepts "48.1501, 10.8234" or "48.1501 10.8234" or "48.1501,10.8234"
-    const parts = val.split(/[,\s]+/).map(s => s.trim()).filter(Boolean);
+    // Handle Apple Maps German format: "48,15029° N, 11,46097° E"
+    // Also handles standard: "48.1501, 10.8234"
+    let cleaned = val.replace(/°/g, '').trim();
+
+    // Detect German locale format (comma as decimal separator)
+    // Pattern: digits,digits optional-letter separated by various delimiters
+    const germanPattern = /(-?\d+),(\d+)\s*[NnSs]?\s*[,;]?\s*(-?\d+),(\d+)\s*[EeWw]?/;
+    const germanMatch = cleaned.match(germanPattern);
+    if (germanMatch) {
+      let la = parseFloat(germanMatch[1] + '.' + germanMatch[2]);
+      let ln = parseFloat(germanMatch[3] + '.' + germanMatch[4]);
+      // Handle S/W being negative — check original string
+      if (/\d\s*S/i.test(val)) la = -Math.abs(la);
+      if (/\d\s*W/i.test(val)) ln = -Math.abs(ln);
+      document.getElementById('lat').value = la;
+      document.getElementById('lng').value = ln;
+      return;
+    }
+
+    // Standard format: split on comma or whitespace
+    const parts = cleaned.split(/[,\s]+/).map(s => s.replace(/[NnSsEeWw]/g,'').trim()).filter(Boolean);
     if (parts.length >= 2) {
-      const la = parseFloat(parts[0]);
-      const ln = parseFloat(parts[1]);
+      let la = parseFloat(parts[0]);
+      let ln = parseFloat(parts[1]);
+      if (/\d\s*S/i.test(val)) la = -Math.abs(la);
+      if (/\d\s*W/i.test(val)) ln = -Math.abs(ln);
       if (!isNaN(la)) document.getElementById('lat').value = la;
       if (!isNaN(ln)) document.getElementById('lng').value = ln;
     }
