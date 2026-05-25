@@ -388,5 +388,44 @@
     "onboard": {
       "done": false
     }
+  },
+  "2026-05-25": {
+    "monologue": {
+      "done": false,
+      "topic": "",
+      "notes": "",
+      "transcript": "",
+      "review": ""
+    },
+    "sentences": {
+      "done": false,
+      "positive": "",
+      "negative": "",
+      "overall": "",
+      "review": ""
+    },
+    "radio": {
+      "done": true,
+      "notes": ""
+    },
+    "conversation": {
+      "done": false,
+      "notes": ""
+    },
+    "reading": {
+      "done": false,
+      "title": ""
+    },
+    "tv": {
+      "done": false,
+      "title": ""
+    },
+    "cooking": {
+      "done": false,
+      "recipe": ""
+    },
+    "onboard": {
+      "done": false
+    }
   }
 }
