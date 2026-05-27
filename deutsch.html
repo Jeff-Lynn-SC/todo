@@ -486,15 +486,22 @@ Friendly tone, concise, no bullet points — just clear prose with inline correc
 }
 
 // ── Speech recognition ────────────────────────────
-let recognition  = null;
-let monoFinal    = '';
-let monoInterim  = '';
+let recognition    = null;
+let monoFinal      = '';
+let monoInterim    = '';
+let finalizedCount = 0;
 
 function startSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return;
-  monoInterim = '';
-  if (recognition) { try { recognition.stop(); } catch {} }
+  monoInterim    = '';
+  finalizedCount = 0;
+  if (recognition) {
+    recognition.onresult = null;
+    recognition.onerror  = null;
+    recognition.onend    = null;
+    try { recognition.stop(); } catch {}
+  }
   recognition = new SR();
   recognition.lang = 'de-DE';
   recognition.continuous = true;
@@ -503,22 +510,22 @@ function startSpeechRecognition() {
   recognition.onresult = e => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) monoFinal += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        if (i >= finalizedCount) {
+          monoFinal += e.results[i][0].transcript + ' ';
+          finalizedCount = i + 1;
+        }
+      } else {
+        interim += e.results[i][0].transcript;
+      }
     }
     monoInterim = interim;
     updateTranscriptDOM();
   };
 
   recognition.onerror = () => {};
-  recognition.onend = () => {
-    if (timer.running) {
-      // Auto-restart if still timing (SpeechRecognition times out on silence)
-      try { recognition.start(); } catch {}
-    }
-  };
-
-  recognition.start();
+  recognition.onend   = () => { if (timer.running) setTimeout(startSpeechRecognition, 100); };
+  try { recognition.start(); } catch {}
 }
 
 function stopSpeechRecognition() {

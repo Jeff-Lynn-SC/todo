@@ -469,14 +469,16 @@ Friendly tone, concise, no bullet points — just clear prose with inline correc
 }
 
 // ── Speech recognition ─────────────────────────────────────────────────────────
-let recognition = null;
-let monoFinal   = '';
-let monoInterim = '';
+let recognition    = null;
+let monoFinal      = '';
+let monoInterim    = '';
+let finalizedCount = 0; // tracks how many results we've committed this session
 
 function startSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return;
-  monoInterim = '';
+  monoInterim    = '';
+  finalizedCount = 0;
   // Nullify handlers on old instance before replacing it, to prevent cascade
   if (recognition) {
     recognition.onresult = null;
@@ -492,8 +494,15 @@ function startSpeechRecognition() {
   recognition.onresult = e => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) monoFinal += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        // Only append if we haven't already committed this result index
+        if (i >= finalizedCount) {
+          monoFinal += e.results[i][0].transcript + ' ';
+          finalizedCount = i + 1;
+        }
+      } else {
+        interim += e.results[i][0].transcript;
+      }
     }
     monoInterim = interim;
     updateTranscriptDOM();
