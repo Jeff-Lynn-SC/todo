@@ -214,5 +214,13 @@
     "diastolic": 79,
     "heartRate": 54,
     "notes": ""
+  },
+  {
+    "id": "1780899295393",
+    "datetime": "2026-06-08T08:14",
+    "systolic": 138,
+    "diastolic": 92,
+    "heartRate": 52,
+    "notes": ""
   }
 ]
