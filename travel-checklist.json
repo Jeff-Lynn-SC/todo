@@ -8,42 +8,42 @@
     {
       "header": false,
       "label": "Passport",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "UK wallet / cash",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Tabs",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Books",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Water bottle",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Battery pack",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Charging cables (inc watch)",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "AirPods",
-      "done": true
+      "done": false
     },
     {
       "header": true,
@@ -52,12 +52,12 @@
     {
       "header": false,
       "label": "Turn off bathroom water heater",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Turn off kitchen water heater",
-      "done": true
+      "done": false
     },
     {
       "header": false,
@@ -67,41 +67,41 @@
     {
       "header": false,
       "label": "Bin putting-out covered",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "turn off the heating",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "sort the sourdough",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Turn off WiFi",
-      "done": true
+      "done": false
     },
     {
       "header": true,
-      "label": "Northern Ireland- I left a winter jumper, winter coat and pyjamas at Susan’s in Ben’s wardrobe"
+      "label": "Northern Ireland- I left a winter jumper, winter coat and pyjamas at Susanâs in Benâs wardrobe"
     },
     {
       "header": false,
       "label": "Coat",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Jumper",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Pyjamas",
-      "done": true
+      "done": false
     }
   ]
 }
