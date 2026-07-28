@@ -116,6 +116,11 @@
       "header": false,
       "label": "England - I left a rucjsack with camping kit but i don't remember what",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Check-in with Passport details",
+      "done": false
     }
   ]
 }
