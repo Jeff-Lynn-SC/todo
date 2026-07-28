@@ -102,6 +102,10 @@
       "header": false,
       "label": "Pyjamas",
       "done": false
+    },
+    {
+      "header": true,
+      "label": "Before leaving"
     }
   ]
 }
