@@ -70,6 +70,11 @@
     },
     {
       "header": false,
+      "label": "Collect tabs",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Bin putting-out covered",
       "done": false
     },
@@ -105,11 +110,6 @@
     {
       "header": false,
       "label": "Pyjamas",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Collect tabs",
       "done": false
     }
   ]
