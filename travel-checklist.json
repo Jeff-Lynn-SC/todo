@@ -50,6 +50,11 @@
       "label": "Before leaving"
     },
     {
+      "header": false,
+      "label": "Collect tabs",
+      "done": false
+    },
+    {
       "header": true,
       "label": "Leaving the flat"
     },
@@ -66,11 +71,6 @@
     {
       "header": false,
       "label": "Turn off all taps",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Collect tabs",
       "done": false
     },
     {
