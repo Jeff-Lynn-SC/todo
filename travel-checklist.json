@@ -47,16 +47,16 @@
     },
     {
       "header": true,
+      "label": "Before leaving"
+    },
+    {
+      "header": true,
       "label": "Leaving the flat"
     },
     {
       "header": false,
       "label": "Turn off bathroom water heater",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Before leaving"
     },
     {
       "header": false,
