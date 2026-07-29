@@ -17,17 +17,17 @@
     },
     {
       "header": false,
-      "label": "UK wallet / cash",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Check-in with Passport details",
       "done": false
     },
     {
       "header": true,
       "label": "Dad"
+    },
+    {
+      "header": false,
+      "label": "UK wallet / cash",
+      "done": false
     },
     {
       "header": false,
