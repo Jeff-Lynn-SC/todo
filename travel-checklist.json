@@ -46,6 +46,11 @@
       "done": false
     },
     {
+      "header": false,
+      "label": "Alan's stuff",
+      "done": false
+    },
+    {
       "header": true,
       "label": "Before leaving"
     },
@@ -81,11 +86,6 @@
     {
       "header": false,
       "label": "Bin putting-out covered",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Alan's stuff",
       "done": false
     },
     {
