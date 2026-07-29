@@ -56,6 +56,11 @@
     },
     {
       "header": false,
+      "label": "salt in the cellar",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "AirPods",
       "done": false
     },
@@ -76,11 +81,6 @@
     {
       "header": false,
       "label": "Turn off kitchen water heater",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "salt in the cellar",
       "done": false
     },
     {
