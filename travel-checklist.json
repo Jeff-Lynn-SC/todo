@@ -2,10 +2,6 @@
   "tripName": "Summer 2026",
   "items": [
     {
-      "header": true,
-      "label": "Dad"
-    },
-    {
       "header": false,
       "label": "Passport",
       "done": false
@@ -18,6 +14,10 @@
       "header": false,
       "label": "UK wallet / cash",
       "done": false
+    },
+    {
+      "header": true,
+      "label": "Dad"
     },
     {
       "header": false,
