@@ -2,11 +2,6 @@
   "tripName": "Summer 2026",
   "items": [
     {
-      "header": false,
-      "label": "Passport",
-      "done": false
-    },
-    {
       "header": true,
       "label": "Before leaving"
     },
@@ -23,6 +18,11 @@
     {
       "header": true,
       "label": "Dad"
+    },
+    {
+      "header": false,
+      "label": "Passport",
+      "done": false
     },
     {
       "header": false,
