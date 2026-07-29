@@ -26,6 +26,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Before leaving"
+    },
+    {
       "header": false,
       "label": "Water bottle",
       "done": false
@@ -49,10 +53,6 @@
       "header": false,
       "label": "Alan's stuff",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Before leaving"
     },
     {
       "header": false,
