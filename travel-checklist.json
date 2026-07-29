@@ -11,6 +11,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Before leaving"
+    },
+    {
       "header": false,
       "label": "UK wallet / cash",
       "done": false
@@ -24,10 +28,6 @@
       "header": false,
       "label": "Books",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Before leaving"
     },
     {
       "header": false,
