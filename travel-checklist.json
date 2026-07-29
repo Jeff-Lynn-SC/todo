@@ -90,6 +90,11 @@
     },
     {
       "header": false,
+      "label": "Check-in with Passport details",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Turn off WiFi",
       "done": false
     },
@@ -115,11 +120,6 @@
     {
       "header": false,
       "label": "England - I left a ruckjsack with camping kit but i don't remember what",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Check-in with Passport details",
       "done": false
     },
     {
