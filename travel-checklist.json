@@ -85,6 +85,11 @@
     },
     {
       "header": false,
+      "label": "Alan's stuff",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "turn off the heating",
       "done": false
     },
@@ -129,11 +134,6 @@
     {
       "header": false,
       "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Alan's stuff",
       "done": false
     }
   ]
