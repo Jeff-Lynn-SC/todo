@@ -51,6 +51,11 @@
     },
     {
       "header": false,
+      "label": "Check-in with Passport details",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Collect tabs",
       "done": false
     },
@@ -86,11 +91,6 @@
     {
       "header": false,
       "label": "sort the sourdough",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Check-in with Passport details",
       "done": false
     },
     {
