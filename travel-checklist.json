@@ -12,6 +12,11 @@
     },
     {
       "header": false,
+      "label": "Collect tabs",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "UK wallet / cash",
       "done": false
     },
@@ -57,11 +62,6 @@
     {
       "header": false,
       "label": "Alan's stuff",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Collect tabs",
       "done": false
     },
     {
