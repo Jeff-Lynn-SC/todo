@@ -17,6 +17,11 @@
     },
     {
       "header": false,
+      "label": "basil",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Check-in with Passport details",
       "done": true
     },
@@ -134,11 +139,6 @@
     {
       "header": false,
       "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "basil",
       "done": false
     }
   ]
