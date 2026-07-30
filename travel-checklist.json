@@ -140,6 +140,11 @@
       "header": false,
       "label": "Rucksack",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "empty compost",
+      "done": false
     }
   ]
 }
