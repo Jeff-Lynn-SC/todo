@@ -110,6 +110,11 @@
     },
     {
       "header": false,
+      "label": "empty compost",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Turn off WiFi",
       "done": false
     },
@@ -139,11 +144,6 @@
     {
       "header": false,
       "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "empty compost",
       "done": false
     }
   ]
