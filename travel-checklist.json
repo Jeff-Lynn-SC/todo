@@ -41,6 +41,11 @@
     },
     {
       "header": false,
+      "label": "sign achim's contract",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Tabs",
       "done": false
     },
@@ -67,11 +72,6 @@
     {
       "header": false,
       "label": "AirPods",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "sign achim's contract",
       "done": false
     },
     {
