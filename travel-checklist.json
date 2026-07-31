@@ -100,6 +100,11 @@
     },
     {
       "header": false,
+      "label": "sign achim's contract",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Bin putting-out covered",
       "done": true
     },
@@ -111,11 +116,6 @@
     {
       "header": false,
       "label": "sort the sourdough",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "sign achim's contract",
       "done": false
     },
     {
