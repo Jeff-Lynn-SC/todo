@@ -52,12 +52,12 @@
     {
       "header": false,
       "label": "Tabs",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Books",
-      "done": false
+      "done": true
     },
     {
       "header": false,
