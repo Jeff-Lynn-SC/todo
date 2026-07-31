@@ -56,6 +56,11 @@
     },
     {
       "header": false,
+      "label": "windows",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Battery pack",
       "done": false
     },
@@ -102,11 +107,6 @@
       "header": false,
       "label": "turn off the heating",
       "done": true
-    },
-    {
-      "header": false,
-      "label": "windows",
-      "done": false
     },
     {
       "header": false,
