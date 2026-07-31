@@ -36,6 +36,11 @@
     },
     {
       "header": false,
+      "label": "Darrin's invoice",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Passport",
       "done": false
     },
@@ -72,11 +77,6 @@
     {
       "header": false,
       "label": "AirPods",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Darrin's invoice",
       "done": false
     },
     {
