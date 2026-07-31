@@ -77,12 +77,12 @@
     {
       "header": false,
       "label": "AirPods",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Alan's stuff",
-      "done": false
+      "done": true
     },
     {
       "header": true,
