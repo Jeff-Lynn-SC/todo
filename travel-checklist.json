@@ -76,6 +76,11 @@
     },
     {
       "header": false,
+      "label": "Darrin's invoice",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Alan's stuff",
       "done": false
     },
@@ -112,11 +117,6 @@
       "header": false,
       "label": "turn off the heating",
       "done": true
-    },
-    {
-      "header": false,
-      "label": "Darrin's invoice",
-      "done": false
     },
     {
       "header": false,
