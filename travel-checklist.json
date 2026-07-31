@@ -115,6 +115,11 @@
     },
     {
       "header": false,
+      "label": "sign achim's contract",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "empty compost",
       "done": false
     },
@@ -149,11 +154,6 @@
     {
       "header": false,
       "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "sign achim's contract",
       "done": false
     }
   ]
