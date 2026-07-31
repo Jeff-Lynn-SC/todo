@@ -62,17 +62,17 @@
     {
       "header": false,
       "label": "Water bottle",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Battery pack",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Charging cables (inc watch)",
-      "done": false
+      "done": true
     },
     {
       "header": false,
