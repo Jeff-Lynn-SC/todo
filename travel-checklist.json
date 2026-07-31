@@ -42,12 +42,12 @@
     {
       "header": false,
       "label": "Passport",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "UK wallet / cash",
-      "done": false
+      "done": true
     },
     {
       "header": false,
