@@ -71,6 +71,11 @@
     },
     {
       "header": false,
+      "label": "sign achim's contract",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "Alan's stuff",
       "done": false
     },
@@ -96,11 +101,6 @@
     {
       "header": false,
       "label": "Turn off all taps",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "sign achim's contract",
       "done": false
     },
     {
