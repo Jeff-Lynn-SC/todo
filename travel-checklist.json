@@ -17,11 +17,6 @@
     },
     {
       "header": false,
-      "label": "windows",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "basil",
       "done": false
     },
@@ -52,6 +47,11 @@
     {
       "header": false,
       "label": "Books",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "windows",
       "done": false
     },
     {
