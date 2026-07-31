@@ -126,7 +126,7 @@
     {
       "header": false,
       "label": "Turn off WiFi",
-      "done": false
+      "done": true
     },
     {
       "header": true,
