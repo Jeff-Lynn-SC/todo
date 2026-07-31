@@ -101,7 +101,7 @@
     {
       "header": false,
       "label": "Turn off all taps",
-      "done": false
+      "done": true
     },
     {
       "header": false,
