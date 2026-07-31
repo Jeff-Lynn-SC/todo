@@ -150,6 +150,11 @@
       "header": false,
       "label": "Rucksack",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "sign achim's contract",
+      "done": false
     }
   ]
 }
