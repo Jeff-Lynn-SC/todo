@@ -22,6 +22,11 @@
     },
     {
       "header": false,
+      "label": "Darrin's invoice",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "basil",
       "done": true
     },
@@ -33,11 +38,6 @@
     {
       "header": true,
       "label": "Dad"
-    },
-    {
-      "header": false,
-      "label": "Darrin's invoice",
-      "done": false
     },
     {
       "header": false,
