@@ -81,7 +81,7 @@
     {
       "header": false,
       "label": "Turn off bathroom water heater",
-      "done": false
+      "done": true
     },
     {
       "header": false,
@@ -101,6 +101,11 @@
     {
       "header": false,
       "label": "turn off the heating",
+      "done": true
+    },
+    {
+      "header": false,
+      "label": "windows",
       "done": false
     },
     {
