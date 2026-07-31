@@ -17,6 +17,11 @@
     },
     {
       "header": false,
+      "label": "sign achim's contract",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "basil",
       "done": false
     },
@@ -37,11 +42,6 @@
     {
       "header": false,
       "label": "UK wallet / cash",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "sign achim's contract",
       "done": false
     },
     {
