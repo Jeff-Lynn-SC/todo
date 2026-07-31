@@ -115,6 +115,11 @@
     },
     {
       "header": false,
+      "label": "Darrin's invoice",
+      "done": false
+    },
+    {
+      "header": false,
       "label": "sort the sourdough",
       "done": false
     },
@@ -154,11 +159,6 @@
     {
       "header": false,
       "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Darrin's invoice",
       "done": false
     }
   ]
