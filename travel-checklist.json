@@ -51,11 +51,6 @@
     },
     {
       "header": false,
-      "label": "windows",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Water bottle",
       "done": false
     },
@@ -82,6 +77,11 @@
     {
       "header": true,
       "label": "Leaving the flat"
+    },
+    {
+      "header": false,
+      "label": "windows",
+      "done": false
     },
     {
       "header": false,
