@@ -100,11 +100,6 @@
     },
     {
       "header": false,
-      "label": "Turn off kitchen water heater",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Turn off all taps",
       "done": false
     },
