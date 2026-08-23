@@ -203,7 +203,7 @@
     },
     {
       "header": false,
-      "label": "Rough T-shirt",
+      "label": "Rough T-shirt x2",
       "done": false
     },
     {
@@ -219,6 +219,11 @@
     {
       "header": false,
       "label": "Ghanaian shirt",
+      "done": false
+    },
+    {
+      "header": false,
+      "label": "Fleece top",
       "done": false
     }
   ]
