@@ -200,6 +200,11 @@
       "header": false,
       "label": "Towel",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Rough T-shirt",
+      "done": false
     }
   ]
 }
