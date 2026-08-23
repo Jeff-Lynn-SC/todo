@@ -165,6 +165,11 @@
       "header": false,
       "label": "Air mattress",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Bivvy (no hammock)",
+      "done": false
     }
   ]
 }
