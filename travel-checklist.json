@@ -180,6 +180,11 @@
       "header": false,
       "label": "Cooker and gas",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Saucepan",
+      "done": false
     }
   ]
 }
