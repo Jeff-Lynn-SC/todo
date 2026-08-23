@@ -160,6 +160,11 @@
       "header": false,
       "label": "Sleeping bag",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Air mattress",
+      "done": false
     }
   ]
 }
