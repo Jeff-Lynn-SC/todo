@@ -175,6 +175,11 @@
       "header": false,
       "label": "Lighter",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Cooker and gas",
+      "done": false
     }
   ]
 }
