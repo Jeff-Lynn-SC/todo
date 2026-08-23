@@ -170,6 +170,11 @@
       "header": false,
       "label": "Bivvy (no hammock)",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Lighter",
+      "done": false
     }
   ]
 }
