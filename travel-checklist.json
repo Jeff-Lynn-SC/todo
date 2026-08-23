@@ -185,6 +185,11 @@
       "header": false,
       "label": "Saucepan",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Travel mug",
+      "done": false
     }
   ]
 }
