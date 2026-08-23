@@ -190,6 +190,11 @@
       "header": false,
       "label": "Travel mug",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Pillow",
+      "done": false
     }
   ]
 }
