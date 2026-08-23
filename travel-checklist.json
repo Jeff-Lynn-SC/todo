@@ -210,6 +210,11 @@
       "header": false,
       "label": "Underwearx3",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Socksx2",
+      "done": false
     }
   ]
 }
