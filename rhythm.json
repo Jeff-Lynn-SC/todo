@@ -243,5 +243,16 @@
     ],
     "history": []
   },
-  "logs": {}
+  "logs": {
+    "2026-09-09": {
+      "date": "2026-09-09",
+      "entries": {
+        "walk_am": {
+          "status": "done",
+          "at": "11:10",
+          "unplanned": false
+        }
+      }
+    }
+  }
 }
