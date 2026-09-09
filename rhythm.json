@@ -242,7 +242,7 @@
       },
       {
         "id": "this_planning",
-        "label": "this planning",
+        "label": "this planning, considering gk presents, tidying after last evening",
         "start": "11:10",
         "dur": 0,
         "days": [],
@@ -251,6 +251,10 @@
       }
     ],
     "history": [
+      {
+        "at": "2026-09-09",
+        "text": "Renamed this planning to this planning, considering gk presents, tidying after last evening"
+      },
       {
         "at": "2026-09-09",
         "text": "Logged this planning for the first time"
