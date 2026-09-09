@@ -278,6 +278,13 @@
     font-size: 11px; color: var(--muted); cursor: pointer;
   }
   .ed-track input { accent-color: var(--primary); }
+  .ed.dim { opacity: 0.7; }
+  .stale-toggle {
+    display: block; width: 100%; margin: 2px 0 10px; padding: 8px;
+    font: inherit; font-size: 11px; color: var(--muted); cursor: pointer;
+    background: transparent; border: 1px dashed var(--border); border-radius: 6px;
+  }
+  .stale-toggle:hover { color: var(--text); border-color: var(--muted); }
   .edtip { margin-top: 14px; font-size: 11px; color: var(--muted); }
 
   .status { margin-top: 20px; font-size: 10px; color: var(--muted); }
@@ -1066,6 +1073,8 @@
     return box;
   }
 
+  var STALE_DAYS = 21;
+
   function loggedRecently(id, days){
     var today = new Date();
     for (var i = 0; i <= days; i++) {
@@ -1075,16 +1084,23 @@
     return false;
   }
 
-  // Things you could log today that are not on today's plan. One-offs caught
-  // by the quick-log carry no days, so they drop off after three unused weeks
-  // rather than piling up in the picker forever.
+  // A one-off caught by the quick-log that has since gone quiet. Nothing is
+  // ever deleted: the log entries stay put and Patterns still counts them,
+  // the item is only folded out of the picker and the plan list. Limited to
+  // kind 'logged' so an activity you built by hand never vanishes on you,
+  // even if you strip its days.
+  function isStaleOneOff(it){
+    return it.kind === 'logged' && it.days.length === 0 && !loggedRecently(it.id, STALE_DAYS);
+  }
+
+  // Things you could log today that are not already on today's plan.
   function loggable(d){
     var date = iso(d), w = dow(d);
     return plan.items.filter(function(it){
       if (!it.track) return false;
       if (it.days.indexOf(w) !== -1) return false;
       if (entry(date, it.id)) return false;
-      if (it.days.length === 0 && !loggedRecently(it.id, 21)) return false;
+      if (isStaleOneOff(it)) return false;
       return true;
     });
   }
@@ -1123,6 +1139,9 @@
     return id;
   }
 
+  // Quick-logged one-offs older than STALE_DAYS are folded away by default.
+  var showStale = false;
+
   function renderPlanEditor(){
     var frag = document.createDocumentFragment();
 
@@ -1140,16 +1159,27 @@
     });
     frag.appendChild(add);
 
-    plan.items.slice().sort(function(a,b){ return mins(a.start)-mins(b.start); }).forEach(function(it){
-      frag.appendChild(renderEditCard(it));
-    });
+    var live = [], stale = [];
+    plan.items.slice().sort(function(a,b){ return mins(a.start)-mins(b.start); })
+      .forEach(function(it){ (isStaleOneOff(it) ? stale : live).push(it); });
+
+    live.forEach(function(it){ frag.appendChild(renderEditCard(it, false)); });
+
+    if (stale.length) {
+      var t = el('button','stale-toggle', showStale
+        ? 'Hide the older one-offs'
+        : 'Show ' + stale.length + ' older one-off' + (stale.length === 1 ? '' : 's'));
+      t.addEventListener('click', function(){ showStale = !showStale; render(); });
+      frag.appendChild(t);
+      if (showStale) stale.forEach(function(it){ frag.appendChild(renderEditCard(it, true)); });
+    }
 
     frag.appendChild(el('p','edtip', 'Times and days here are the plan. What you tick on the day is what actually happened — Patterns compares the two.'));
     return frag;
   }
 
-  function renderEditCard(it){
-    var card = el('div','ed');
+  function renderEditCard(it, stale){
+    var card = el('div','ed' + (stale ? ' dim' : ''));
     card.setAttribute('data-id', it.id);
 
     var top = el('div','ed-top');
