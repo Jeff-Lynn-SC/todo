@@ -1067,6 +1067,13 @@
     cursor = iso(addDays(fromIso(cursor), view==='week' ? 7 : 1)); render();
   });
 
+  // Inside the home-screen shell the surrounding app supplies its own back
+  // control, so the standalone link back to the to-do list is just noise.
+  if (window.self !== window.top) {
+    var bl = document.querySelector('.backlink');
+    if (bl) bl.style.display = 'none';
+  }
+
   render();
   bootStorage();
 })();
