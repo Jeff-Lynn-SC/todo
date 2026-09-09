@@ -268,7 +268,7 @@
         },
         "this_planning": {
           "status": "done",
-          "at": "10:00",
+          "at": "09:00",
           "unplanned": true
         }
       }
