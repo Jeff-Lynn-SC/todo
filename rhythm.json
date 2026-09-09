@@ -276,7 +276,7 @@
           "unplanned": true
         },
         "clean": {
-          "status": "na",
+          "status": "skipped",
           "at": null,
           "unplanned": false
         }
