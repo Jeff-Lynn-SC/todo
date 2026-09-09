@@ -2,275 +2,384 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#07131F">
 <title>Rhythm</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* ---- Ink palette (Coincidental.StaffChat.Wpf / Ink.cs) ---- */
   :root {
-    --paper: #e9ece4;
-    --card: #f8f9f5;
-    --ink: #1f2420;
-    --grey: #6d746a;
-    --faint: #949c92;
-    --rule: #cbd1c4;
-    --moss: #3d6b3f;
-    --moss-soft: #dfe8dd;
-    --amber: #a3760c;
-    --shade: rgba(31,36,32,0.05);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper: #161915;
-      --card: #1e221d;
-      --ink: #e7eae1;
-      --grey: #9aa295;
-      --faint: #767e73;
-      --rule: #3b423a;
-      --moss: #86b98a;
-      --moss-soft: #27331f;
-      --amber: #d3a742;
-      --shade: rgba(231,234,225,0.05);
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper: #161915;
-    --card: #1e221d;
-    --ink: #e7eae1;
-    --grey: #9aa295;
-    --faint: #767e73;
-    --rule: #3b423a;
-    --moss: #86b98a;
-    --moss-soft: #27331f;
-    --amber: #d3a742;
-    --shade: rgba(231,234,225,0.05);
+    --bg:          #07131F;
+    --surface:     #0F2234;
+    --surface-alt: #172E42;
+    --primary:     #00B6D5;
+    --primary-dk:  #0091B0;
+    --text:        #E8EFF4;
+    --muted:       #869AAB;
+    --border:      #203A50;
+    --amber:       #F2C24B;
+    --online:      #3DD598;
+    --danger:      #FF6B83;
+    --on-header:   #04202E;
+    --send-grad:   linear-gradient(#10BDD8, #0083B0);
+    /* native controls (time pickers, checkboxes) must follow the dark theme */
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body { height: 100%; }
+
   body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
-    padding: 20px 16px 64px;
+    /* the margin is what gives the drop shadow room */
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
   }
 
-  .wrap { max-width: 620px; margin: 0 auto; }
-
-  h1 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-weight: 600;
-    font-size: 1.9rem;
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+  /* ---- the floating card ---- */
+  .card {
+    max-width: 560px;
+    margin: 0 auto;
+    min-height: calc(100dvh - 20px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.34);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
-  .sub { color: var(--grey); font-size: 0.86rem; margin-top: 4px; }
 
-  .backlink { display: block; font-size: 0.78rem; color: var(--faint); text-decoration: none; margin-bottom: 14px; }
-  .backlink:hover { color: var(--ink); }
-
-  .daynav { display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px; }
-  .daynav .arrow {
-    font-family: 'Fraunces', serif; font-size: 1.2rem; line-height: 1;
-    background: none; border: none; color: var(--faint); cursor: pointer;
-    padding: 6px 4px; border-radius: 4px;
+  /* ---- header ---- */
+  .hdr {
+    background: var(--primary);
+    border-radius: 11px 11px 0 0;
+    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #fff;
+    flex: none;
   }
-  .daynav .arrow:hover { color: var(--ink); }
+  .hdr-glyph { flex: none; color: #fff; display: grid; place-items: center; }
+  .hdr-mid { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+  .hdr-title { font-size: 13px; font-weight: 600; flex: none; }
+  .hdr-status {
+    font-size: 11px; opacity: 0.8; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .hdr-act {
+    flex: none; color: #fff; opacity: 0.9; cursor: pointer;
+    background: none; border: none; padding: 2px; display: grid; place-items: center;
+    text-decoration: none;
+  }
+  .hdr-act:hover { opacity: 1; }
 
+  /* ---- tabs ---- */
   nav.tabs {
-    display: flex; gap: 22px; border-bottom: 1px solid var(--rule);
-    margin-bottom: 22px;
+    display: flex; gap: 20px; padding: 0 12px; flex: none;
+    border-bottom: 1px solid var(--border); background: var(--surface);
   }
   nav.tabs button {
-    background: none; border: none; cursor: pointer; padding: 8px 0 10px;
-    font: inherit; font-size: 0.92rem; color: var(--grey);
+    background: none; border: none; cursor: pointer; padding: 9px 0 10px;
+    font: inherit; font-size: 12px; color: var(--muted);
     border-bottom: 2px solid transparent; margin-bottom: -1px;
   }
-  nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
-  nav.tabs button:hover { color: var(--ink); }
+  nav.tabs button[aria-selected="true"] {
+    color: var(--text); border-bottom-color: var(--primary); font-weight: 600;
+  }
+  nav.tabs button:hover { color: var(--text); }
+
+  /* ---- scrolling content ---- */
+  .body { flex: 1; overflow-y: auto; padding: 10px 12px 6px; min-height: 0; }
+
+  /* custom scrollbar: width 10, no arrows, thumb #869AAB .30 / .60 / .80, radius 3, margin 2 */
+  .body { scrollbar-width: thin; scrollbar-color: rgba(134,154,171,0.30) transparent; }
+  .body::-webkit-scrollbar { width: 10px; }
+  .body::-webkit-scrollbar-track { background: transparent; }
+  .body::-webkit-scrollbar-thumb {
+    background: rgba(134,154,171,0.30); border-radius: 3px;
+    border: 2px solid transparent; background-clip: padding-box; min-height: 28px;
+  }
+  .body::-webkit-scrollbar-thumb:hover {
+    background: rgba(134,154,171,0.60); background-clip: padding-box;
+  }
+  .body::-webkit-scrollbar-thumb:active {
+    background: rgba(134,154,171,0.80); background-clip: padding-box;
+  }
 
   /* ---- the day spine ---- */
-  .spine-list { background: var(--card); border: 1px solid var(--rule); border-radius: 3px; padding: 6px 14px 6px 0; }
-
-  .row { display: flex; align-items: flex-start; min-height: 44px; }
+  .row {
+    display: flex; align-items: flex-start; padding: 3px 0;
+    background: transparent; border-radius: 6px; position: relative;
+  }
+  .row:hover { background: rgba(23,46,66,0.45); }
   .row .t {
-    width: 58px; flex: none; text-align: right; padding: 11px 10px 0 0;
-    font-variant-numeric: tabular-nums; font-size: 0.8rem; color: var(--faint);
+    width: 42px; flex: none; text-align: right; padding: 5px 8px 0 0;
+    font-variant-numeric: tabular-nums; font-size: 10px; color: var(--muted);
   }
-  .row .rail { width: 26px; flex: none; position: relative; align-self: stretch; }
+  .row .rail { width: 20px; flex: none; position: relative; align-self: stretch; }
   .row .rail::before {
-    content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
-    width: 1.5px; background: var(--rule);
+    content: ''; position: absolute; left: 9px; top: 0; bottom: 0;
+    width: 1px; background: var(--border);
   }
-  .row:first-child .rail::before { top: 18px; }
-  .row:last-child .rail::before { bottom: calc(100% - 18px); }
+  .row:first-child .rail::before { top: 12px; }
+  .row:last-child .rail::before { bottom: calc(100% - 12px); }
+
+  /* identity dot: colour from the name hash, state from fill */
   .dot {
-    position: absolute; left: 6px; top: 12px; width: 13px; height: 13px;
-    border-radius: 50%; border: 1.5px solid var(--rule); background: var(--card);
-    z-index: 2;
+    position: absolute; left: 5px; top: 8px; width: 8px; height: 8px;
+    border-radius: 50%; background: transparent; z-index: 2;
+    box-shadow: inset 0 0 0 1.5px var(--dot);
   }
-  .dot.small { width: 7px; height: 7px; left: 9px; top: 15px; background: var(--rule); border: none; }
-  .dot.done { background: var(--moss); border-color: var(--moss); }
-  .dot.skipped { border-color: var(--faint); }
-  .dot.skipped::after {
-    content: ''; position: absolute; left: -1px; top: 4px; width: 12px; height: 1.5px;
-    background: var(--faint); transform: rotate(-45deg);
+  .dot.done { background: var(--dot); box-shadow: 0 0 0 3px rgba(61,213,152,0.20); }
+  .dot.skipped { box-shadow: inset 0 0 0 1.5px var(--muted); opacity: 0.5; }
+  .dot.small { width: 5px; height: 5px; left: 7px; top: 10px; background: var(--border); box-shadow: none; }
+
+  .row .bd { flex: 1; padding: 4px 6px 4px 0; min-width: 0; }
+  .row .lab { font-size: 13px; color: var(--text); }
+  .row.ctx .lab { color: var(--muted); }
+  .row .note { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .row .actual {
+    font-size: 11px; color: var(--online); margin-top: 1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .row .actual button {
+    background: none; border: none; color: inherit; font: inherit;
+    cursor: pointer; text-decoration: underline dotted; padding: 0;
   }
 
-  .row .body { flex: 1; padding: 9px 8px 9px 0; min-width: 0; }
-  .row .lab { font-size: 0.95rem; }
-  .row.ctx .lab { color: var(--grey); }
-  .row .note { font-size: 0.78rem; color: var(--faint); margin-top: 1px; }
-  .row .actual { font-size: 0.78rem; color: var(--moss); margin-top: 1px; font-variant-numeric: tabular-nums; }
-  .row .actual button { background:none; border:none; color:inherit; font:inherit; cursor:pointer; text-decoration: underline dotted; padding:0; }
+  /* ghost action, revealed on row hover */
+  .ghost {
+    flex: none; opacity: 0; transition: opacity 0.12s; background: none;
+    border: none; color: var(--muted); cursor: pointer; padding: 5px 3px 0;
+    display: grid; place-items: center;
+  }
+  .row:hover .ghost { opacity: 1; }
+  .ghost:hover { color: var(--text); }
+  @media (hover: none) { .ghost { opacity: 0.5; } }
 
-  .ctl { flex: none; display: flex; gap: 5px; padding-top: 7px; }
+  .ctl { flex: none; display: flex; gap: 5px; padding-top: 2px; }
   .ctl button {
-    width: 34px; height: 30px; border-radius: 3px; cursor: pointer;
-    border: 1px solid var(--rule); background: transparent; color: var(--faint);
-    font-size: 0.9rem; line-height: 1; display: grid; place-items: center;
+    width: 30px; height: 28px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    display: grid; place-items: center;
   }
-  .ctl button:hover { color: var(--ink); border-color: var(--faint); }
-  .ctl button[aria-pressed="true"] { background: var(--moss-soft); border-color: var(--moss); color: var(--moss); }
-  .ctl button.skip[aria-pressed="true"] { background: var(--shade); border-color: var(--faint); color: var(--grey); }
+  .ctl button:hover { color: var(--text); border-color: var(--muted); }
+  .ctl button[aria-pressed="true"] {
+    background: rgba(61,213,152,0.14); border-color: var(--online); color: var(--online);
+  }
+  .ctl button.skip[aria-pressed="true"] {
+    background: rgba(134,154,171,0.10); border-color: var(--muted); color: var(--muted);
+  }
 
   .nowline { display: flex; align-items: center; height: 0; }
-  .nowline .t { width: 58px; flex: none; text-align: right; padding-right: 10px;
-    font-size: 0.68rem; color: var(--amber); font-variant-numeric: tabular-nums; }
-  .nowline .bar { flex: 1; height: 1.5px; background: var(--amber); opacity: 0.55; }
+  .nowline .t {
+    width: 42px; flex: none; text-align: right; padding-right: 8px;
+    font-size: 10px; color: var(--amber); font-variant-numeric: tabular-nums;
+  }
+  .nowline .ln { flex: 1; height: 1px; background: var(--amber); opacity: 0.55; }
 
   /* ---- weekly tally ---- */
-  .tally { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.85rem; color: var(--grey); }
+  .tally {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 11px; color: var(--muted);
+  }
   .tally span { display: inline-flex; align-items: center; gap: 6px; }
   .pips { display: inline-flex; gap: 3px; }
-  .pip { width: 8px; height: 8px; border-radius: 50%; border: 1.2px solid var(--rule); }
-  .pip.on { background: var(--moss); border-color: var(--moss); }
+  .pip { width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.2px var(--border); }
+  .pip.on { background: var(--online); box-shadow: none; }
 
-  .extras { margin-top: 16px; font-size: 0.85rem; color: var(--grey); display:flex; flex-wrap:wrap; align-items:center; gap: 8px; }
-  .extras button {
-    font: inherit; font-size: 0.82rem; cursor: pointer; padding: 4px 10px;
-    border: 1px solid var(--rule); background: transparent; color: var(--grey); border-radius: 999px;
+  .extras {
+    margin-top: 12px; font-size: 11px; color: var(--muted);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
   }
-  .extras button:hover { color: var(--ink); border-color: var(--faint); }
+  .extras button {
+    font: inherit; font-size: 11px; cursor: pointer; padding: 4px 10px;
+    border: 1px solid var(--border); background: var(--surface-alt);
+    color: var(--muted); border-radius: 999px;
+  }
+  .extras button:hover { color: var(--text); border-color: var(--muted); }
 
   /* ---- week view ---- */
   .weekgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .wcol {
-    background: var(--card); border: 1px solid var(--rule); border-radius: 3px;
-    padding: 8px 4px 10px; text-align: center; cursor: pointer;
+    background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 3px 10px; text-align: center; cursor: pointer;
   }
-  .wcol:hover { border-color: var(--faint); }
+  .wcol:hover { border-color: var(--muted); }
   .wcol.today { border-color: var(--amber); }
-  .wcol .wd { font-size: 0.72rem; color: var(--grey); }
-  .wcol .dm { font-family: 'Fraunces', serif; font-size: 1rem; margin-bottom: 8px; }
-  .wcol.maryam .dm { color: var(--moss); }
+  .wcol .wd { font-size: 10px; color: var(--muted); }
+  .wcol .dm { font-size: 14px; margin-bottom: 8px; color: var(--text); }
+  .wcol.maryam .dm { color: var(--primary); }
   .beads { display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 60px; }
-  .bead { width: 9px; height: 9px; border-radius: 50%; border: 1.3px solid var(--rule); }
-  .bead.done { background: var(--moss); border-color: var(--moss); }
-  .bead.skipped { background: var(--shade); }
+  .bead { width: 9px; height: 9px; border-radius: 50%; box-shadow: inset 0 0 0 1.3px var(--border); }
+  .bead.done { background: var(--online); box-shadow: none; }
+  .bead.skipped { background: rgba(134,154,171,0.25); }
 
   /* ---- patterns ---- */
-  .finding { padding: 16px 0; border-bottom: 1px solid var(--rule); }
+  .finding { padding: 14px 0; border-bottom: 1px solid var(--border); }
   .finding:last-child { border-bottom: none; }
-  .finding h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.05rem; margin-bottom: 3px; }
-  .finding p { font-size: 0.9rem; color: var(--grey); }
-  .finding .stat { color: var(--ink); font-variant-numeric: tabular-nums; }
-  .finding .act {
-    margin-top: 9px; font: inherit; font-size: 0.85rem; cursor: pointer;
-    padding: 6px 13px; border: 1px solid var(--ink); background: transparent;
-    color: var(--ink); border-radius: 3px;
+  .finding h3 { font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+  .finding p { font-size: 12px; color: var(--muted); }
+  .finding .stat { color: var(--text); font-variant-numeric: tabular-nums; }
+  /* long bodies render as a block, like a chat message block */
+  .finding .block {
+    margin-top: 6px; border-radius: 6px; padding: 8px; background: var(--surface-alt);
+    border: 1px solid var(--border); font-size: 12px; color: var(--muted);
   }
-  .finding .act:hover { background: var(--ink); color: var(--paper); }
+  .finding .act {
+    margin-top: 9px; font: inherit; font-size: 12px; cursor: pointer;
+    padding: 6px 13px; border: 1px solid var(--primary); background: transparent;
+    color: var(--primary); border-radius: 6px;
+  }
+  .finding .act:hover { background: var(--primary); color: var(--on-header); }
 
-  .hist { margin-top: 28px; font-size: 0.83rem; color: var(--faint); }
-  .hist h3 { font-family:'Fraunces',serif; font-size: 0.95rem; color: var(--grey); margin-bottom: 6px; font-weight: 400; }
+  .hist { margin-top: 22px; font-size: 11px; color: var(--muted); }
+  .hist h3 { font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
   .hist li { list-style: none; padding: 3px 0; }
-
-  .empty { color: var(--faint); font-size: 0.9rem; padding: 24px 0; }
+  .empty { color: var(--muted); font-size: 12px; padding: 20px 0; }
 
   /* ---- plan editor ---- */
   .addbtn {
-    font: inherit; font-size: 0.88rem; cursor: pointer; margin-bottom: 16px;
-    padding: 8px 14px; border: 1px solid var(--ink); background: transparent;
-    color: var(--ink); border-radius: 3px;
+    font: inherit; font-size: 12px; cursor: pointer; margin-bottom: 14px;
+    padding: 7px 14px; border: 1px solid var(--primary); background: transparent;
+    color: var(--primary); border-radius: 6px;
   }
-  .addbtn:hover { background: var(--ink); color: var(--paper); }
+  .addbtn:hover { background: var(--primary); color: var(--on-header); }
   .ed {
-    background: var(--card); border: 1px solid var(--rule); border-radius: 3px;
-    padding: 12px 14px; margin-bottom: 8px;
+    background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px;
+    padding: 11px 12px; margin-bottom: 8px;
   }
   .ed-top { display: flex; gap: 10px; align-items: center; }
   .ed input.lab-in {
-    flex: 1; min-width: 0; font: inherit; font-size: 0.98rem; color: var(--ink);
+    flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--text);
     background: transparent; border: none; border-bottom: 1px solid transparent; padding: 3px 0;
   }
-  .ed input.lab-in:hover { border-bottom-color: var(--rule); }
-  .ed input.lab-in:focus { outline: none; border-bottom-color: var(--amber); }
+  .ed input.lab-in:hover { border-bottom-color: var(--border); }
+  .ed input.lab-in:focus { outline: none; border-bottom-color: var(--primary); }
   .ed .del {
-    font: inherit; font-size: 0.78rem; cursor: pointer; color: var(--faint);
+    font: inherit; font-size: 11px; cursor: pointer; color: var(--muted);
     background: none; border: none; padding: 4px 2px;
   }
-  .ed .del:hover { color: var(--ink); }
-  .ed-line { display: flex; align-items: center; gap: 7px; margin-top: 9px; flex-wrap: wrap; }
-  .ed-lbl { font-size: 0.82rem; color: var(--faint); }
+  .ed .del:hover { color: var(--danger); }
+  .ed-line { display: flex; align-items: center; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+  .ed-lbl { font-size: 11px; color: var(--muted); }
   .ed input[type=time], .ed input[type=number] {
-    font: inherit; font-size: 0.86rem; color: var(--ink); background: var(--paper);
-    border: 1px solid var(--rule); border-radius: 3px; padding: 4px 7px;
+    font: inherit; font-size: 12px; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 7px;
     font-variant-numeric: tabular-nums;
   }
-  .ed input.dur-in { width: 68px; }
+  .ed input.dur-in { width: 66px; }
   .ed-days { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
   .ed-days .day {
-    font: inherit; font-size: 0.75rem; cursor: pointer; padding: 5px 0; width: 40px;
-    border: 1px solid var(--rule); background: transparent; color: var(--faint); border-radius: 3px;
+    font: inherit; font-size: 11px; cursor: pointer; padding: 5px 0; width: 38px;
+    border: 1px solid var(--border); background: transparent; color: var(--muted); border-radius: 6px;
   }
-  .ed-days .day.on { background: var(--moss-soft); border-color: var(--moss); color: var(--moss); }
-  .ed-track { display: flex; align-items: center; gap: 7px; margin-top: 11px; font-size: 0.82rem; color: var(--grey); cursor: pointer; }
-  .ed-track input { accent-color: var(--moss); }
-  .edtip { margin-top: 16px; font-size: 0.82rem; color: var(--faint); }
+  .ed-days .day.on {
+    background: rgba(0,182,213,0.14); border-color: var(--primary); color: var(--primary);
+  }
+  .ed-track {
+    display: flex; align-items: center; gap: 7px; margin-top: 10px;
+    font-size: 11px; color: var(--muted); cursor: pointer;
+  }
+  .ed-track input { accent-color: var(--primary); }
+  .edtip { margin-top: 14px; font-size: 11px; color: var(--muted); }
 
-  .status { margin-top: 26px; font-size: 0.76rem; color: var(--faint); }
+  .status { margin-top: 20px; font-size: 10px; color: var(--muted); }
   .status button {
-    font: inherit; font-size: 0.76rem; color: var(--faint); background: none;
+    font: inherit; font-size: 10px; color: var(--muted); background: none;
     border: none; padding: 0 0 0 8px; cursor: pointer; text-decoration: underline dotted;
   }
-  .status button:hover { color: var(--ink); }
+  .status button:hover { color: var(--text); }
+
+  /* ---- bottom action bar ---- */
+  .bar {
+    flex: none; background: var(--surface); border-top: 1px solid var(--border);
+    border-radius: 0 0 11px 11px; padding: 10px 8px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .popwrap { position: relative; }
+  .pill {
+    display: flex; align-items: center; gap: 8px; width: 100%; height: 30px;
+    padding: 0 8px; background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font: inherit; font-size: 12px; cursor: pointer;
+  }
+  .pill:hover { border-color: var(--muted); }
+  .pill .pl { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pill .cv { flex: none; color: var(--muted); display: grid; place-items: center; }
+  .popup {
+    position: absolute; bottom: calc(100% + 6px); left: 0; min-width: 200px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px; box-shadow: 0 4px 18px rgba(0,0,0,0.24); z-index: 30;
+    animation: pop 0.12s ease-out;
+  }
+  @keyframes pop { from { opacity: 0; } to { opacity: 1; } }
+  .popup button {
+    display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 9px;
+    border-radius: 6px; background: transparent; border: none; color: var(--text);
+    font: inherit; font-size: 12px; cursor: pointer; text-align: left;
+  }
+  .popup button:hover { background: var(--surface-alt); }
+  .popup button.on { color: var(--primary); font-weight: 600; }
+  .popup .pdot { width: 6px; height: 6px; border-radius: 50%; background: var(--online); flex: none; }
+
+  .bar-row { display: flex; align-items: center; gap: 8px; }
+  .btn-sec {
+    width: 32px; height: 32px; flex: none; border-radius: 16px;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    color: var(--muted); display: grid; place-items: center; cursor: pointer;
+  }
+  .btn-sec:hover { color: var(--text); border-color: var(--muted); }
+  .btn-pri {
+    width: 40px; height: 40px; flex: none; border-radius: 20px;
+    background: var(--send-grad); border: none; color: #fff;
+    display: grid; place-items: center; cursor: pointer;
+  }
+  .btn-pri:hover { filter: brightness(1.08); }
+  .prog {
+    flex: 1; min-width: 0; background: var(--surface-alt); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px;
+  }
+  .prog .pt { font-size: 11px; color: var(--muted); }
+  .prog .pbar { height: 3px; background: rgba(134,154,171,0.18); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+  .prog .pfill { height: 100%; background: var(--online); border-radius: 2px; transition: width 0.3s ease; }
 
   /* ---- token modal ---- */
   #pat-modal {
     display: none; position: fixed; inset: 0; z-index: 50;
-    background: rgba(22,25,21,0.55); align-items: center; justify-content: center; padding: 20px;
+    background: rgba(7,19,31,0.72); align-items: center; justify-content: center; padding: 20px;
   }
   #pat-box {
-    background: var(--card); border: 1px solid var(--rule); border-radius: 3px;
-    padding: 22px 20px; max-width: 380px; width: 100%;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; max-width: 340px; width: 100%; box-shadow: 0 2px 24px rgba(0,0,0,0.34);
   }
-  #pat-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.15rem; }
-  #pat-msg { color: var(--amber); font-size: 0.82rem; margin-top: 4px; }
+  #pat-title { font-size: 13px; font-weight: 600; }
+  #pat-msg { color: var(--amber); font-size: 11px; margin-top: 4px; }
   #pat-input {
-    width: 100%; font: inherit; font-size: 0.9rem; margin-top: 12px; padding: 7px 9px;
-    background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 3px;
+    width: 100%; font: inherit; font-size: 13px; margin-top: 12px; padding: 7px 9px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
   }
-  #pat-hint { font-size: 0.76rem; color: var(--faint); margin-top: 9px; line-height: 1.45; }
+  #pat-hint { font-size: 11px; color: var(--muted); margin-top: 9px; line-height: 1.45; }
   #pat-save {
-    font: inherit; font-size: 0.86rem; cursor: pointer; margin-top: 14px;
-    padding: 7px 14px; border: 1px solid var(--ink); background: transparent;
-    color: var(--ink); border-radius: 3px;
+    font: inherit; font-size: 12px; cursor: pointer; margin-top: 14px;
+    padding: 7px 14px; border: none; background: var(--send-grad);
+    color: #fff; border-radius: 6px;
   }
-  #pat-save:hover { background: var(--ink); color: var(--paper); }
 
-  button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
+    outline: 2px solid var(--primary); outline-offset: 2px;
+  }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-  @media (max-width: 480px) {
-    .row .t { width: 46px; font-size: 0.74rem; }
-    .wcol { padding: 6px 2px 8px; }
-    .wcol .wd { font-size: 0.62rem; }
-    .wcol .dm { font-size: 0.85rem; }
+  @media (max-width: 400px) {
+    nav.tabs { gap: 14px; }
+    .row .t, .nowline .t { width: 38px; }
   }
 </style>
 </head>
@@ -286,17 +395,17 @@
   </div>
 </div>
 
-<div class="wrap">
+<div class="card">
 
-  <a class="backlink" href="./">&#8592; To Do</a>
-
-  <div class="daynav">
-    <button class="arrow" id="prev" aria-label="Previous day">&#8592;</button>
-    <div>
-      <h1 id="dtitle">&nbsp;</h1>
-      <div class="sub" id="dsub"></div>
+  <div class="hdr">
+    <span class="hdr-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M8 14h3"/></svg></span>
+    <div class="hdr-mid">
+      <span class="hdr-title">Rhythm</span>
+      <span class="hdr-status" id="hdrStatus"></span>
     </div>
-    <button class="arrow" id="next" aria-label="Next day">&#8594;</button>
+    <a class="hdr-act" id="hdrBack" href="./" title="Back to To Do" aria-label="Back to To Do">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    </a>
   </div>
 
   <nav class="tabs" role="tablist">
@@ -306,8 +415,33 @@
     <button role="tab" data-view="plan" aria-selected="false">Plan</button>
   </nav>
 
-  <div id="view"></div>
-  <div class="status" id="status"></div>
+  <div class="body" id="scrollBody">
+    <div id="view"></div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="bar">
+    <div class="popwrap">
+      <button class="pill" id="dayPill" aria-haspopup="true" aria-expanded="false">
+        <span class="pl" id="dayPillLabel">&nbsp;</span>
+        <span class="cv"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+      </button>
+      <div class="popup" id="dayPopup" hidden></div>
+    </div>
+    <div class="bar-row">
+      <button class="btn-sec" id="prev" aria-label="Previous day">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="prog">
+        <div class="pt" id="progText">&nbsp;</div>
+        <div class="pbar"><div class="pfill" id="progFill" style="width:0%"></div></div>
+      </div>
+      <button class="btn-pri" id="next" aria-label="Next day">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -318,6 +452,7 @@
   var WD = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   var WD_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var WINDOW_DAYS = 28;
 
   var DEFAULT_PLAN = {
@@ -348,6 +483,33 @@
 
   var MARYAM_DAYS = [2,3,4,5]; // Wed to Sat
 
+  // ---------- Ink avatar palette (Ink.cs) ----------
+  var AVATARS = ['#1F56B8','#2E9C8E','#B86A00','#8E44AD','#C0395B','#2C82C9'];
+  function avatarColour(name){
+    var h = 0, s = name || '';
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) & 0x7fffffff;
+    return AVATARS[h % AVATARS.length];
+  }
+
+  // ---------- icons ----------
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function icon(paths, size){
+    var s = document.createElementNS(SVGNS, 'svg');
+    s.setAttribute('viewBox', '0 0 24 24');
+    s.setAttribute('width', size || 13); s.setAttribute('height', size || 13);
+    s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor');
+    s.setAttribute('stroke-width', '2');
+    s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round');
+    paths.split('|').forEach(function(d){
+      var p = document.createElementNS(SVGNS, 'path');
+      p.setAttribute('d', d); s.appendChild(p);
+    });
+    return s;
+  }
+  var I_CHECK = 'M20 6L9 17l-5-5';
+  var I_MINUS = 'M5 12h14';
+  var I_CLOCK = 'M12 3a9 9 0 1 0 0.001 18A9 9 0 0 0 12 3z|M12 7.5V12l3 2';
+
   // ---------- date helpers ----------
   function pad(n){ return (n<10?'0':'')+n; }
   function iso(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
@@ -372,17 +534,15 @@
   var LS_KEY  = 'rhythm.doc';
 
   var fileSha = null;
-  var remoteReady = false;   // we have talked to GitHub and may write
-  var dirty = false;         // unsaved changes exist
-  var saving = false;        // a PUT is in flight
+  var remoteReady = false;
+  var dirty = false;
+  var saving = false;
   var saveTimer = null;
   var SAVE_DELAY = 1200;
 
   function getPat(){ try { return localStorage.getItem('gh_pat'); } catch(e){ return null; } }
-
   function lsGet(k, fb){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch(e){ return fb; } }
   function lsSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
-
   function b64encode(s){ return btoa(unescape(encodeURIComponent(s))); }
   function b64decode(s){ return decodeURIComponent(escape(atob(s.replace(/\n/g,'')))); }
 
@@ -416,8 +576,6 @@
     if (doc.logs && typeof doc.logs === 'object') logs = JSON.parse(JSON.stringify(doc.logs));
   }
 
-  // Every mutation goes through this. Local copy is written at once; the
-  // GitHub write is debounced so a burst of ticks becomes one commit.
   function save(){
     lsSet(LS_KEY, currentDoc());
     dirty = true;
@@ -452,7 +610,6 @@
         return;
       }
       if (res.status === 409 || res.status === 422) {
-        // Someone else wrote the file. Pick up the new sha and try once more.
         saving = false; dirty = true;
         await refreshSha();
         saveTimer = setTimeout(flush, 400);
@@ -503,7 +660,6 @@
         var remote = null;
         try { remote = JSON.parse(b64decode(meta.content)); } catch(e){ remote = null; }
         if (remote) {
-          // Remote is the record of truth, but keep any local days it has not seen.
           var localLogs = logs;
           adoptDoc(remote);
           Object.keys(localLogs).forEach(function(k){ if (!logs[k]) logs[k] = localLogs[k]; });
@@ -512,7 +668,6 @@
         remoteReady = true;
         setStatus('Saved to ' + FILE + '. Opens the same on any device.');
       } else if (res.status === 404) {
-        // First run: the file does not exist yet. Write it.
         fileSha = null;
         remoteReady = true;
         dirty = true;
@@ -526,10 +681,7 @@
     render();
   }
 
-  // Do not lose a debounced write when the page goes away.
-  function flushNow(){
-    if (dirty && remoteReady && !saving) flush();
-  }
+  function flushNow(){ if (dirty && remoteReady && !saving) flush(); }
   window.addEventListener('pagehide', flushNow);
   document.addEventListener('visibilitychange', function(){
     if (document.visibilityState === 'hidden') flushNow();
@@ -572,31 +724,92 @@
   var view = 'today';
   var cursor = iso(new Date());
 
+  function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+
+  // ---------- header / bottom bar ----------
+  function dayProgress(d){
+    var date = iso(d), done = 0, total = 0;
+    itemsForDay(d).forEach(function(it){
+      if (!it.track) return;
+      total++;
+      var e = entry(date, it.id);
+      if (e && e.status === 'done') done++;
+    });
+    return { done: done, total: total };
+  }
+
+  function updateChrome(){
+    var d = fromIso(cursor);
+    var today = iso(new Date());
+
+    var bits = [];
+    if (view === 'plan') bits.push('Add, retime and move anything');
+    else if (view === 'patterns') bits.push('Last ' + WINDOW_DAYS + ' days');
+    else if (view === 'week') bits.push('Week of ' + mondayOf(d).getDate() + ' ' + MONTHS[mondayOf(d).getMonth()]);
+    else {
+      if (cursor === today) bits.push('Today');
+      if (MARYAM_DAYS.indexOf(dow(d)) !== -1) bits.push('Maryam here');
+    }
+    document.getElementById('hdrStatus').textContent = bits.join(' · ');
+
+    document.getElementById('dayPillLabel').textContent =
+      WD[dow(d)] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
+
+    var p = dayProgress(d);
+    document.getElementById('progText').textContent =
+      p.total ? (p.done + ' of ' + p.total + ' done') : 'nothing to tick off';
+    document.getElementById('progFill').style.width =
+      (p.total ? Math.round(100 * p.done / p.total) : 0) + '%';
+  }
+
+  // ---------- day picker popup ----------
+  var popup = document.getElementById('dayPopup');
+  var pill = document.getElementById('dayPill');
+
+  function closePopup(){ popup.hidden = true; pill.setAttribute('aria-expanded','false'); }
+  function openPopup(){
+    popup.innerHTML = '';
+    var d = fromIso(cursor), mon = mondayOf(d), today = iso(new Date());
+    for (var i=0;i<7;i++){
+      (function(i){
+        var day = addDays(mon,i), date = iso(day);
+        var b = el('button', date === cursor ? 'on' : null);
+        var dot = el('span','pdot');
+        dot.style.visibility = (date === today) ? 'visible' : 'hidden';
+        b.appendChild(dot);
+        b.appendChild(document.createTextNode(
+          WD_SHORT[i] + ' ' + day.getDate() + ' ' + MON_SHORT[day.getMonth()]));
+        b.addEventListener('click', function(){
+          cursor = date; closePopup(); render();
+        });
+        popup.appendChild(b);
+      })(i);
+    }
+    var t = el('button', null, 'Jump to today');
+    t.style.borderTop = '1px solid var(--border)';
+    t.style.marginTop = '4px';
+    t.style.paddingTop = '9px';
+    t.addEventListener('click', function(){ cursor = today; closePopup(); render(); });
+    popup.appendChild(t);
+    popup.hidden = false;
+    pill.setAttribute('aria-expanded','true');
+  }
+
+  pill.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (popup.hidden) openPopup(); else closePopup();
+  });
+  document.addEventListener('click', function(e){
+    if (!popup.hidden && !popup.contains(e.target)) closePopup();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !popup.hidden) closePopup();
+  });
+
   // ---------- render ----------
   function render(){
     var d = fromIso(cursor);
-    var today = iso(new Date());
-    var titleEl = document.getElementById('dtitle');
-    var subEl = document.getElementById('dsub');
-
-    if (view === 'plan') {
-      titleEl.textContent = 'Plan';
-      subEl.textContent = 'Add, retime and move anything';
-    } else if (view === 'patterns') {
-      titleEl.textContent = 'Patterns';
-      subEl.textContent = 'What the last ' + WINDOW_DAYS + ' days actually show';
-    } else if (view === 'week') {
-      var mon = mondayOf(d);
-      titleEl.textContent = 'Week of ' + mon.getDate() + ' ' + MONTHS[mon.getMonth()];
-      subEl.textContent = '';
-    } else {
-      titleEl.textContent = WD[dow(d)] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
-      var bits = [];
-      if (cursor === today) bits.push('Today');
-      if (MARYAM_DAYS.indexOf(dow(d)) !== -1) bits.push('Maryam here');
-      subEl.textContent = bits.join(' — ');
-    }
-
+    updateChrome();
     var host = document.getElementById('view');
     host.innerHTML = '';
     if (view === 'today') host.appendChild(renderToday(d));
@@ -605,18 +818,15 @@
     else host.appendChild(renderPatterns());
   }
 
-  function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
-
   function renderToday(d){
     var frag = document.createDocumentFragment();
-    var list = el('div','spine-list');
+    var list = el('div','spine');
     var items = itemsForDay(d);
     var date = iso(d);
     var isToday = date === iso(new Date());
     var nowM = new Date().getHours()*60 + new Date().getMinutes();
     var nowPlaced = false;
 
-    // any unplanned entries logged on this day
     var l = logFor(date);
     Object.keys(l.entries).forEach(function(id){
       if (l.entries[id].unplanned) {
@@ -633,7 +843,7 @@
       if (isToday && !nowPlaced && mins(it.start) > nowM) {
         var nl = el('div','nowline');
         nl.appendChild(el('div','t', hhmm(nowM)));
-        nl.appendChild(el('div','bar'));
+        nl.appendChild(el('div','ln'));
         list.appendChild(nl); nowPlaced = true;
       }
       list.appendChild(renderRow(it, date));
@@ -641,7 +851,7 @@
     if (isToday && !nowPlaced) {
       var nl2 = el('div','nowline');
       nl2.appendChild(el('div','t', hhmm(nowM)));
-      nl2.appendChild(el('div','bar'));
+      nl2.appendChild(el('div','ln'));
       list.appendChild(nl2);
     }
     frag.appendChild(list);
@@ -659,26 +869,38 @@
 
     var rail = el('div','rail');
     var dot = el('div','dot' + (tracked ? '' : ' small'));
+    // Colour identity lives in the dot, from the name hash. State is the fill.
+    dot.style.setProperty('--dot', avatarColour(it.label));
     if (e && e.status === 'done') dot.className = 'dot done';
     if (e && e.status === 'skipped') dot.className = 'dot skipped';
     rail.appendChild(dot);
     row.appendChild(rail);
 
-    var body = el('div','body');
-    var lab = el('div','lab', it.label + (it._extra ? ' (extra)' : ''));
-    body.appendChild(lab);
-    if (it.note) body.appendChild(el('div','note', it.note));
+    var bd = el('div','bd');
+    bd.appendChild(el('div','lab', it.label + (it._extra ? ' (extra)' : '')));
+    if (it.note) bd.appendChild(el('div','note', it.note));
     if (e && e.status === 'done' && e.at) {
       var a = el('div','actual');
       var b = el('button', null, 'done at ' + e.at);
       b.addEventListener('click', function(){ editTime(date, it, e.at); });
-      a.appendChild(b); body.appendChild(a);
+      a.appendChild(b); bd.appendChild(a);
     }
-    row.appendChild(body);
+    row.appendChild(bd);
 
     if (tracked) {
+      // ghost action, revealed on row hover
+      var gh = el('button','ghost');
+      gh.setAttribute('aria-label','Set the time for ' + it.label);
+      gh.title = 'Set the time';
+      gh.appendChild(icon(I_CLOCK, 13));
+      gh.addEventListener('click', function(){
+        editTime(date, it, (e && e.at) || null);
+      });
+      row.appendChild(gh);
+
       var ctl = el('div','ctl');
-      var ok = el('button', null, '✓');
+      var ok = el('button');
+      ok.appendChild(icon(I_CHECK, 13));
       ok.setAttribute('aria-label','Mark ' + it.label + ' done');
       ok.setAttribute('aria-pressed', e && e.status==='done' ? 'true':'false');
       ok.addEventListener('click', function(){
@@ -686,7 +908,8 @@
         else setEntry(date, it.id, 'done', date === iso(new Date()) ? nowRounded() : it.start);
         render();
       });
-      var no = el('button','skip','–');
+      var no = el('button','skip');
+      no.appendChild(icon(I_MINUS, 13));
       no.setAttribute('aria-label','Mark ' + it.label + ' missed');
       no.setAttribute('aria-pressed', e && e.status==='skipped' ? 'true':'false');
       no.addEventListener('click', function(){
@@ -740,8 +963,7 @@
     }
     var walkDone = (s.walk_am?s.walk_am.done:0)+(s.walk_pm?s.walk_pm.done:0)+(s.walk_eve?s.walk_eve.done:0);
     var walkPlan = (s.walk_am?s.walk_am.planned:0)+(s.walk_pm?s.walk_pm.planned:0)+(s.walk_eve?s.walk_eve.planned:0);
-    var w = el('span', null, 'Walks ' + walkDone + ' of ' + walkPlan + ' this week');
-    box.appendChild(w);
+    box.appendChild(el('span', null, 'Walks ' + walkDone + ' of ' + walkPlan + ' this week'));
     line('Exercises', 'stretch');
     line('Cleaning', 'clean');
     line('Hike', 'hike');
@@ -822,8 +1044,7 @@
       frag.appendChild(renderEditCard(it));
     });
 
-    var tip = el('p','edtip', 'Times and days here are the plan. What you tick on the day is what actually happened — Patterns compares the two.');
-    frag.appendChild(tip);
+    frag.appendChild(el('p','edtip', 'Times and days here are the plan. What you tick on the day is what actually happened — Patterns compares the two.'));
     return frag;
   }
 
@@ -929,7 +1150,6 @@
       var rate = r.done / logged;
       var med = median(r.times);
 
-      // 1. persistent drift in the time it actually happens
       if (med != null && r.done >= 4) {
         var drift = med - mins(it.start);
         if (Math.abs(drift) >= 25) {
@@ -938,15 +1158,11 @@
             body: 'Planned for ' + it.start + '. When you do it, the middle value is ' + hhmm(med) +
                   ', so the plan is about ' + Math.abs(Math.round(drift)) + ' minutes out.',
             action: 'Move it to ' + hhmm(med),
-            apply: function(){
-              it.start = hhmm(med);
-              note(it.label + ' moved to ' + it.start);
-            }
+            apply: function(){ it.start = hhmm(med); note(it.label + ' moved to ' + it.start); }
           });
         }
       }
 
-      // 2. a weekly-target item landing on the wrong days
       if (it.target && it.target > 1) {
         var scheduled = it.days.slice();
         var best = [];
@@ -968,7 +1184,6 @@
         }
       }
 
-      // 3. an item the plan keeps asking for and not getting
       if (rate < 0.5 && it.days.length > 3) {
         var keep = it.days.slice().sort(function(a,b){ return r.byDay[b]-r.byDay[a]; }).slice(0, Math.max(3, Math.round(it.days.length*rate))).sort();
         out.push({
@@ -998,12 +1213,10 @@
     var anyData = Object.keys(res).some(function(k){ return res[k].done + res[k].skipped > 0; });
 
     if (!anyData) {
-      var e = el('div','empty', 'Nothing logged yet. Tick things off for a week or two and this page will tell you what is actually happening rather than what was planned.');
-      frag.appendChild(e);
+      frag.appendChild(el('div','empty', 'Nothing logged yet. Tick things off for a week or two and this page will tell you what is actually happening rather than what was planned.'));
       return frag;
     }
 
-    // adherence summary
     Object.keys(res).forEach(function(id){
       var r = res[id], logged = r.done + r.skipped;
       if (logged === 0) return;
@@ -1027,7 +1240,9 @@
       sugs.forEach(function(s){
         var f = el('div','finding');
         f.appendChild(el('h3', null, s.title));
-        f.appendChild(el('p', null, s.body));
+        // A long body renders as a block, the way a long chat message does.
+        if (s.body.length >= 180) f.appendChild(el('div','block', s.body));
+        else f.appendChild(el('p', null, s.body));
         var b = el('button','act', s.action);
         b.addEventListener('click', function(){ s.apply(); save(); render(); });
         f.appendChild(b);
@@ -1070,7 +1285,7 @@
   // Inside the home-screen shell the surrounding app supplies its own back
   // control, so the standalone link back to the to-do list is just noise.
   if (window.self !== window.top) {
-    var bl = document.querySelector('.backlink');
+    var bl = document.getElementById('hdrBack');
     if (bl) bl.style.display = 'none';
   }
 
