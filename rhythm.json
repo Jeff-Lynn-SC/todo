@@ -251,6 +251,11 @@
           "status": "done",
           "at": "11:10",
           "unplanned": false
+        },
+        "clean": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
