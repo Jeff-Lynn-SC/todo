@@ -239,9 +239,23 @@
         ],
         "kind": "walk",
         "track": true
+      },
+      {
+        "id": "this_planning",
+        "label": "this planning",
+        "start": "11:10",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
-    "history": []
+    "history": [
+      {
+        "at": "2026-09-09",
+        "text": "Logged this planning for the first time"
+      }
+    ]
   },
   "logs": {
     "2026-09-09": {
@@ -251,6 +265,11 @@
           "status": "done",
           "at": "11:10",
           "unplanned": false
+        },
+        "this_planning": {
+          "status": "done",
+          "at": "11:10",
+          "unplanned": true
         }
       }
     }
