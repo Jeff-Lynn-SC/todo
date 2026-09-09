@@ -195,17 +195,6 @@
   .pip { width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1.2px var(--border); }
   .pip.on { background: var(--online); box-shadow: none; }
 
-  .extras {
-    margin-top: 12px; font-size: 11px; color: var(--muted);
-    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-  }
-  .extras button {
-    font: inherit; font-size: 11px; cursor: pointer; padding: 4px 10px;
-    border: 1px solid var(--border); background: var(--surface-alt);
-    color: var(--muted); border-radius: 999px;
-  }
-  .extras button:hover { color: var(--text); border-color: var(--muted); }
-
   /* ---- week view ---- */
   .weekgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .wcol {
@@ -312,6 +301,7 @@
   }
   .pill:hover { border-color: var(--muted); }
   .pill .pl { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pill .pc { flex: none; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .pill .cv { flex: none; color: var(--muted); display: grid; place-items: center; }
   .popup {
     position: absolute; bottom: calc(100% + 6px); left: 0; min-width: 200px;
@@ -342,13 +332,25 @@
     display: grid; place-items: center; cursor: pointer;
   }
   .btn-pri:hover { filter: brightness(1.08); }
-  .prog {
-    flex: 1; min-width: 0; background: var(--surface-alt); border: 1px solid var(--border);
-    border-radius: 8px; padding: 6px 10px;
+  .btn-pri.idle { opacity: 0.45; }
+  /* the composer: a white card holding a borderless field */
+  .composer {
+    flex: 1; min-width: 0; background: #fff; border-radius: 8px; padding: 6px 9px;
   }
-  .prog .pt { font-size: 11px; color: var(--muted); }
-  .prog .pbar { height: 3px; background: rgba(134,154,171,0.18); border-radius: 2px; margin-top: 5px; overflow: hidden; }
-  .prog .pfill { height: 100%; background: var(--online); border-radius: 2px; transition: width 0.3s ease; }
+  .composer textarea {
+    display: block; width: 100%; border: none; background: transparent; outline: none;
+    resize: none; overflow-y: auto; font: inherit; font-size: 13px; line-height: 1.35;
+    color: #14171C; min-height: 22px; max-height: 140px;
+  }
+  .composer textarea::placeholder { color: #8A9199; }
+
+  .navrow { display: flex; align-items: center; gap: 4px; }
+  .navrow .popwrap { flex: 1; min-width: 0; }
+  .btn-nav {
+    width: 26px; height: 30px; flex: none; background: none; border: none;
+    border-radius: 6px; color: var(--muted); display: grid; place-items: center; cursor: pointer;
+  }
+  .btn-nav:hover { color: var(--text); background: var(--surface-alt); }
 
   /* ---- token modal ---- */
   #pat-modal {
@@ -421,25 +423,31 @@
   </div>
 
   <div class="bar">
-    <div class="popwrap">
-      <button class="pill" id="dayPill" aria-haspopup="true" aria-expanded="false">
-        <span class="pl" id="dayPillLabel">&nbsp;</span>
-        <span class="cv"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-      </button>
-      <div class="popup" id="dayPopup" hidden></div>
-    </div>
-    <div class="bar-row">
-      <button class="btn-sec" id="prev" aria-label="Previous day">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="prog">
-        <div class="pt" id="progText">&nbsp;</div>
-        <div class="pbar"><div class="pfill" id="progFill" style="width:0%"></div></div>
+
+    <div class="navrow">
+      <button class="btn-nav" id="prev" aria-label="Previous day"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="popwrap">
+        <button class="pill" id="dayPill" aria-haspopup="true" aria-expanded="false">
+          <span class="pl" id="dayPillLabel">&nbsp;</span>
+          <span class="pc" id="dayPillCount"></span>
+          <span class="cv"><svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button>
+        <div class="popup" id="dayPopup" hidden></div>
       </div>
-      <button class="btn-pri" id="next" aria-label="Next day">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+      <button class="btn-nav" id="next" aria-label="Next day"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
     </div>
+
+    <div class="bar-row">
+      <div class="popwrap">
+        <button class="btn-sec" id="pickBtn" aria-label="Log a planned activity" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M4 6h0.01"/><path d="M4 12h0.01"/><path d="M4 18h0.01"/></svg></button>
+        <div class="popup" id="pickPopup" hidden></div>
+      </div>
+      <div class="composer">
+        <textarea id="quick" rows="1" placeholder="log something you did&hellip;" aria-label="Log something you did"></textarea>
+      </div>
+      <button class="btn-pri idle" id="send" aria-label="Log it"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>
+
   </div>
 
 </div>
@@ -756,10 +764,7 @@
       WD[dow(d)] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()];
 
     var p = dayProgress(d);
-    document.getElementById('progText').textContent =
-      p.total ? (p.done + ' of ' + p.total + ' done') : 'nothing to tick off';
-    document.getElementById('progFill').style.width =
-      (p.total ? Math.round(100 * p.done / p.total) : 0) + '%';
+    document.getElementById('dayPillCount').textContent = p.total ? (p.done + ' of ' + p.total) : '';
   }
 
   // ---------- day picker popup ----------
@@ -768,6 +773,7 @@
 
   function closePopup(){ popup.hidden = true; pill.setAttribute('aria-expanded','false'); }
   function openPopup(){
+    closePick();
     popup.innerHTML = '';
     var d = fromIso(cursor), mon = mondayOf(d), today = iso(new Date());
     for (var i=0;i<7;i++){
@@ -799,12 +805,103 @@
     e.stopPropagation();
     if (popup.hidden) openPopup(); else closePopup();
   });
+
+  // ---------- activity picker popup ----------
+  var pickBtn = document.getElementById('pickBtn');
+  var pickPopup = document.getElementById('pickPopup');
+
+  function closePick(){ pickPopup.hidden = true; pickBtn.setAttribute('aria-expanded','false'); }
+  function openPick(){
+    closePopup();
+    pickPopup.innerHTML = '';
+    var date = cursor, items = loggable(fromIso(cursor));
+    if (!items.length) {
+      var none = el('div', null, 'Nothing else to log today.');
+      none.style.cssText = 'padding:7px 9px;font-size:12px;color:var(--muted)';
+      pickPopup.appendChild(none);
+    } else {
+      items.forEach(function(it){
+        var b = el('button');
+        var dot = el('span','pdot');
+        dot.style.background = avatarColour(it.label);
+        b.appendChild(dot);
+        b.appendChild(document.createTextNode(it.label));
+        b.addEventListener('click', function(){
+          setEntry(date, it.id, 'done', date === iso(new Date()) ? nowRounded() : it.start);
+          closePick(); render();
+        });
+        pickPopup.appendChild(b);
+      });
+    }
+    pickPopup.hidden = false;
+    pickBtn.setAttribute('aria-expanded','true');
+  }
+  pickBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (pickPopup.hidden) openPick(); else closePick();
+  });
+
   document.addEventListener('click', function(e){
     if (!popup.hidden && !popup.contains(e.target)) closePopup();
+    if (!pickPopup.hidden && !pickPopup.contains(e.target)) closePick();
   });
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && !popup.hidden) closePopup();
+    if (e.key !== 'Escape') return;
+    if (!popup.hidden) closePopup();
+    if (!pickPopup.hidden) closePick();
   });
+
+  // ---------- quick log ----------
+  var quick = document.getElementById('quick');
+  var sendBtn = document.getElementById('send');
+
+  function autoGrow(){
+    quick.style.height = 'auto';
+    quick.style.height = Math.min(quick.scrollHeight, 140) + 'px';
+  }
+  function syncSend(){ sendBtn.classList.toggle('idle', quick.value.trim() === ''); }
+
+  quick.addEventListener('input', function(){ autoGrow(); syncSend(); });
+  // Caught before the field sees it: Enter logs, Shift+Enter breaks the line.
+  quick.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQuick(); }
+  });
+  sendBtn.addEventListener('click', function(){
+    if (quick.value.trim() === '') { quick.focus(); return; }
+    submitQuick();
+  });
+
+  function submitQuick(){
+    var raw = quick.value.replace(/\r/g, '').trim();
+    if (!raw) return;
+    var lines = raw.split('\n');
+    var label = lines[0].trim().slice(0, 80);
+    var rest = lines.slice(1).join(' ').trim();
+    if (!label) return;
+
+    var date = cursor;
+    var at = (date === iso(new Date())) ? nowRounded() : '12:00';
+
+    // Reuse an activity of the same name rather than making a near-duplicate.
+    var found = null;
+    plan.items.forEach(function(it){
+      if (!found && it.label.toLowerCase() === label.toLowerCase()) found = it;
+    });
+    if (!found) {
+      found = { id: slug(label), label: label, start: at, dur: 0, days: [],
+                kind: 'logged', track: true };
+      if (rest) found.note = rest;
+      plan.items.push(found);
+      note('Logged ' + label + ' for the first time');
+    } else if (rest && !found.note) {
+      found.note = rest;
+    }
+
+    setEntry(date, found.id, 'done', at);
+    quick.value = '';
+    autoGrow(); syncSend();
+    render();
+  }
 
   // ---------- render ----------
   function render(){
@@ -856,7 +953,6 @@
     }
     frag.appendChild(list);
     frag.appendChild(renderTally(d));
-    frag.appendChild(renderExtras(d));
     return frag;
   }
 
@@ -970,23 +1066,27 @@
     return box;
   }
 
-  function renderExtras(d){
-    var date = iso(d);
-    var box = el('div','extras');
-    box.appendChild(document.createTextNode('Also did today:'));
-    plan.items.forEach(function(it){
-      if (!it.track) return;
-      if (it.days.indexOf(dow(d)) !== -1) return;
-      if (entry(date, it.id)) return;
-      var b = el('button', null, it.label);
-      b.addEventListener('click', function(){
-        setEntry(date, it.id, 'done', date === iso(new Date()) ? nowRounded() : it.start);
-        render();
-      });
-      box.appendChild(b);
+  function loggedRecently(id, days){
+    var today = new Date();
+    for (var i = 0; i <= days; i++) {
+      var e = entry(iso(addDays(today, -i)), id);
+      if (e && e.status === 'done') return true;
+    }
+    return false;
+  }
+
+  // Things you could log today that are not on today's plan. One-offs caught
+  // by the quick-log carry no days, so they drop off after three unused weeks
+  // rather than piling up in the picker forever.
+  function loggable(d){
+    var date = iso(d), w = dow(d);
+    return plan.items.filter(function(it){
+      if (!it.track) return false;
+      if (it.days.indexOf(w) !== -1) return false;
+      if (entry(date, it.id)) return false;
+      if (it.days.length === 0 && !loggedRecently(it.id, 21)) return false;
+      return true;
     });
-    if (box.childNodes.length === 1) box.textContent = '';
-    return box;
   }
 
   function renderWeek(d){
