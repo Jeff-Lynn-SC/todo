@@ -157,12 +157,14 @@
   /* ghost action, revealed on row hover */
   .ghost {
     flex: none; opacity: 0; transition: opacity 0.12s; background: none;
-    border: none; color: var(--muted); cursor: pointer; padding: 5px 3px 0;
+    border: none; color: var(--muted); cursor: pointer; border-radius: 6px;
+    width: 30px; height: 28px; margin-top: 2px;
     display: grid; place-items: center;
   }
   .row:hover .ghost { opacity: 1; }
-  .ghost:hover { color: var(--text); }
-  @media (hover: none) { .ghost { opacity: 0.5; } }
+  .ghost:hover { color: var(--text); background: var(--surface-alt); }
+  /* Nothing reveals a hover-only control on a touch screen, so leave it out. */
+  @media (hover: none) { .ghost { opacity: 0.9; } }
 
   .ctl { flex: none; display: flex; gap: 5px; padding-top: 2px; }
   .ctl button {
@@ -1097,6 +1099,14 @@
       gh.appendChild(icon(I_MORE, 13));
       gh.addEventListener('click', function(){ rowMenu(date, it, e); });
       row.appendChild(gh);
+
+      // The whole row is a hit target, not just that button: on a phone a
+      // small grey glyph is easy to miss entirely.
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', function(ev){
+        if (ev.target.closest && ev.target.closest('.ctl, .ghost, .actual')) return;
+        rowMenu(date, it, e);
+      });
 
       var ctl = el('div','ctl');
       var ok = el('button');
