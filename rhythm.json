@@ -274,6 +274,11 @@
           "status": "done",
           "at": "09:00",
           "unplanned": true
+        },
+        "clean": {
+          "status": "na",
+          "at": null,
+          "unplanned": false
         }
       }
     }
