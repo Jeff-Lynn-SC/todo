@@ -381,6 +381,42 @@
     color: #fff; border-radius: 6px;
   }
 
+  /* ---- dialog ---- */
+  #dlg {
+    position: fixed; inset: 0; z-index: 60; background: rgba(7,19,31,0.72);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  #dlg[hidden] { display: none; }
+  .dlg-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; max-width: 340px; width: 100%; box-shadow: 0 2px 24px rgba(0,0,0,0.34);
+  }
+  .dlg-title { font-size: 13px; font-weight: 600; }
+  .dlg-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .dlg-sub:empty { display: none; }
+  .dlg-input {
+    width: 100%; font: inherit; font-size: 13px; margin-top: 12px; padding: 7px 9px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px;
+  }
+  .dlg-input[hidden] { display: none; }
+  .dlg-actions { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+  .dlg-btn {
+    display: block; width: 100%; text-align: left; font: inherit; font-size: 12px;
+    padding: 9px 10px; border-radius: 6px; background: transparent;
+    border: 1px solid var(--border); color: var(--text); cursor: pointer;
+  }
+  .dlg-btn:hover { background: var(--surface-alt); border-color: var(--muted); }
+  .dlg-btn.primary { background: var(--send-grad); border: none; color: #fff; text-align: center; }
+  .dlg-btn.danger { color: var(--danger); }
+  .dlg-btn.danger:hover { border-color: var(--danger); background: transparent; }
+  .dlg-btn.quiet { border-color: transparent; color: var(--muted); text-align: center; }
+  .dlg-btn.quiet:hover { color: var(--text); background: transparent; }
+
+  /* an item taken off today: still there, plainly not being asked for */
+  .row.na .lab { color: var(--muted); text-decoration: line-through; }
+  .dot.na { box-shadow: inset 0 0 0 1.5px var(--border); opacity: 0.6; }
+  .bead.na { opacity: 0.3; }
+
   button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
     outline: 2px solid var(--primary); outline-offset: 2px;
   }
@@ -401,6 +437,15 @@
     <input id="pat-input" type="password" placeholder="ghp_&hellip;" autocomplete="off" spellcheck="false" />
     <div id="pat-hint">The same token the to-do list uses. Create one with <b>repo</b> scope at github.com/settings/tokens &mdash; set expiry to <b>No expiration</b>.</div>
     <button id="pat-save">Save token</button>
+  </div>
+</div>
+
+<div id="dlg" hidden>
+  <div class="dlg-box" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="dlg-title" id="dlgTitle"></div>
+    <div class="dlg-sub" id="dlgSub"></div>
+    <input class="dlg-input" id="dlgInput" hidden autocomplete="off" spellcheck="false" />
+    <div class="dlg-actions" id="dlgActions"></div>
   </div>
 </div>
 
@@ -523,7 +568,7 @@
   }
   var I_CHECK = 'M20 6L9 17l-5-5';
   var I_MINUS = 'M5 12h14';
-  var I_CLOCK = 'M12 3a9 9 0 1 0 0.001 18A9 9 0 0 0 12 3z|M12 7.5V12l3 2';
+  var I_MORE  = 'M5 12h0.01|M12 12h0.01|M19 12h0.01';
 
   // ---------- date helpers ----------
   function pad(n){ return (n<10?'0':'')+n; }
@@ -714,6 +759,58 @@
     if (e.key === 'Enter') document.getElementById('pat-save').click();
   });
 
+  // ---------- dialogs ----------
+  // In-app rather than window.prompt/confirm: native dialogs are unreliable
+  // inside a home-screen web app, and these match the rest of the window.
+  var dlg = document.getElementById('dlg');
+  var dlgTitle = document.getElementById('dlgTitle');
+  var dlgSub = document.getElementById('dlgSub');
+  var dlgInput = document.getElementById('dlgInput');
+  var dlgActions = document.getElementById('dlgActions');
+
+  function closeDlg(){ dlg.hidden = true; dlgInput.hidden = true; dlgActions.innerHTML = ''; }
+
+  function showDlg(opts){
+    dlgTitle.textContent = opts.title || '';
+    dlgSub.textContent = opts.sub || '';
+    dlgActions.innerHTML = '';
+    if (opts.input) {
+      dlgInput.hidden = false;
+      dlgInput.value = opts.input.value || '';
+    } else {
+      dlgInput.hidden = true;
+    }
+    (opts.actions || []).forEach(function(a){
+      var b = el('button', 'dlg-btn' + (a.cls ? ' ' + a.cls : ''), a.label);
+      b.addEventListener('click', function(){
+        var v = dlgInput.value;
+        closeDlg();
+        if (a.onClick) a.onClick(v);
+      });
+      dlgActions.appendChild(b);
+    });
+    var c = el('button','dlg-btn quiet','Cancel');
+    c.addEventListener('click', closeDlg);
+    dlgActions.appendChild(c);
+    dlg.hidden = false;
+    if (opts.input) setTimeout(function(){ dlgInput.focus(); dlgInput.select(); }, 0);
+  }
+
+  function askText(title, sub, value, okLabel, onOk){
+    showDlg({ title: title, sub: sub, input: { value: value },
+      actions: [{ label: okLabel, cls: 'primary', onClick: onOk }] });
+  }
+
+  dlg.addEventListener('click', function(e){ if (e.target === dlg) closeDlg(); });
+  dlgInput.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter') return;
+    var p = dlgActions.querySelector('.dlg-btn.primary');
+    if (p) p.click();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && !dlg.hidden) closeDlg();
+  });
+
   // ---------- model helpers ----------
   function itemById(id){ for (var i=0;i<plan.items.length;i++) if (plan.items[i].id===id) return plan.items[i]; return null; }
   function itemsForDay(d){
@@ -746,8 +843,9 @@
     var date = iso(d), done = 0, total = 0;
     itemsForDay(d).forEach(function(it){
       if (!it.track) return;
-      total++;
       var e = entry(date, it.id);
+      if (e && e.status === 'na') return;
+      total++;
       if (e && e.status === 'done') done++;
     });
     return { done: done, total: total };
@@ -966,7 +1064,7 @@
   function renderRow(it, date){
     var e = entry(date, it.id);
     var tracked = !!it.track;
-    var row = el('div','row' + (tracked ? '' : ' ctx'));
+    var row = el('div','row' + (tracked ? '' : ' ctx') + (e && e.status === 'na' ? ' na' : ''));
 
     row.appendChild(el('div','t', it.start));
 
@@ -976,6 +1074,7 @@
     dot.style.setProperty('--dot', avatarColour(it.label));
     if (e && e.status === 'done') dot.className = 'dot done';
     if (e && e.status === 'skipped') dot.className = 'dot skipped';
+    if (e && e.status === 'na') dot.className = 'dot na';
     rail.appendChild(dot);
     row.appendChild(rail);
 
@@ -991,14 +1090,12 @@
     row.appendChild(bd);
 
     if (tracked) {
-      // ghost action, revealed on row hover
+      // every action for this row lives behind one button
       var gh = el('button','ghost');
-      gh.setAttribute('aria-label','Set the time for ' + it.label);
-      gh.title = 'Set the time';
-      gh.appendChild(icon(I_CLOCK, 13));
-      gh.addEventListener('click', function(){
-        editTime(date, it, (e && e.at) || null);
-      });
+      gh.setAttribute('aria-label','More for ' + it.label);
+      gh.title = 'More';
+      gh.appendChild(icon(I_MORE, 13));
+      gh.addEventListener('click', function(){ rowMenu(date, it, e); });
       row.appendChild(gh);
 
       var ctl = el('div','ctl');
@@ -1027,12 +1124,81 @@
   }
 
   function editTime(date, it, current){
-    var v = window.prompt('What time did you actually do it? (24h, e.g. 09:15)', current || it.start);
-    if (!v) return;
-    v = v.trim();
-    if (!/^\d{1,2}:\d{2}$/.test(v)) return;
-    setEntry(date, it.id, 'done', hhmm(mins(v)));
-    render();
+    askText('When did you do it?', 'Twenty-four hour, like 09:15.',
+            current || it.start, 'Save', function(v){
+      v = (v || '').trim();
+      if (!/^\d{1,2}:\d{2}$/.test(v)) return;
+      setEntry(date, it.id, 'done', hhmm(mins(v)));
+      render();
+    });
+  }
+
+  function renameItem(it){
+    askText('Rename', 'What should this be called?', it.label, 'Rename', function(v){
+      v = (v || '').trim();
+      if (!v || v === it.label) return;
+      note('Renamed ' + it.label + ' to ' + v);
+      it.label = v;
+      save(); render();
+    });
+  }
+
+  function entryCount(id){
+    var n = 0;
+    Object.keys(logs).forEach(function(k){
+      if (logs[k].entries && logs[k].entries[id]) n++;
+    });
+    return n;
+  }
+
+  // Deleting takes the log entries with it. Leaving them behind would orphan
+  // them against an id nothing resolves, which loses the record silently.
+  function deleteItem(it){
+    plan.items = plan.items.filter(function(x){ return x.id !== it.id; });
+    Object.keys(logs).forEach(function(k){
+      if (logs[k].entries && logs[k].entries[it.id]) delete logs[k].entries[it.id];
+    });
+    note('Deleted ' + it.label);
+    save(); render();
+  }
+
+  function confirmDelete(it){
+    var n = entryCount(it.id);
+    showDlg({
+      title: 'Delete ' + it.label + '?',
+      sub: (n === 0 ? 'Nothing has been logged against it.'
+         : n === 1 ? 'One logged day goes with it.'
+                   : n + ' logged days go with it.') + ' This cannot be undone.',
+      actions: [{ label: 'Delete', cls: 'danger', onClick: function(){ deleteItem(it); } }]
+    });
+  }
+
+  // Everything you can do to one row, in one place.
+  function rowMenu(date, it, e){
+    // renderToday hands us a clone for unplanned rows, so anything that edits
+    // the activity has to land on the real plan item rather than the copy.
+    var real = itemById(it.id) || it;
+    var actions = [], st = e ? e.status : null, isExtra = real.kind === 'logged';
+
+    if (st === 'done') {
+      actions.push({ label: 'Change the time\u2026', onClick: function(){ editTime(date, it, e.at); } });
+      actions.push({ label: 'Clear this entry', onClick: function(){ setEntry(date, it.id, null); render(); } });
+    } else {
+      actions.push({ label: 'Done, at another time\u2026', onClick: function(){ editTime(date, it, null); } });
+    }
+
+    if (!isExtra) {
+      if (st === 'na') {
+        actions.push({ label: 'Put it back on today', onClick: function(){ setEntry(date, it.id, null); render(); } });
+      } else {
+        actions.push({ label: 'Not needed today', onClick: function(){ setEntry(date, it.id, 'na'); render(); } });
+      }
+    } else {
+      actions.push({ label: 'Rename\u2026', onClick: function(){ renameItem(real); } });
+      actions.push({ label: 'Delete it and its history', cls: 'danger', onClick: function(){ confirmDelete(real); } });
+    }
+
+    showDlg({ title: real.label, sub: real.note || '', actions: actions });
   }
 
   function weekStats(anyDate){
@@ -1043,8 +1209,8 @@
       var d = addDays(mon,i), date = iso(d), w = dow(d);
       plan.items.forEach(function(it){
         if (!it.track) return;
-        if (it.days.indexOf(w) !== -1) out[it.id].planned++;
         var e = entry(date, it.id);
+        if (it.days.indexOf(w) !== -1 && !(e && e.status === 'na')) out[it.id].planned++;
         if (e && e.status === 'done') out[it.id].done++;
       });
     }
@@ -1119,7 +1285,10 @@
         itemsForDay(day).forEach(function(it){
           if (!it.track) return;
           var e = entry(date, it.id);
-          var b = el('div','bead' + (e && e.status==='done' ? ' done' : (e && e.status==='skipped' ? ' skipped' : '')));
+          var cls = e && e.status==='done' ? ' done'
+                  : e && e.status==='skipped' ? ' skipped'
+                  : e && e.status==='na' ? ' na' : '';
+          var b = el('div','bead' + cls);
           b.title = it.label;
           beads.appendChild(b);
         });
@@ -1193,12 +1362,7 @@
     top.appendChild(lab);
 
     var del = el('button','del','Remove');
-    del.addEventListener('click', function(){
-      if (!window.confirm('Remove "' + it.label + '" from the plan?')) return;
-      plan.items = plan.items.filter(function(x){ return x.id !== it.id; });
-      note('Removed ' + it.label);
-      save(); render();
-    });
+    del.addEventListener('click', function(){ confirmDelete(it); });
     top.appendChild(del);
     card.appendChild(top);
 
@@ -1414,10 +1578,12 @@
 
   // Inside the home-screen shell this header is the only one on screen, so its
   // back arrow has to return to the launcher rather than to the to-do list.
+  var framed = false;
   if (window.self !== window.top) {
     var bl = document.getElementById('hdrBack');
     if (bl) {
       bl.setAttribute('href', '#');
+      framed = true;
       bl.title = 'Back to the home screen';
       bl.setAttribute('aria-label', 'Back to the home screen');
       bl.addEventListener('click', function(ev){
@@ -1430,6 +1596,16 @@
         } catch (err) { /* framed by something else; fall through */ }
         try { window.top.location.href = './'; } catch (err) { window.location.href = './'; }
       });
+    }
+  }
+
+  // Opened on its own, the back arrow goes to the suite's home screen.
+  if (!framed) {
+    var sbl = document.getElementById('hdrBack');
+    if (sbl) {
+      sbl.setAttribute('href', 'app.html');
+      sbl.title = 'Home';
+      sbl.setAttribute('aria-label', 'Back to the home screen');
     }
   }
 
