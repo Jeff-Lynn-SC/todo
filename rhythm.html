@@ -1282,11 +1282,25 @@
     cursor = iso(addDays(fromIso(cursor), view==='week' ? 7 : 1)); render();
   });
 
-  // Inside the home-screen shell the surrounding app supplies its own back
-  // control, so the standalone link back to the to-do list is just noise.
+  // Inside the home-screen shell this header is the only one on screen, so its
+  // back arrow has to return to the launcher rather than to the to-do list.
   if (window.self !== window.top) {
     var bl = document.getElementById('hdrBack');
-    if (bl) bl.style.display = 'none';
+    if (bl) {
+      bl.setAttribute('href', '#');
+      bl.title = 'Back to the home screen';
+      bl.setAttribute('aria-label', 'Back to the home screen');
+      bl.addEventListener('click', function(ev){
+        ev.preventDefault();
+        try {
+          if (window.parent && typeof window.parent.goHome === 'function') {
+            window.parent.goHome();
+            return;
+          }
+        } catch (err) { /* framed by something else; fall through */ }
+        try { window.top.location.href = './'; } catch (err) { window.location.href = './'; }
+      });
+    }
   }
 
   render();

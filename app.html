@@ -70,6 +70,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
   background: var(--bg);
 }
 .screen.active { display: block; }
+/* a screen that draws its own header sits flush with the top */
+.screen.selfhdr { top: var(--safe-t); }
 
 /* ── back button in header ── */
 .hdr-back {
@@ -933,12 +935,17 @@ function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); retu
 // ─────────────────────────────────────────────
 const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", rhythm:'Rhythm', comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough', deutsch:'Deutsch', bp:'Blood Pressure' };
 
+// Screens that draw their own header, and their own way back to the launcher.
+const SELF_HEADED = { rhythm: true };
+
 function openApp(id) {
   currentTab = id;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'selfhdr'));
+  const scr = document.getElementById('screen-' + id);
+  scr.classList.add('active');
   const hdr = document.getElementById('appHdr');
-  hdr.style.display = '';
+  if (SELF_HEADED[id]) { hdr.style.display = 'none'; scr.classList.add('selfhdr'); }
+  else { hdr.style.display = ''; }
   document.getElementById('hdrTitle').textContent = APP_TITLES[id] || id;
   updateHdr();
   if (id === 'cal') renderCal();
@@ -946,7 +953,7 @@ function openApp(id) {
 
 function goHome() {
   currentTab = 'launcher';
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'selfhdr'));
   document.getElementById('screen-launcher').classList.add('active');
   document.getElementById('appHdr').style.display = 'none';
   tickClock();
