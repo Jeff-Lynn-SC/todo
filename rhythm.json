@@ -279,6 +279,11 @@
           "status": "na",
           "at": null,
           "unplanned": false
+        },
+        "walk_pm": {
+          "status": "done",
+          "at": "17:15",
+          "unplanned": false
         }
       }
     }
