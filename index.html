@@ -278,6 +278,19 @@
     transition: width 0.3s ease;
   }
 
+  .rhythm-link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-size: 0.7rem;
+    color: #1a1a1a;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 2px;
+  }
+  .rhythm-link:hover { color: #888; border-bottom-color: #888; }
+
 </style>
 </head>
 <body>
@@ -307,6 +320,8 @@
     <span id="progressText">0 / 0 done</span>
     <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
   </div>
+
+  <a class="rhythm-link" href="rhythm.html">Rhythm &rarr;</a>
 </div>
 
 <script>
