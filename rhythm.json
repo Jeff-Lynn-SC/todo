@@ -1,0 +1,247 @@
+{
+  "plan": {
+    "version": 2,
+    "items": [
+      {
+        "id": "breakfast",
+        "label": "Breakfast",
+        "start": "07:30",
+        "dur": 30,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "kind": "meal"
+      },
+      {
+        "id": "prep_eng",
+        "label": "English prep",
+        "start": "08:00",
+        "dur": 30,
+        "days": [
+          0
+        ],
+        "kind": "fixed"
+      },
+      {
+        "id": "walk_am",
+        "label": "Walk",
+        "start": "08:00",
+        "dur": 30,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "kind": "walk",
+        "track": true
+      },
+      {
+        "id": "teaching",
+        "label": "Teaching English",
+        "start": "08:30",
+        "dur": 255,
+        "days": [
+          0
+        ],
+        "kind": "fixed",
+        "note": "Leave 08:30, class 10:00 to 11:30, home about 12:45"
+      },
+      {
+        "id": "stretch",
+        "label": "Exercises",
+        "start": "08:30",
+        "dur": 20,
+        "days": [
+          1,
+          3,
+          4
+        ],
+        "kind": "stretch",
+        "track": true,
+        "target": 3
+      },
+      {
+        "id": "vhs_post",
+        "label": "English follow-up",
+        "start": "09:00",
+        "dur": 60,
+        "days": [
+          1
+        ],
+        "kind": "fixed"
+      },
+      {
+        "id": "clean",
+        "label": "Clean the flat",
+        "start": "09:00",
+        "dur": 60,
+        "days": [
+          2
+        ],
+        "kind": "chore",
+        "track": true,
+        "target": 1
+      },
+      {
+        "id": "morning_a",
+        "label": "Housework, admin, Hausmeister",
+        "start": "10:00",
+        "dur": 180,
+        "days": [
+          1,
+          2
+        ],
+        "kind": "work"
+      },
+      {
+        "id": "morning_b",
+        "label": "Housework, admin, Hausmeister",
+        "start": "09:00",
+        "dur": 240,
+        "days": [
+          3,
+          4
+        ],
+        "kind": "work"
+      },
+      {
+        "id": "hike",
+        "label": "Hike",
+        "start": "08:30",
+        "dur": 480,
+        "days": [
+          6
+        ],
+        "kind": "hike",
+        "track": true,
+        "target": 1
+      },
+      {
+        "id": "lunch",
+        "label": "Lunch",
+        "start": "13:00",
+        "dur": 45,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "kind": "meal"
+      },
+      {
+        "id": "walk_pm",
+        "label": "Walk",
+        "start": "13:45",
+        "dur": 30,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "kind": "walk",
+        "track": true
+      },
+      {
+        "id": "maryam_in",
+        "label": "Maryam arrives",
+        "start": "14:00",
+        "dur": 0,
+        "days": [
+          2
+        ],
+        "kind": "ctx"
+      },
+      {
+        "id": "work_pm",
+        "label": "Coincidental work",
+        "start": "14:15",
+        "dur": 240,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "work"
+      },
+      {
+        "id": "maryam_out",
+        "label": "Maryam back to her mum’s",
+        "start": "16:00",
+        "dur": 0,
+        "days": [
+          5
+        ],
+        "kind": "ctx"
+      },
+      {
+        "id": "cook",
+        "label": "Cook dinner",
+        "start": "18:15",
+        "dur": 45,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "kind": "cook",
+        "track": true
+      },
+      {
+        "id": "dinner",
+        "label": "Dinner",
+        "start": "19:00",
+        "dur": 60,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "kind": "meal"
+      },
+      {
+        "id": "walk_eve",
+        "label": "Walk",
+        "start": "20:00",
+        "dur": 30,
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "kind": "walk",
+        "track": true
+      }
+    ],
+    "history": []
+  },
+  "logs": {}
+}
