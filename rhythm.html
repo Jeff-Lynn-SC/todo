@@ -187,6 +187,26 @@
   }
   .nowline .ln { flex: 1; height: 1px; background: var(--amber); opacity: 0.55; }
 
+  /* ---- a day's notes ---- */
+  .notes { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .notes-h { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .block-in {
+    border-radius: 6px; padding: 8px 8px 6px;
+    background: var(--surface-alt); border: 1px solid var(--border);
+  }
+  .block-in:focus-within { border-color: var(--muted); }
+  .note-in {
+    display: block; width: 100%; border: none; background: transparent; outline: none;
+    resize: none; overflow-y: auto; font: inherit; font-size: 12px; line-height: 1.45;
+    color: var(--text); min-height: 18px; max-height: 300px;
+  }
+  .note-in::placeholder { color: var(--muted); opacity: 0.7; }
+  /* a day carrying a note is marked in the week grid */
+  .wnote {
+    margin: 6px auto 0; width: 10px; height: 7px; opacity: 0.55;
+    border-top: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
+  }
+
   /* ---- weekly tally ---- */
   .tally {
     margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
@@ -823,6 +843,19 @@
   function logFor(date){ return logs[date] || { date: date, entries: {} }; }
   function entry(date, id){ var l = logs[date]; return l && l.entries ? l.entries[id] : null; }
 
+  function dayNote(date){ var l = logs[date]; return (l && l.note) || ''; }
+
+  function setDayNote(date, text){
+    var l = logs[date] || (logs[date] = { date: date, entries: {} });
+    if ((text || '').trim() === '') {
+      delete l.note;
+      if (!Object.keys(l.entries).length) delete logs[date];
+    } else {
+      l.note = text;
+    }
+    save();
+  }
+
   function setEntry(date, id, status, at){
     var l = logs[date] || (logs[date] = { date: date, entries: {} });
     if (status === null) { delete l.entries[id]; }
@@ -1059,8 +1092,36 @@
       list.appendChild(nl2);
     }
     frag.appendChild(list);
+    frag.appendChild(renderNotes(d));
     frag.appendChild(renderTally(d));
     return frag;
+  }
+
+  function renderNotes(d){
+    var date = iso(d);
+    var box = el('div','notes');
+    box.appendChild(el('div','notes-h','Notes'));
+
+    var wrap = el('div','block-in');
+    var ta = document.createElement('textarea');
+    ta.className = 'note-in';
+    ta.rows = 1;
+    ta.placeholder = 'anything worth remembering about today\u2026';
+    ta.value = dayNote(date);
+    ta.setAttribute('aria-label', 'Notes for this day');
+
+    function grow(){
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 300) + 'px';
+    }
+    // Writing straight to the model on each keystroke is safe: save() is
+    // debounced, and nothing re-renders this field while you are typing.
+    ta.addEventListener('input', function(){ grow(); setDayNote(date, ta.value); });
+
+    wrap.appendChild(ta);
+    box.appendChild(wrap);
+    setTimeout(grow, 0);
+    return box;
   }
 
   function renderRow(it, date){
@@ -1303,6 +1364,11 @@
           beads.appendChild(b);
         });
         col.appendChild(beads);
+        if (dayNote(date)) {
+          var mark = el('div','wnote');
+          mark.title = 'Has notes';
+          col.appendChild(mark);
+        }
         col.addEventListener('click', function(){ cursor = date; view = 'today'; syncTabs(); render(); });
         grid.appendChild(col);
       })(i);
