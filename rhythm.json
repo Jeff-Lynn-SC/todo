@@ -62,7 +62,7 @@
         "days": [
           1,
           3,
-          4
+          5
         ],
         "kind": "stretch",
         "track": true,
@@ -269,6 +269,10 @@
       }
     ],
     "history": [
+      {
+        "at": "2026-09-10",
+        "text": "Exercises moved to Tue, Thu, Sat to space them out"
+      },
       {
         "at": "2026-09-10",
         "text": "Logged Got up late at 7:25 and took longer than breakfast.  longer morning walk.  made  for the first time"
