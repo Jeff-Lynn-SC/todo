@@ -312,6 +312,11 @@
           "status": "done",
           "at": "10:30",
           "unplanned": false
+        },
+        "stretch": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
