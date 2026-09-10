@@ -45,7 +45,7 @@
   .card {
     max-width: 560px;
     margin: 0 auto;
-    min-height: calc(100dvh - 20px);
+    height: calc(100dvh - 20px);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -198,7 +198,7 @@
   .note-in {
     display: block; width: 100%; border: none; background: transparent; outline: none;
     resize: none; overflow-y: auto; font: inherit; font-size: 12px; line-height: 1.45;
-    color: var(--text); min-height: 18px; max-height: 300px;
+    color: var(--text); min-height: 18px; max-height: 160px;
   }
   .note-in::placeholder { color: var(--muted); opacity: 0.7; }
   /* a day carrying a note is marked in the week grid */
@@ -996,8 +996,8 @@
   var sendBtn = document.getElementById('send');
 
   function autoGrow(){
-    quick.style.height = 'auto';
-    quick.style.height = Math.min(quick.scrollHeight, 140) + 'px';
+    quick.style.height = '0px';
+    quick.style.height = Math.min(Math.max(quick.scrollHeight, 22), 140) + 'px';
   }
   function syncSend(){ sendBtn.classList.toggle('idle', quick.value.trim() === ''); }
 
@@ -1111,8 +1111,8 @@
     ta.setAttribute('aria-label', 'Notes for this day');
 
     function grow(){
-      ta.style.height = 'auto';
-      ta.style.height = Math.min(ta.scrollHeight, 300) + 'px';
+      ta.style.height = '0px';
+      ta.style.height = Math.min(Math.max(ta.scrollHeight, 18), 160) + 'px';
     }
     // Writing straight to the model on each keystroke is safe: save() is
     // debounced, and nothing re-renders this field while you are typing.
