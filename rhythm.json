@@ -299,8 +299,8 @@
           "unplanned": false
         },
         "stretch": {
-          "status": "skipped",
-          "at": null,
+          "status": "done",
+          "at": "14:15",
           "unplanned": false
         },
         "walk_pm": {
