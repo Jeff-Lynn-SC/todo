@@ -1011,9 +1011,46 @@
     submitQuick();
   });
 
+  function clearQuick(){ quick.value = ''; autoGrow(); syncSend(); }
+
+  function appendDayNote(date, text){
+    var cur = dayNote(date);
+    setDayNote(date, cur ? (cur + '\n' + text) : text);
+  }
+
+  // A short name is an activity you might repeat. A sentence is a note about
+  // today. Guessing wrong either loses the words or leaves a truncated
+  // half-sentence sitting in the plan, so ask rather than assume.
+  function looksLikeProse(text){
+    if (text.indexOf('\n') !== -1) return true;
+    if (text.length > 45) return true;
+    return /[.!?]\s/.test(text);
+  }
+
   function submitQuick(){
     var raw = quick.value.replace(/\r/g, '').trim();
     if (!raw) return;
+    if (looksLikeProse(raw)) { askWhere(raw); return; }
+    logAsActivity(raw);
+  }
+
+  function askWhere(raw){
+    showDlg({
+      title: 'Note it, or log it?',
+      sub: raw.length > 90 ? raw.slice(0, 90) + '\u2026' : raw,
+      actions: [
+        { label: 'Add to today\u2019s notes', cls: 'primary', onClick: function(){
+            appendDayNote(cursor, raw);
+            clearQuick();
+            if (view !== 'today') { view = 'today'; syncTabs(); }
+            render();
+          } },
+        { label: 'Log it as an activity', onClick: function(){ logAsActivity(raw); } }
+      ]
+    });
+  }
+
+  function logAsActivity(raw){
     var lines = raw.split('\n');
     var label = lines[0].trim().slice(0, 80);
     var rest = lines.slice(1).join(' ').trim();
@@ -1038,8 +1075,7 @@
     }
 
     setEntry(date, found.id, 'done', at);
-    quick.value = '';
-    autoGrow(); syncSend();
+    clearQuick();
     render();
   }
 
