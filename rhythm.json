@@ -307,6 +307,16 @@
           "status": "done",
           "at": "14:15",
           "unplanned": false
+        },
+        "cook": {
+          "status": "done",
+          "at": "22:40",
+          "unplanned": false
+        },
+        "walk_eve": {
+          "status": "done",
+          "at": "22:40",
+          "unplanned": false
         }
       },
       "note": "Got up late at 7:25 and took longer than breakfast.  longer morning walk.  made\nworked on repose and rhythm for a bit.  most of the morning on finances"
