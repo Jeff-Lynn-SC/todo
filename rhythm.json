@@ -257,9 +257,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "got_up_late_at_7_25_and_",
+        "label": "Got up late at 7:25 and took longer than breakfast.  longer morning walk.  made ",
+        "start": "10:35",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-10",
+        "text": "Logged Got up late at 7:25 and took longer than breakfast.  longer morning walk.  made  for the first time"
+      },
       {
         "at": "2026-09-09",
         "text": "Logged Coincidental - prepping the beta environment for emma for the first time"
@@ -317,6 +330,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "got_up_late_at_7_25_and_": {
+          "status": "done",
+          "at": "10:35",
+          "unplanned": true
         }
       }
     }
