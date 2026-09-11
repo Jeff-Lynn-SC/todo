@@ -320,6 +320,16 @@
         }
       },
       "note": "Got up late at 7:25 and took longer than breakfast.  longer morning walk.  made\nworked on repose and rhythm for a bit.  most of the morning on finances"
+    },
+    "2026-09-11": {
+      "date": "2026-09-11",
+      "entries": {
+        "walk_am": {
+          "status": "done",
+          "at": "09:40",
+          "unplanned": false
+        }
+      }
     }
   }
 }
