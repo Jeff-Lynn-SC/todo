@@ -239,9 +239,22 @@
         ],
         "kind": "walk",
         "track": true
+      },
+      {
+        "id": "made_pizza_a_bit_of_repo",
+        "label": "Made pizza. A bit of repose",
+        "start": "09:40",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-11",
+        "text": "Logged Made pizza. A bit of repose for the first time"
+      },
       {
         "at": "2026-09-10",
         "text": "Moved three logged notes into the day notes and removed the activities"
@@ -328,6 +341,11 @@
           "status": "done",
           "at": "09:40",
           "unplanned": false
+        },
+        "made_pizza_a_bit_of_repo": {
+          "status": "done",
+          "at": "09:40",
+          "unplanned": true
         }
       }
     }
