@@ -364,6 +364,21 @@
           "status": "done",
           "at": "09:45",
           "unplanned": true
+        },
+        "walk_pm": {
+          "status": "done",
+          "at": "23:15",
+          "unplanned": false
+        },
+        "cook": {
+          "status": "done",
+          "at": "23:15",
+          "unplanned": false
+        },
+        "walk_eve": {
+          "status": "done",
+          "at": "23:15",
+          "unplanned": false
         }
       }
     }
