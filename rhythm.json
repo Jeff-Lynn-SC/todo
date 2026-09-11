@@ -248,9 +248,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "staring_coincidental_wor",
+        "label": "Staring coincidental work",
+        "start": "09:45",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-11",
+        "text": "Logged Staring coincidental work for the first time"
+      },
       {
         "at": "2026-09-11",
         "text": "Logged Made pizza. A bit of repose for the first time"
@@ -345,6 +358,11 @@
         "made_pizza_a_bit_of_repo": {
           "status": "done",
           "at": "09:40",
+          "unplanned": true
+        },
+        "staring_coincidental_wor": {
+          "status": "done",
+          "at": "09:45",
           "unplanned": true
         }
       }
