@@ -394,6 +394,11 @@
           "status": "done",
           "at": "11:00",
           "unplanned": false
+        },
+        "walk_pm": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       },
       "note": "sorting gkids books, repose, heggenstaller admin, chenge hall bulb"
