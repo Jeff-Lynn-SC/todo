@@ -381,6 +381,16 @@
           "unplanned": false
         }
       }
+    },
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "entries": {
+        "walk_am": {
+          "status": "done",
+          "at": "12:00",
+          "unplanned": false
+        }
+      }
     }
   }
 }
