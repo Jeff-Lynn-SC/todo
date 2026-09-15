@@ -355,6 +355,12 @@
     render();
   });
 
+  // Inside the Home shell the shell supplies the back control, so hide ours.
+  if (window.self !== window.top) {
+    const bl = document.querySelector('.rhythm-link');
+    if (bl) bl.style.display = 'none';
+  }
+
   render();
 </script>
 </body>
