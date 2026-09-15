@@ -355,10 +355,18 @@
     render();
   });
 
-  // Inside the Home shell the shell supplies the back control, so hide ours.
-  if (window.self !== window.top) {
-    const bl = document.querySelector('.rhythm-link');
-    if (bl) bl.style.display = 'none';
+  // Inside the Home shell, "← Home" returns to the shell's menu instead of
+  // loading the To Do page inside the frame.
+  const backLink = document.querySelector('.rhythm-link');
+  if (backLink && window.self !== window.top) {
+    backLink.addEventListener('click', e => {
+      try {
+        if (typeof window.parent.goHome === 'function') {
+          e.preventDefault();
+          window.parent.goHome();
+        }
+      } catch (err) {}
+    });
   }
 
   render();
