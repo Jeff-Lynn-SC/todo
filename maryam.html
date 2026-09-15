@@ -338,7 +338,7 @@
       if (res.ok) {
         const meta = await res.json();
         fileSha = meta.sha;
-        const data = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+        const data = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\n/g, '')))));
         tasks = Array.isArray(data) && data.length ? data : defaults;
       } else {
         tasks = defaults;
