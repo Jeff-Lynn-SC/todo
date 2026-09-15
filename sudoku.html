@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudoku</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231a1a1a'/><rect x='6' y='6' width='20' height='20' fill='none' stroke='%23fffef9' stroke-width='2'/><line x1='12.67' y1='6' x2='12.67' y2='26' stroke='%23888' stroke-width='1.2'/><line x1='19.33' y1='6' x2='19.33' y2='26' stroke='%23888' stroke-width='1.2'/><line x1='6' y1='12.67' x2='26' y2='12.67' stroke='%23888' stroke-width='1.2'/><line x1='6' y1='19.33' x2='26' y2='19.33' stroke='%23888' stroke-width='1.2'/><rect x='14' y='14' width='4' height='4' fill='%23fffef9'/></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5f0e8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    padding: 2rem;
+  }
+
+  .card {
+    background: #fffef9;
+    border: 2px solid #1a1a1a;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 6px 6px 0 #1a1a1a;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    color: #1a1a1a;
+  }
+
+  .date {
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 2rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── section headers ── */
+  .header-row {
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #d8d4cc;
+  }
+  .header-row.first-section { margin-top: 0; padding-top: 0; border-top: none; }
+
+  .header {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #999;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0;
+  }
+
+  /* ── technique rows ── */
+  .row { border-bottom: 1px solid #e8e4dc; }
+  .row.last-in-section { border-bottom: none; }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (hover: hover) { .item:hover { opacity: 0.7; } }
+  .item:focus-visible .checkbox { box-shadow: 0 0 0 2px #fffef9, 0 0 0 4px #888; }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #1a1a1a;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    margin-top: 1px;
+  }
+  .item.done .checkbox { background: #1a1a1a; }
+  .item.done .checkbox::after {
+    content: '✓';
+    color: #fffef9;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .text { flex: 1; min-width: 0; }
+
+  .label {
+    font-size: 0.9rem;
+    letter-spacing: 0.03em;
+    color: #1a1a1a;
+    line-height: 1.35;
+  }
+  .num { color: #bbb; margin-right: 0.35rem; }
+  .item.done .label { text-decoration: line-through; color: #aaa; }
+
+  .desc {
+    font-size: 0.72rem;
+    color: #888;
+    line-height: 1.55;
+    margin-top: 0.3rem;
+    letter-spacing: 0.01em;
+  }
+  .item.done .desc { color: #bbb; }
+
+  /* ── progress ── */
+  .progress {
+    font-size: 0.7rem;
+    color: #888;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .progress-wrap { margin-top: 1.75rem; }
+  .bar {
+    height: 3px;
+    background: #e8e4dc;
+    margin-top: 0.5rem;
+  }
+  .bar-fill {
+    height: 100%;
+    background: #1a1a1a;
+    transition: width 0.3s ease;
+  }
+
+  .clear {
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: #bbb;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    cursor: pointer;
+    padding: 0;
+    border-bottom: 1px solid #ddd;
+  }
+  .clear:hover { color: #c0392b; border-bottom-color: #c0392b; }
+
+  /* ── when you stall ── */
+  .stall {
+    margin-top: 1.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #d8d4cc;
+  }
+  .stall ul { list-style: none; margin-top: 0.35rem; }
+  .stall li {
+    font-size: 0.72rem;
+    color: #888;
+    line-height: 1.55;
+    padding: 0.3rem 0 0.3rem 1rem;
+    position: relative;
+  }
+  .stall li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: #ccc;
+  }
+
+  .rhythm-link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-size: 0.7rem;
+    color: #1a1a1a;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 2px;
+  }
+  .rhythm-link:hover { color: #888; border-bottom-color: #888; }
+
+  @media (max-width: 420px) {
+    body { padding: 1rem; }
+    .card { padding: 1.75rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Sudoku</h1>
+  <div class="date">work down in order · don't skip ahead</div>
+
+  <div id="list"></div>
+
+  <div class="progress-wrap">
+    <div class="progress">
+      <span id="progressText">0 / 9 done</span>
+      <button class="clear" id="clearBtn" type="button">clear all</button>
+    </div>
+    <div class="bar"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="stall">
+    <div class="header">When you stall</div>
+    <ul>
+      <li>Nine times out of ten you skipped a digit in step 2, so sweep them all again.</li>
+      <li>Check the pencil marks where you're stuck; one is usually out of date.</li>
+      <li>Don't guess. At mittel-schwer you never need to.</li>
+    </ul>
+  </div>
+
+  <a class="rhythm-link" href="./">&larr; Home</a>
+</div>
+
+<script>
+  const STORE_KEY = 'sudoku_ticks';
+
+  const SECTIONS = [
+    { title: 'Free placements', steps: [
+      { name: 'Find the crowded units',
+        desc: 'Count what is filled in each row, column and box. Anything at six or more is where the next digit lives.' },
+      { name: 'Sweep each digit',
+        desc: 'One digit at a time: find the boxes without it, then rule out every row and column that already holds it. All nine digits before anything cleverer.' },
+      { name: 'Fill any last gap',
+        desc: 'A row, column or box with eight filled hands you the ninth.' },
+    ]},
+    { title: 'Singles', steps: [
+      { name: 'Rule out eight digits',
+        desc: 'At a crowded intersection, list what the row, column and box exclude between them. Eight different digits means the ninth goes in.' },
+      { name: 'Find the only home for a digit',
+        desc: 'If a digit has just one cell left in a unit that can take it, it goes there, never mind how many candidates that cell has of its own.' },
+      { name: 'Start pencilling',
+        desc: 'Only now, and only in units six or more full. Marking the whole grid early is wasted ink.' },
+    ]},
+    { title: 'Candidate work', steps: [
+      { name: 'Lock away pairs and triples',
+        desc: 'Two cells in one unit holding the same two candidates own those digits between them. Strike both from every other cell in the unit.' },
+      { name: 'Point out of a box',
+        desc: "If a digit's only spots in a box sit in one row or column, strike it from the rest of that row or column outside the box." },
+      { name: 'Point back into a box',
+        desc: "The reverse. If a digit's only spots in a row or column sit in one box, strike it from the rest of that box." },
+    ]},
+  ];
+
+  const TOTAL = SECTIONS.reduce((n, s) => n + s.steps.length, 0);
+
+  // ── storage (ticks keyed by step number, 1–9) ────────────────────────────
+  function loadTicks() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch (e) { return new Set(); }
+  }
+  function saveTicks() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify([...ticks])); } catch (e) {}
+  }
+
+  let ticks = loadTicks();
+
+  const list         = document.getElementById('list');
+  const progressText = document.getElementById('progressText');
+  const barFill      = document.getElementById('barFill');
+
+  // toggle in place so keyboard focus stays on the row
+  function toggle(n, item) {
+    ticks.has(n) ? ticks.delete(n) : ticks.add(n);
+    saveTicks();
+    const done = ticks.has(n);
+    item.classList.toggle('done', done);
+    item.setAttribute('aria-checked', done ? 'true' : 'false');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const done = ticks.size;
+    progressText.textContent = `${done} / ${TOTAL} done`;
+    barFill.style.width = (done / TOTAL * 100) + '%';
+  }
+
+  // ── render ───────────────────────────────────────────────────────────────
+  function render() {
+    list.innerHTML = '';
+    let n = 0;
+
+    SECTIONS.forEach((sec, si) => {
+      const hr = document.createElement('div');
+      hr.className = 'header-row' + (si === 0 ? ' first-section' : '');
+      const h = document.createElement('div');
+      h.className = 'header';
+      h.textContent = sec.title;
+      hr.appendChild(h);
+      list.appendChild(hr);
+
+      sec.steps.forEach((step, k) => {
+        n++;
+        const stepNo = n;
+        const done = ticks.has(stepNo);
+
+        const row = document.createElement('div');
+        row.className = 'row' + (k === sec.steps.length - 1 ? ' last-in-section' : '');
+
+        const item = document.createElement('div');
+        item.className = 'item' + (done ? ' done' : '');
+        item.tabIndex = 0;
+        item.setAttribute('role', 'checkbox');
+        item.setAttribute('aria-checked', done ? 'true' : 'false');
+        item.addEventListener('click', () => toggle(stepNo, item));
+        item.addEventListener('keydown', e => {
+          if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(stepNo, item); }
+        });
+
+        const cb = document.createElement('div');
+        cb.className = 'checkbox';
+        item.appendChild(cb);
+
+        const text = document.createElement('div');
+        text.className = 'text';
+
+        const lbl = document.createElement('div');
+        lbl.className = 'label';
+        const num = document.createElement('span');
+        num.className = 'num';
+        num.textContent = stepNo + '.';
+        lbl.appendChild(num);
+        lbl.appendChild(document.createTextNode(step.name));
+        text.appendChild(lbl);
+
+        const desc = document.createElement('div');
+        desc.className = 'desc';
+        desc.textContent = step.desc;
+        text.appendChild(desc);
+
+        item.appendChild(text);
+        row.appendChild(item);
+        list.appendChild(row);
+      });
+    });
+
+    updateProgress();
+  }
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    ticks.clear();
+    saveTicks();
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
