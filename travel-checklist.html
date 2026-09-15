@@ -389,7 +389,7 @@ async function loadData() {
   const meta = await ghGet(GH_FILE);
   if (meta && meta.content) {
     try {
-      const d = JSON.parse(atob(meta.content.replace(/\n/g, '')));
+      const d = JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\n/g, '')))));
       if (d && d.items) store = d;
     } catch(e) {}
   } else {
