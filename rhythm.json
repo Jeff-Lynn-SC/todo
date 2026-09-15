@@ -257,9 +257,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "did_a_bunch_of_darrin_st",
+        "label": "Did a bunch of Darrin stuff in the morning",
+        "start": "15:45",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-15",
+        "text": "Logged Did a bunch of Darrin stuff in the morning for the first time"
+      },
       {
         "at": "2026-09-11",
         "text": "Logged Staring coincidental work for the first time"
@@ -447,6 +460,11 @@
           "status": "done",
           "at": "15:45",
           "unplanned": false
+        },
+        "did_a_bunch_of_darrin_st": {
+          "status": "done",
+          "at": "15:45",
+          "unplanned": true
         }
       }
     }
