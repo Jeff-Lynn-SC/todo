@@ -508,6 +508,11 @@
           "status": "done",
           "at": "22:25",
           "unplanned": false
+        },
+        "walk_eve": {
+          "status": "done",
+          "at": "22:25",
+          "unplanned": false
         }
       }
     }
