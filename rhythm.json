@@ -467,6 +467,16 @@
           "unplanned": true
         }
       }
+    },
+    "2026-09-16": {
+      "date": "2026-09-16",
+      "entries": {
+        "walk_pm": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
+        }
+      }
     }
   }
 }
