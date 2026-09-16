@@ -266,9 +266,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "lots_of_darrin_stuff",
+        "label": "Lots of Darrin stuff",
+        "start": "18:25",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-16",
+        "text": "Logged Lots of Darrin stuff for the first time"
+      },
       {
         "at": "2026-09-15",
         "text": "Logged Did a bunch of Darrin stuff in the morning for the first time"
@@ -485,6 +498,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "lots_of_darrin_stuff": {
+          "status": "done",
+          "at": "18:25",
+          "unplanned": true
         }
       }
     }
