@@ -475,6 +475,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "walk_am": {
+          "status": "done",
+          "at": "18:25",
+          "unplanned": false
         }
       }
     }
