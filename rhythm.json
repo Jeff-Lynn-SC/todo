@@ -503,6 +503,11 @@
           "status": "done",
           "at": "18:25",
           "unplanned": true
+        },
+        "cook": {
+          "status": "done",
+          "at": "22:25",
+          "unplanned": false
         }
       }
     }
