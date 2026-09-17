@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Belege">
+<meta name="theme-color" content="#F7F5F1">
+<title>Belege</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5F1; --card:#FFFFFF; --ink:#2A2724; --soft:#7C766D;
+  --rule:#DFD9CF; --stamp:#2F4B7C; --on-stamp:#F7F5F1; --alarm:#9B3B2E;
+  --shadow:0 1px 2px rgba(42,39,36,.08), 0 8px 24px -16px rgba(42,39,36,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#191817; --card:#222120; --ink:#EAE6DF; --soft:#968F85;
+    --rule:#37352F; --stamp:#8FB0DF; --on-stamp:#15202F; --alarm:#D98A7C;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Instrument Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.45; -webkit-text-size-adjust:100%;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:640px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 18px 0}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
+.count{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12.5px;color:var(--soft);white-space:nowrap}
+.cog{border:0;background:none;color:var(--soft);font:inherit;font-size:13.5px;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:3px}
+
+.search{position:relative}
+.search input{
+  width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--card);
+  border:1px solid var(--rule);border-radius:10px;padding:14px 42px 14px 15px;box-shadow:var(--shadow);outline:none;
+}
+.search input::placeholder{color:var(--soft)}
+.search input:focus{border-color:var(--stamp);box-shadow:var(--shadow),0 0 0 3px color-mix(in srgb,var(--stamp) 18%,transparent)}
+.clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--soft);font:inherit;font-size:20px;line-height:1;padding:8px 10px;cursor:pointer;display:none}
+.deep{margin:10px 2px 0;display:none;gap:10px;align-items:center}
+.deep button{font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.deep .note{font-size:13px;color:var(--soft)}
+
+.list{margin:16px 0 0;padding:0;list-style:none}
+.row{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;
+  border-top:1px dotted var(--rule);padding:13px 2px;font:inherit;color:inherit;cursor:pointer}
+.list li:first-child .row{border-top:0}
+.row:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;border-radius:6px}
+.thumb{width:52px;height:64px;flex:0 0 52px;border-radius:5px;background:var(--card) center/cover no-repeat;border:1px solid var(--rule)}
+.meat{flex:1;min-width:0}
+.vend{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.summ{color:var(--soft);font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.figs{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12.5px;color:var(--soft);margin-top:3px}
+.amt{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:14.5px;white-space:nowrap;padding-top:1px}
+.working .vend{color:var(--soft);font-weight:400;font-style:italic}
+
+.empty{color:var(--soft);font-size:15px;padding:38px 2px;line-height:1.55}
+.empty b{color:var(--ink);font-weight:500}
+.warn{margin:14px 0 0;padding:11px 13px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--soft);font-size:13.5px}
+.warn button{font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.addbar{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,var(--paper) 62%,transparent)}
+.addbar .inner{max-width:640px;margin:0 auto}
+.add{position:relative;display:block;width:100%;font:inherit;font-size:16px;font-weight:500;text-align:center;
+  background:var(--stamp);color:var(--on-stamp);border:0;border-radius:10px;padding:15px;cursor:pointer;
+  box-shadow:var(--shadow);overflow:hidden;-webkit-tap-highlight-color:transparent}
+.add input[type=file]{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+
+.sheet{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 55%,transparent);display:none;z-index:9;overflow:auto;padding:22px 14px 60px}
+.sheet.on{display:block}
+.slip{max-width:520px;margin:0 auto;background:var(--card);border-radius:10px 10px 0 0;overflow:hidden;
+  box-shadow:0 18px 50px -12px rgba(0,0,0,.45);padding-bottom:18px;
+  -webkit-mask-image:radial-gradient(9px at 9px 100%,transparent 98%,#000 100%) 0 100%/18px 18px repeat-x,linear-gradient(#000,#000) 0 0/100% calc(100% - 9px) no-repeat;
+  mask-image:radial-gradient(9px at 9px 100%,transparent 98%,#000 100%) 0 100%/18px 18px repeat-x,linear-gradient(#000,#000) 0 0/100% calc(100% - 9px) no-repeat}
+.slip img{display:block;width:100%;max-height:62vh;object-fit:contain;background:var(--paper)}
+.slip .body{padding:16px 18px 4px}
+.slip h2{margin:0;font-size:19px;font-weight:600}
+.slip .sub{color:var(--soft);margin:2px 0 14px}
+.slip h2[contenteditable],.slip .sub[contenteditable]{outline:none;border-bottom:1px dotted var(--rule);padding-bottom:3px}
+.slip h2:focus,.slip .sub:focus{border-bottom-color:var(--stamp)}
+.slip .sub:empty:before{content:attr(data-ph);color:var(--soft);opacity:.7}
+.kv{display:flex;justify-content:space-between;gap:16px;border-top:1px dotted var(--rule);padding:9px 0;font-size:14.5px}
+.kv span:first-child{color:var(--soft);flex:0 0 auto}
+.kv span:last-child{font-family:"Spline Sans Mono",ui-monospace,monospace;text-align:right;word-break:break-word}
+.slip textarea,.setbox input,.setbox select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:8px;padding:10px;margin-top:12px;resize:vertical}
+.slip textarea{min-height:62px}
+.acts{display:flex;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
+.acts button{flex:1;min-width:90px;font:inherit;font-size:15px;padding:11px;border-radius:8px;border:1px solid var(--rule);
+  background:var(--paper);color:var(--ink);cursor:pointer}
+.acts .danger{color:var(--alarm);border-color:color-mix(in srgb,var(--alarm) 35%,transparent)}
+.setbox{padding:18px}
+.setbox h2{margin:0 0 4px;font-size:19px}
+.setbox p{color:var(--soft);font-size:14px;margin:8px 0 0}
+.setbox label{display:block;font-size:13.5px;color:var(--soft);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Belege</h1>
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <div class="count" id="count"></div>
+      <button class="cog" id="cog">Settings</button>
+    </div>
+  </header>
+
+  <div class="search">
+    <input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false"
+           placeholder="What are you looking for?" aria-label="Search your receipts">
+    <button class="clear" id="clear" aria-label="Clear search">&times;</button>
+  </div>
+  <div class="deep" id="deep">
+    <button id="askbtn">Let Claude look through them</button>
+    <span class="note" id="asknote"></span>
+  </div>
+
+  <ul class="list" id="list"></ul>
+  <div class="empty" id="empty"></div>
+  <div class="warn" id="unread" style="display:none"></div>
+  <div class="warn" id="warn" style="display:none"></div>
+  <div class="warn" id="flash" style="display:none"></div>
+</div>
+
+<div class="addbar"><div class="inner">
+  <label class="add" id="add">Add a receipt
+    <input type="file" id="file" accept="image/*" multiple>
+  </label>
+</div></div>
+
+<div class="sheet" id="sheet"><div class="slip" id="slip"></div></div>
+<div class="sheet" id="settings"><div class="slip"><div class="setbox" id="setbox"></div></div></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
+
+const KEY = "belege.apikey", MODEL = "belege.model";
+const cfg = {
+  get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
+  set key(v){ try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch(e){} },
+  get model(){ try { return localStorage.getItem(MODEL) || "claude-haiku-4-5-20251001"; } catch(e){ return "claude-haiku-4-5-20251001"; } },
+  set model(v){ try { localStorage.setItem(MODEL, v); } catch(e){} }
+};
+const hasKey = () => !!cfg.key;
+
+/* ---------- Claude, called straight from this page with your own key ---------- */
+async function claudeCall(content, maxTokens){
+  if (!hasKey()) throw new Error("no API key set");
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": cfg.key,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({ model: cfg.model, max_tokens: maxTokens || 1400, messages: [{ role:"user", content }] })
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok){
+    const m = (data && data.error && data.error.message) || ("HTTP " + r.status);
+    throw new Error(m);
+  }
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+}
+function parseJson(text){
+  let t = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  try { return JSON.parse(t); } catch(e){}
+  const a = Math.min(...[t.indexOf("{"), t.indexOf("[")].filter(i => i >= 0));
+  const b = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+  if (isFinite(a) && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch(e){} }
+  throw new Error("Claude's answer wasn't readable as data");
+}
+
+const READ_PROMPT =
+ 'This is a photo of a shop receipt or invoice, most likely German. Read it and reply with ONLY a JSON object, no other text:\n' +
+ '{"vendor": string (shop name, or "Unknown"),\n' +
+ ' "date": "YYYY-MM-DD" or null,\n' +
+ ' "total": number or null (the amount actually paid),\n' +
+ ' "currency": string like "EUR",\n' +
+ ' "summary": string, at most 10 words of plain English naming what was bought,\n' +
+ ' "items": array of strings — each line item as printed, with a plain-English gloss in brackets,\n' +
+ ' "keywords": array of 15-30 lowercase search terms}\n' +
+ 'The keywords decide whether the buyer finds this again months later, in whatever words come to mind. For EVERY item include: ' +
+ 'the German word as printed; its parts if compound; the literal English translation; the ordinary English name a British or ' +
+ 'Irish person would use; trade or slang names; the category; and what the thing is for. An item printed "AUSPRESSE-PISTOLE" ' +
+ 'should yield auspresspistole, auspresse, pistole, kartuschenpistole, silikonpistole, caulking gun, caulk gun, cartridge gun, ' +
+ 'sealant gun, silicone gun, skeleton gun, mastic gun, sealant, tool, diy. Include the shop name and its trade.\n' +
+ 'Ignore card, till, VAT and terminal lines. If it is unreadable, reply with the JSON using null and empty arrays.';
+
+async function readReceipt(blob){
+  const small = await fit(blob, 1400, 900000, 0.8);
+  const b64 = (await dataUrl(small)).split(",")[1];
+  const text = await claudeCall([
+    { type:"image", source:{ type:"base64", media_type:"image/jpeg", data:b64 } },
+    { type:"text", text: READ_PROMPT }
+  ], 1600);
+  return parseJson(text);
+}
+
+/* ---------- storage, on this device ---------- */
+function deviceStore(){
+  const open = new Promise((res, rej) => {
+    const r = indexedDB.open("belege", 1);
+    r.onupgradeneeded = () => { const d = r.result;
+      if (!d.objectStoreNames.contains("receipts")) d.createObjectStore("receipts", { keyPath:"id" });
+      if (!d.objectStoreNames.contains("photos")) d.createObjectStore("photos"); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error || new Error("storage blocked"));
+    r.onblocked = () => rej(new Error("storage blocked"));
+  });
+  const run = async (name, mode, fn) => {
+    const d = await open;
+    return new Promise((res, rej) => {
+      const t = d.transaction(name, mode), q = fn(t.objectStore(name));
+      t.oncomplete = () => res(q && q.result);
+      t.onerror = () => rej(t.error || new Error("store error"));
+    });
+  };
+  let notify = null;
+  const push = async () => {
+    try { if (notify) notify((await run("receipts","readonly",s=>s.getAll())) || []); }
+    catch(e){ warn("Couldn't list your receipts. [" + ((e && e.name)||"") + ": " + ((e && e.message)||e) + "]"); }
+  };
+  return {
+    watch(cb){ notify = cb; push(); },
+    async put(id, rec){ await run("receipts","readwrite",s=>s.put(Object.assign({id}, rec))); await push(); },
+    async patch(id, p){
+      const cur = await run("receipts","readonly",s=>s.get(id));
+      await run("receipts","readwrite",s=>s.put(Object.assign({id}, cur||{}, p))); await push();
+    },
+    photo: id => run("photos","readonly",s=>s.get(id)),
+    putPhoto: (id, url) => run("photos","readwrite",s=>s.put(url, id)),
+    async del(id){ await run("receipts","readwrite",s=>s.delete(id)); await run("photos","readwrite",s=>s.delete(id)); await push(); }
+  };
+}
+let store = null;
+
+/* ---------- images ---------- */
+async function shrink(blob, w, q){
+  const bmp = await createImageBitmap(blob);
+  const scale = Math.min(1, w / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(bmp.width * scale));
+  c.height = Math.max(1, Math.round(bmp.height * scale));
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close && bmp.close();
+  return await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), "image/jpeg", q));
+}
+async function fit(blob, w, maxBytes, q){
+  for (let i = 0; i < 7; i++){
+    const out = await shrink(blob, w, q);
+    if (out.size <= maxBytes) return out;
+    if (q > 0.45) q -= 0.15; else w = Math.round(w * 0.8);
+  }
+  return await shrink(blob, Math.round(w * 0.6), 0.4);
+}
+const dataUrl = blob => new Promise((res, rej) => {
+  const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error("read")); r.readAsDataURL(blob);
+});
+function blobFromDataUrl(u){
+  const [meta, b64] = String(u).split(",");
+  const bin = atob(b64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type:(meta.match(/:(.*?);/) || [,"image/jpeg"])[1] });
+}
+
+/* ---------- adding ---------- */
+$("#file").onchange = async e => {
+  const files = [...e.target.files]; e.target.value = "";
+  for (const f of files) await addOne(f);
+};
+
+async function addOne(file){
+  let full, thumb;
+  try { full = await fit(file, 1600, 400000, 0.82); thumb = await fit(full, 220, 22000, 0.6); }
+  catch(err){ flash("Couldn't open that file as an image."); return; }
+
+  const tmp = { url: URL.createObjectURL(thumb), label: hasKey() ? "Reading the receipt…" : "Filing…" };
+  state.pending.push(tmp); render();
+
+  const id = "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  let info = { vendor: hasKey() ? "Unread receipt" : "New receipt", summary:"" };
+  if (hasKey()){
+    try { info = await readReceipt(full); }
+    catch(err){ flash("Filed, but couldn't be read: " + ((err && err.message) || err)); }
+  }
+  try {
+    await store.putPhoto(id, await dataUrl(full));
+    await store.put(id, clean(info, await dataUrl(thumb)));
+  } catch(err){ flash("Couldn't file that receipt: " + ((err && err.message) || err)); }
+
+  URL.revokeObjectURL(tmp.url);
+  state.pending = state.pending.filter(p => p !== tmp);
+  render();
+}
+
+function clean(i, thumb){
+  const arr = v => Array.isArray(v) ? v.map(String).slice(0,30) : [];
+  return {
+    thumb: thumb || null,
+    vendor: String(i.vendor || "Unknown").slice(0,80),
+    date: /^\d{4}-\d{2}-\d{2}$/.test(i.date || "") ? i.date : null,
+    total: typeof i.total === "number" && isFinite(i.total) ? i.total : null,
+    currency: String(i.currency || "EUR").slice(0,5),
+    summary: String(i.summary || "").slice(0,140),
+    items: arr(i.items),
+    keywords: arr(i.keywords).map(s => s.toLowerCase()),
+    note: "",
+    addedAt: new Date().toISOString()
+  };
+}
+
+async function reread(d, say){
+  if (!hasKey()){ flash("Add your API key in Settings first."); return; }
+  say("Reading…");
+  try {
+    const url = await store.photo(d.id);
+    if (!url){ say("No photo stored."); return; }
+    const info = await readReceipt(blobFromDataUrl(url));
+    const patch = clean(info);
+    delete patch.note; delete patch.addedAt; delete patch.thumb;
+    await store.patch(d.id, patch);
+    Object.assign(d, patch);
+    say("Read again"); render();
+    if (state.slipOpen === d.id) openSlip(d);
+  } catch(err){ say("Read again"); flash("Couldn't read that one: " + ((err && err.message) || err)); }
+}
+async function readAll(list){
+  state.reading = true;
+  const ub = $("#unread"); ub.style.display = "block";
+  for (let i = 0; i < list.length; i++){
+    ub.textContent = "Reading receipt " + (i+1) + " of " + list.length + "…";
+    await reread(list[i], () => {});
+  }
+  state.reading = false; render();
+}
+
+/* ---------- searching ---------- */
+function unread(d){ return !(d.keywords||[]).length && !(d.items||[]).length; }
+function hay(d){ return [d.vendor, d.summary, d.note, (d.items||[]).join(" "), (d.keywords||[]).join(" "), d.date]
+  .filter(Boolean).join(" ").toLowerCase(); }
+function byDate(a,b){ return String(b.date||b.addedAt||"").localeCompare(String(a.date||a.addedAt||"")); }
+
+function matches(){
+  const q = state.query.trim().toLowerCase();
+  if (!q) return state.docs.slice().sort(byDate);
+  if (state.aiHits) return state.docs.filter(d => state.aiHits.includes(d.id)).sort(byDate);
+  const words = q.split(/\s+/).filter(w => w.length > 1);
+  return state.docs
+    .map(d => { const h = hay(d); return { d, n: words.filter(w => h.includes(w)).length }; })
+    .filter(x => x.n > 0)
+    .sort((a,b) => b.n - a.n || byDate(a.d, b.d))
+    .map(x => x.d);
+}
+
+$("#q").oninput = e => {
+  state.query = e.target.value; state.aiHits = null; $("#asknote").textContent = ""; render();
+  clearTimeout(state.autoT);
+  const q = state.query.trim();
+  if (q.length > 2 && hasKey() && state.docs.length && matches().length === 0)
+    state.autoT = setTimeout(() => { if (state.query.trim() === q && !state.aiHits) deepSearch(); }, 900);
+};
+$("#clear").onclick = () => { $("#q").value = ""; state.query = ""; state.aiHits = null; render(); $("#q").focus(); };
+$("#askbtn").onclick = () => deepSearch();
+
+async function deepSearch(){
+  if (!hasKey() || state.asking) return;
+  const q = state.query.trim(); if (!q) return;
+  state.asking = true;
+  $("#asknote").textContent = "Claude is looking…";
+  $("#empty").textContent = "Claude is looking through them…";
+  const index = state.docs.slice(0,400).map(d =>
+    [d.id, d.vendor, d.date, d.summary, (d.items||[]).join("; "), (d.keywords||[]).join(" "), d.note].join(" | "));
+  try {
+    const out = await claudeCall([{ type:"text", text:
+      'Each line below is one receipt: id | shop | date | summary | items | keywords | note.\n' +
+      'Someone is looking for: "' + q + '"\n' +
+      'The wording is often German and abbreviated while the person asks in English, so match on meaning: an item printed ' +
+      'AUSPRESSE-PISTOLE is what someone would call a caulking gun or cartridge gun. Consider what a thing is used for too.\n' +
+      'Reply with ONLY a JSON array of the ids that plausibly match, best first, at most 8. Empty array if none.\n\n' +
+      index.join("\n").slice(0, 60000) }], 500);
+    const ids = parseJson(out);
+    state.aiHits = Array.isArray(ids) ? ids.map(String) : [];
+    $("#asknote").textContent = state.aiHits.length ? "Claude's pick" : "Claude found nothing either.";
+  } catch(err){ $("#asknote").textContent = "Couldn't ask: " + ((err && err.message) || err); }
+  state.asking = false; render();
+}
+
+/* ---------- rendering ---------- */
+function money(n, c){
+  if (typeof n !== "number") return "";
+  try { return new Intl.NumberFormat("de-DE",{style:"currency",currency:c||"EUR"}).format(n); }
+  catch(e){ return n.toFixed(2); }
+}
+function render(){
+  const rows = matches();
+  const list = $("#list"); list.innerHTML = "";
+
+  for (const p of state.pending){
+    const li = document.createElement("li");
+    li.innerHTML = '<div class="row working"><div class="thumb"></div><div class="meat"><div class="vend"></div></div></div>';
+    li.querySelector(".thumb").style.backgroundImage = "url('" + p.url + "')";
+    li.querySelector(".vend").textContent = p.label;
+    list.appendChild(li);
+  }
+  for (const d of rows){
+    const li = document.createElement("li");
+    const b = document.createElement("button"); b.className = "row";
+    const t = document.createElement("div"); t.className = "thumb";
+    if (d.thumb) t.style.backgroundImage = "url('" + d.thumb + "')";
+    const m = document.createElement("div"); m.className = "meat";
+    const v = document.createElement("div"); v.className = "vend"; v.textContent = d.vendor || "Unknown";
+    const sm = document.createElement("div"); sm.className = "summ";
+    sm.textContent = d.summary || d.note || (d.items||[])[0] || (unread(d) ? "Not read — open it and tap Read again" : "");
+    const f = document.createElement("div"); f.className = "figs"; f.textContent = d.date || "";
+    m.append(v, sm, f);
+    const a = document.createElement("div"); a.className = "amt"; a.textContent = money(d.total, d.currency);
+    b.append(t, m, a); b.onclick = () => openSlip(d);
+    li.appendChild(b); list.appendChild(li);
+  }
+
+  const sum = rows.reduce((n,d) => n + (typeof d.total === "number" ? d.total : 0), 0);
+  $("#count").textContent = state.docs.length ? rows.length + " · " + money(sum, (rows[0]||{}).currency) : "";
+  $("#clear").style.display = state.query ? "block" : "none";
+  $("#deep").style.display = (state.query.trim() && hasKey()) ? "flex" : "none";
+
+  const pend = state.docs.filter(unread);
+  const ub = $("#unread");
+  if (!state.reading){
+    if (pend.length && hasKey()){
+      ub.style.display = "block"; ub.innerHTML = "";
+      const btn = document.createElement("button"); btn.textContent = "Read them now";
+      btn.onclick = () => readAll(pend);
+      ub.append(document.createTextNode(pend.length + (pend.length === 1 ? " receipt hasn't" : " receipts haven't") + " been read yet. "), btn);
+    } else if (!hasKey() && state.docs.length){
+      ub.style.display = "block"; ub.innerHTML = "";
+      const btn = document.createElement("button"); btn.textContent = "Settings";
+      btn.onclick = openSettings;
+      ub.append(document.createTextNode("Receipts aren't being read — add your Claude API key in "), btn, document.createTextNode("."));
+    } else ub.style.display = "none";
+  }
+
+  const e = $("#empty");
+  if (rows.length || state.pending.length) e.textContent = "";
+  else if (state.query) e.innerHTML = "Nothing matching <b>" + esc(state.query) + "</b> yet.";
+  else e.innerHTML = "<b>Empty shoebox.</b><br>Photograph a receipt and it gets read, filed and made searchable. Then just ask for it in plain words.";
+}
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function flash(msg){
+  const w = $("#flash"); w.style.display = "block"; w.textContent = msg;
+  clearTimeout(flash.t); flash.t = setTimeout(() => { w.style.display = "none"; }, 12000);
+}
+function warn(msg){ const w = $("#warn"); w.style.display = "block"; w.textContent = msg; }
+
+/* ---------- one receipt ---------- */
+async function openSlip(d){
+  const s = $("#slip"); s.innerHTML = "";
+  const img = document.createElement("img"); img.src = d.thumb || ""; img.alt = "Receipt from " + (d.vendor || "");
+  s.appendChild(img);
+  $("#sheet").classList.add("on"); $("#sheet").scrollTop = 0; state.slipOpen = d.id;
+
+  const body = document.createElement("div"); body.className = "body";
+  const h = document.createElement("h2");
+  h.contentEditable = "true"; h.spellcheck = false; h.textContent = d.vendor || "Unknown";
+  h.onblur = () => save({ vendor: h.textContent.trim().slice(0,80) });
+  const sub = document.createElement("div"); sub.className = "sub";
+  sub.contentEditable = "true"; sub.spellcheck = false; sub.dataset.ph = "What was it?";
+  sub.textContent = d.summary || "";
+  sub.onblur = () => save({ summary: sub.textContent.trim().slice(0,140) });
+  body.append(h, sub);
+
+  const kv = (k, v) => { if (!v) return; const r = document.createElement("div"); r.className = "kv";
+    const a = document.createElement("span"); a.textContent = k;
+    const b = document.createElement("span"); b.textContent = v; r.append(a,b); body.appendChild(r); };
+  kv("Date", d.date || "—");
+  kv("Total", money(d.total, d.currency) || "—");
+  if ((d.items||[]).length) kv("Items", d.items.join(", "));
+  kv("Searchable words", (d.keywords||[]).length ? d.keywords.join(", ") : "none stored");
+
+  const ta = document.createElement("textarea");
+  ta.placeholder = "Your own words — what it was for, which job it belongs to. Searchable.";
+  ta.value = d.note || "";
+  ta.onchange = () => save({ note: ta.value.slice(0,600) });
+  body.appendChild(ta);
+  s.appendChild(body);
+
+  const acts = document.createElement("div"); acts.className = "acts";
+  const again = document.createElement("button"); again.textContent = "Read again";
+  again.onclick = () => reread(d, t => { again.textContent = t; again.disabled = t === "Reading…"; });
+  if (!hasKey()) again.style.display = "none";
+  const close = document.createElement("button"); close.textContent = "Close"; close.onclick = closeSlip;
+  const del = document.createElement("button"); del.className = "danger"; del.textContent = "Delete";
+  del.onclick = async () => {
+    if (!confirm("Delete this receipt for good?")) return;
+    try { await store.del(d.id); } catch(e){ flash("Couldn't delete that one."); }
+    closeSlip();
+  };
+  acts.append(again, close, del); s.appendChild(acts);
+
+  async function save(patch){
+    try { await store.patch(d.id, patch); Object.assign(d, patch); render(); }
+    catch(e){ flash("Couldn't save that change."); }
+  }
+  try { const full = await store.photo(d.id); if (full) img.src = full; } catch(e){}
+}
+function closeSlip(){ $("#sheet").classList.remove("on"); state.slipOpen = null; }
+$("#sheet").onclick = e => { if (e.target.id === "sheet") closeSlip(); };
+
+/* ---------- settings ---------- */
+$("#cog").onclick = openSettings;
+function openSettings(){
+  const box = $("#setbox"); box.innerHTML = "";
+  const h = document.createElement("h2"); h.textContent = "Settings";
+  const p = document.createElement("p");
+  p.textContent = "Your Claude API key is kept in this browser only. It is never part of the page, so it is safe on a public site — but anyone using this device can see it.";
+  const l1 = document.createElement("label"); l1.textContent = "Claude API key";
+  const key = document.createElement("input"); key.type = "password"; key.placeholder = "sk-ant-…"; key.value = cfg.key;
+  const l2 = document.createElement("label"); l2.textContent = "Model";
+  const sel = document.createElement("select");
+  [["claude-haiku-4-5-20251001","Haiku 4.5 — fast and cheap"],["claude-sonnet-5","Sonnet 5 — better on bad photos"]]
+    .forEach(([v,t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); });
+  sel.value = cfg.model;
+  box.append(h, p, l1, key, l2, sel);
+
+  const acts = document.createElement("div"); acts.className = "acts"; acts.style.padding = "16px 0 0";
+  const save = document.createElement("button"); save.textContent = "Save";
+  save.onclick = () => { cfg.key = key.value.trim(); cfg.model = sel.value; $("#settings").classList.remove("on"); render(); };
+  const exp = document.createElement("button"); exp.textContent = "Export";
+  exp.onclick = () => exportAll();
+  const imp = document.createElement("button"); imp.textContent = "Import";
+  imp.onclick = () => importPick();
+  const close = document.createElement("button"); close.textContent = "Close";
+  close.onclick = () => $("#settings").classList.remove("on");
+  acts.append(save, exp, imp, close); box.appendChild(acts);
+
+  const note = document.createElement("p");
+  note.textContent = "Export writes everything — receipts and photos — to one file you can keep or move to another device.";
+  box.appendChild(note);
+  $("#settings").classList.add("on");
+}
+$("#settings").onclick = e => { if (e.target.id === "settings") $("#settings").classList.remove("on"); };
+
+async function exportAll(){
+  const out = [];
+  for (const d of state.docs) out.push(Object.assign({}, d, { image: await store.photo(d.id) }));
+  const blob = new Blob([JSON.stringify({ belege:1, exported:new Date().toISOString(), receipts:out })], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "belege-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function importPick(){
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = "application/json";
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      let n = 0;
+      for (const r of (data.receipts || [])){
+        const { image, id, ...rest } = r;
+        const newId = id || ("r" + Date.now().toString(36) + Math.random().toString(36).slice(2,5));
+        if (image) await store.putPhoto(newId, image);
+        await store.put(newId, rest); n++;
+      }
+      flash("Brought in " + n + (n === 1 ? " receipt." : " receipts."));
+    } catch(e){ flash("That file couldn't be read: " + ((e && e.message) || e)); }
+  };
+  inp.click();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeSlip(); $("#settings").classList.remove("on");
+});
+
+/* ---------- start ---------- */
+(function start(){
+  try { store = deviceStore(); }
+  catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
+  store.watch(docs => { state.docs = docs; render(); });
+  render();
+})();
+</script>
+</body>
+</html>
