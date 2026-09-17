@@ -523,6 +523,11 @@
           "status": "done",
           "at": "23:30",
           "unplanned": false
+        },
+        "stretch": {
+          "status": "done",
+          "at": "23:30",
+          "unplanned": false
         }
       }
     }
