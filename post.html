@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Post">
+<meta name="theme-color" content="#F7F5F1">
+<title>Post</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5F1; --card:#FFFFFF; --ink:#2A2724; --soft:#7C766D;
+  --rule:#DFD9CF; --stamp:#5B4B8A; --on-stamp:#F7F5F1; --alarm:#9B3B2E;
+  --shadow:0 1px 2px rgba(42,39,36,.08), 0 8px 24px -16px rgba(42,39,36,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#191817; --card:#222120; --ink:#EAE6DF; --soft:#968F85;
+    --rule:#37352F; --stamp:#B6A9E0; --on-stamp:#1C1630; --alarm:#D98A7C;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Instrument Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.45; -webkit-text-size-adjust:100%;
+  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:640px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 18px 0}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
+h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
+.count{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12.5px;color:var(--soft);white-space:nowrap}
+.cog{border:0;background:none;color:var(--soft);font:inherit;font-size:13.5px;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:3px}
+
+.search{position:relative}
+.search input{
+  width:100%;font:inherit;font-size:17px;color:var(--ink);background:var(--card);
+  border:1px solid var(--rule);border-radius:10px;padding:14px 42px 14px 15px;box-shadow:var(--shadow);outline:none;
+}
+.search input::placeholder{color:var(--soft)}
+.search input:focus{border-color:var(--stamp);box-shadow:var(--shadow),0 0 0 3px color-mix(in srgb,var(--stamp) 18%,transparent)}
+.clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--soft);font:inherit;font-size:20px;line-height:1;padding:8px 10px;cursor:pointer;display:none}
+.deep{margin:10px 2px 0;display:none;gap:10px;align-items:center}
+.deep button{font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.deep .note{font-size:13px;color:var(--soft)}
+
+.answer{margin:16px 0 0;padding:14px 15px;border-left:3px solid var(--stamp);background:var(--card);
+  border-radius:0 8px 8px 0;font-size:15.5px;line-height:1.5;box-shadow:var(--shadow)}
+.answer .who{display:block;font-size:12px;color:var(--soft);margin-top:7px;font-family:"Spline Sans Mono",ui-monospace,monospace}
+.list{margin:16px 0 0;padding:0;list-style:none}
+.row{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;
+  border-top:1px dotted var(--rule);padding:13px 2px;font:inherit;color:inherit;cursor:pointer}
+.list li:first-child .row{border-top:0}
+.row:focus-visible{outline:2px solid var(--stamp);outline-offset:2px;border-radius:6px}
+.thumb{width:52px;height:64px;flex:0 0 52px;border-radius:5px;background:var(--card) center/cover no-repeat;border:1px solid var(--rule)}
+.meat{flex:1;min-width:0}
+.vend{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.summ{color:var(--soft);font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.figs{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12.5px;color:var(--soft);margin-top:3px}
+.amt{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:14.5px;white-space:nowrap;padding-top:1px}
+.working .vend{color:var(--soft);font-weight:400;font-style:italic}
+
+.empty{color:var(--soft);font-size:15px;padding:38px 2px;line-height:1.55}
+.empty b{color:var(--ink);font-weight:500}
+.warn{margin:14px 0 0;padding:11px 13px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--soft);font-size:13.5px}
+.warn button{font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.addbar{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+  background:linear-gradient(to top,var(--paper) 62%,transparent)}
+.addbar .inner{max-width:640px;margin:0 auto}
+.add{position:relative;display:block;width:100%;font:inherit;font-size:16px;font-weight:500;text-align:center;
+  background:var(--stamp);color:var(--on-stamp);border:0;border-radius:10px;padding:15px;cursor:pointer;
+  box-shadow:var(--shadow);overflow:hidden;-webkit-tap-highlight-color:transparent}
+.add input[type=file]{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+
+.sheet{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 55%,transparent);display:none;z-index:9;overflow:auto;padding:22px 14px 60px}
+.sheet.on{display:block}
+.slip{max-width:520px;margin:0 auto;background:var(--card);border-radius:10px 10px 0 0;overflow:hidden;
+  box-shadow:0 18px 50px -12px rgba(0,0,0,.45);padding-bottom:18px;
+  -webkit-mask-image:radial-gradient(9px at 9px 100%,transparent 98%,#000 100%) 0 100%/18px 18px repeat-x,linear-gradient(#000,#000) 0 0/100% calc(100% - 9px) no-repeat;
+  mask-image:radial-gradient(9px at 9px 100%,transparent 98%,#000 100%) 0 100%/18px 18px repeat-x,linear-gradient(#000,#000) 0 0/100% calc(100% - 9px) no-repeat}
+.slip img{display:block;width:100%;max-height:62vh;object-fit:contain;background:var(--paper)}
+.slip .body{padding:16px 18px 4px}
+.slip h2{margin:0;font-size:19px;font-weight:600}
+.slip .sub{color:var(--soft);margin:2px 0 14px}
+.slip h2[contenteditable],.slip .sub[contenteditable]{outline:none;border-bottom:1px dotted var(--rule);padding-bottom:3px}
+.slip h2:focus,.slip .sub:focus{border-bottom-color:var(--stamp)}
+.slip .sub:empty:before{content:attr(data-ph);color:var(--soft);opacity:.7}
+.kv{display:flex;justify-content:space-between;gap:16px;border-top:1px dotted var(--rule);padding:9px 0;font-size:14.5px}
+.kv span:first-child{color:var(--soft);flex:0 0 auto}
+.kv span:last-child{font-family:"Spline Sans Mono",ui-monospace,monospace;text-align:right;word-break:break-word}
+.slip textarea,.setbox input,.setbox select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--rule);border-radius:8px;padding:10px;margin-top:12px;resize:vertical}
+.slip textarea{min-height:62px}
+.acts{display:flex;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
+.acts button{flex:1;min-width:90px;font:inherit;font-size:15px;padding:11px;border-radius:8px;border:1px solid var(--rule);
+  background:var(--paper);color:var(--ink);cursor:pointer}
+.acts .danger{color:var(--alarm);border-color:color-mix(in srgb,var(--alarm) 35%,transparent)}
+.setbox{padding:18px}
+.setbox h2{margin:0 0 4px;font-size:19px}
+.setbox p{color:var(--soft);font-size:14px;margin:8px 0 0}
+.setbox label{display:block;font-size:13.5px;color:var(--soft);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Post</h1>
+    <div style="display:flex;gap:14px;align-items:baseline">
+      <div class="count" id="count"></div>
+      <button class="cog" id="cog">Settings</button>
+    </div>
+  </header>
+
+  <div class="search">
+    <input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false"
+           placeholder="What are you looking for?" aria-label="Search your receipts">
+    <button class="clear" id="clear" aria-label="Clear search">&times;</button>
+  </div>
+  <div class="deep" id="deep">
+    <button id="askbtn">Let Claude look through them</button>
+    <span class="note" id="asknote"></span>
+  </div>
+
+  <div class="answer" id="answer" style="display:none"></div>
+  <ul class="list" id="list"></ul>
+  <div class="empty" id="empty"></div>
+  <div class="warn" id="unread" style="display:none"></div>
+  <div class="warn" id="warn" style="display:none"></div>
+  <div class="warn" id="flash" style="display:none"></div>
+</div>
+
+<div class="addbar"><div class="inner">
+  <label class="add" id="add">Add a letter
+    <input type="file" id="file" accept="image/*" multiple>
+  </label>
+</div></div>
+
+<div class="sheet" id="sheet"><div class="slip" id="slip"></div></div>
+<div class="sheet" id="settings"><div class="slip"><div class="setbox" id="setbox"></div></div></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
+
+const BUILD = "18 Sep 2026";
+const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
+const cfg = {
+  get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
+  set key(v){ try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch(e){} },
+  get model(){ try { return localStorage.getItem(MODEL) || "claude-haiku-4-5-20251001"; } catch(e){ return "claude-haiku-4-5-20251001"; } },
+  set model(v){ try { localStorage.setItem(MODEL, v); } catch(e){} },
+  get ghToken(){ try { return localStorage.getItem(GHT) || ""; } catch(e){ return ""; } },
+  set ghToken(v){ try { v ? localStorage.setItem(GHT, v) : localStorage.removeItem(GHT); } catch(e){} },
+  get ghRepo(){ try { return localStorage.getItem(GHR) || ""; } catch(e){ return ""; } },
+  set ghRepo(v){ try { v ? localStorage.setItem(GHR, v) : localStorage.removeItem(GHR); } catch(e){} }
+};
+const syncOn = () => !!(cfg.ghToken && cfg.ghRepo);
+const INDEX_PATH = "post/index.json", PHOTO_DIR = "post/photos/";
+const hasKey = () => !!cfg.key;
+
+/* ---------- Claude, called straight from this page with your own key ---------- */
+async function claudeCall(content, maxTokens){
+  if (!hasKey()) throw new Error("no API key set");
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": cfg.key,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({ model: cfg.model, max_tokens: maxTokens || 1400, messages: [{ role:"user", content }] })
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok){
+    const m = (data && data.error && data.error.message) || ("HTTP " + r.status);
+    throw new Error(m);
+  }
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
+}
+function parseJson(text){
+  let t = String(text || "").trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  try { return JSON.parse(t); } catch(e){}
+  const a = Math.min(...[t.indexOf("{"), t.indexOf("[")].filter(i => i >= 0));
+  const b = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+  if (isFinite(a) && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch(e){} }
+  throw new Error("Claude's answer wasn't readable as data");
+}
+
+const READ_PROMPT =
+ 'These images are the pages of one official letter or document, most likely German — from an authority, insurer, bank, ' +
+ 'landlord, utility, school or employer. Read all pages and reply with ONLY a JSON object, no other text:\n' +
+ '{"sender": string (the organisation that sent it, e.g. "Finanzamt Landsberg am Lech"),\n' +
+ ' "date": "YYYY-MM-DD" or null (the date on the letter),\n' +
+ ' "subject": string, at most 12 words of plain English saying what this letter IS,\n' +
+ ' "plain": string, 2-4 short sentences of plain English saying what it actually says and what it means for the recipient,\n' +
+ ' "action": string or null — what the recipient has to DO, in plain English, or null if nothing is required,\n' +
+ ' "deadline": "YYYY-MM-DD" or null — any Frist, Zahlungsziel, Widerspruchsfrist or date by which something must be done,\n' +
+ ' "amount": number or null — any sum to be paid or received,\n' +
+ ' "currency": string like "EUR",\n' +
+ ' "refs": array of strings — every reference number, exactly as printed, each labelled, e.g. "Steuernummer 143/512/40386",\n' +
+ '        "Aktenzeichen …", "Kundennummer …", "Vertragsnummer …", "Rentenversicherungsnummer …",\n' +
+ ' "keywords": array of 15-30 lowercase search terms}\n' +
+ 'The recipient is an English speaker living in Bavaria. Be precise about consequences and dates: if the letter says something ' +
+ 'happens automatically unless he objects, say so. If a deadline has a working-days rule, give the plain date.\n' +
+ 'For the keywords include, for this letter and anything it concerns: the German terms as printed; their parts if compound; ' +
+ 'the literal English translation; the ordinary English name; the type of document (Bescheid, notice, bill, reminder, contract, ' +
+ 'statement); the subject area (tax, pension, health insurance, rent, electricity, school); and the sender\'s name and kind.\n' +
+ 'If a page is unreadable, still reply with the JSON, using null and empty arrays.';
+
+async function readLetter(blobs){
+  const content = [];
+  for (const bl of blobs.slice(0, 5)){
+    const small = await fit(bl, 1400, 900000, 0.8);
+    content.push({ type:"image", source:{ type:"base64", media_type:"image/jpeg", data:(await dataUrl(small)).split(",")[1] } });
+  }
+  content.push({ type:"text", text: READ_PROMPT });
+  return parseJson(await claudeCall(content, 2000));
+}
+
+/* ---------- sharing the shoebox between devices, through a private repo ---------- */
+function b64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+function unb64(s){
+  const bin = atob(String(s).replace(/\s/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+}
+async function gh(path, opts){
+  const r = await fetch("https://api.github.com/repos/" + cfg.ghRepo + "/contents/" + path, Object.assign({
+    headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json" }
+  }, opts || {}));
+  if (r.status === 404) return null;
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((d && d.message) || ("GitHub said " + r.status));
+  return d;
+}
+async function ghPut(path, contentB64, sha, message){
+  const body = { message: message || "belege", content: contentB64, branch: "main" };
+  if (sha) body.sha = sha;
+  return await gh(path, { method: "PUT", body: JSON.stringify(body),
+    headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json", "content-type": "application/json" } });
+}
+
+let syncing = false;
+async function syncNow(quiet){
+  if (!syncOn() || syncing) return;
+  syncing = true; setSyncNote("Syncing…");
+  try {
+    const remote = await gh(INDEX_PATH);
+    const theirs = remote ? JSON.parse(unb64(remote.content)) : { receipts: [] };
+    const mine = (await store.all()) || [];   // tombstones included, or deletes never travel
+
+    // merge by id, newest change wins
+    const map = new Map();
+    for (const r of (theirs.receipts || [])) map.set(r.id, r);
+    for (const r of mine){
+      const t = map.get(r.id);
+      if (!t || String(r.updatedAt || r.addedAt || "") > String(t.updatedAt || t.addedAt || "")) map.set(r.id, r);
+    }
+    const merged = [...map.values()];
+
+    // anything new to us goes into local storage; anything deleted elsewhere goes out
+    for (const r of merged){
+      const local = mine.find(m => m.id === r.id);
+      if (r.deleted){ if (local) await store.del(r.id, true); continue; }
+      if (!local || String(r.updatedAt||"") !== String(local.updatedAt||"")) await store.put(r.id, r, true);
+    }
+
+    // push photos this device has but the repo doesn't
+    for (const r of merged){
+      if (r.deleted || r.remotePhoto) continue;
+      let all = true;
+      for (let i = 0; i < (r.pages || 1); i++){
+        const img = await store.photo(r.id + ":" + i);
+        if (!img){ all = false; continue; }
+        try { await ghPut(PHOTO_DIR + r.id + "-" + i + ".jpg", img.split(",")[1], null, "post page " + r.id + " " + i); }
+        catch(e){ if (!/sha|exists/i.test(e.message)) all = false; }
+      }
+      r.remotePhoto = all;
+    }
+
+    await ghPut(INDEX_PATH, b64(JSON.stringify({ belege: 1, updated: new Date().toISOString(), receipts: merged }, null, 1)),
+                remote && remote.sha, "belege index");
+    setSyncNote("Synced " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+  } catch(err){
+    setSyncNote("Sync failed: " + ((err && err.message) || err));
+    if (!quiet) flash("Sync failed: " + ((err && err.message) || err));
+  }
+  syncing = false;
+  render();
+}
+async function fetchPhoto(id){
+  if (!syncOn()) return null;
+  try {
+    const f = await gh(PHOTO_DIR + id.replace(":", "-") + ".jpg");
+    if (!f || !f.content) return null;
+    const url = "data:image/jpeg;base64," + String(f.content).replace(/\s/g, "");
+    await store.putPhoto(id, url);
+    return url;
+  } catch(e){ return null; }
+}
+function setSyncNote(t){ const el = $("#syncnote"); if (el) el.textContent = t; state.syncNote = t; }
+
+/* ---------- storage, local copy ---------- */
+function deviceStore(){
+  const open = new Promise((res, rej) => {
+    const r = indexedDB.open("post", 1);
+    r.onupgradeneeded = () => { const d = r.result;
+      if (!d.objectStoreNames.contains("receipts")) d.createObjectStore("receipts", { keyPath:"id" });
+      if (!d.objectStoreNames.contains("photos")) d.createObjectStore("photos"); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error || new Error("storage blocked"));
+    r.onblocked = () => rej(new Error("storage blocked"));
+  });
+  const run = async (name, mode, fn) => {
+    const d = await open;
+    return new Promise((res, rej) => {
+      const t = d.transaction(name, mode), q = fn(t.objectStore(name));
+      t.oncomplete = () => res(q && q.result);
+      t.onerror = () => rej(t.error || new Error("store error"));
+    });
+  };
+  let notify = null;
+  const push = async () => {
+    try { if (notify) notify(((await run("receipts","readonly",s=>s.getAll())) || []).filter(r => !r.deleted)); }
+    catch(e){ warn("Couldn't list your receipts. [" + ((e && e.name)||"") + ": " + ((e && e.message)||e) + "]"); }
+  };
+  return {
+    watch(cb){ notify = cb; push(); },
+    all(){ return run("receipts","readonly",s=>s.getAll()); },
+    async put(id, rec, fromSync){
+      const stamped = Object.assign({id}, rec, fromSync ? {} : { updatedAt: new Date().toISOString() });
+      await run("receipts","readwrite",s=>s.put(stamped)); await push();
+      if (!fromSync) queueSync();
+    },
+    async patch(id, p, fromSync){
+      const cur = await run("receipts","readonly",s=>s.get(id));
+      const stamped = Object.assign({id}, cur||{}, p, fromSync ? {} : { updatedAt: new Date().toISOString() });
+      await run("receipts","readwrite",s=>s.put(stamped)); await push();
+      if (!fromSync) queueSync();
+    },
+    photo: id => run("photos","readonly",s=>s.get(id)),
+    putPhoto: (id, url) => run("photos","readwrite",s=>s.put(url, id)),
+    async del(id, fromSync){
+      if (!fromSync && syncOn()){
+        const cur = await run("receipts","readonly",s=>s.get(id));
+        await run("receipts","readwrite",s=>s.put({ id, deleted:true, updatedAt:new Date().toISOString(),
+          thumb:null, keywords:[], items:[], vendor:(cur&&cur.vendor)||"" }));
+        await run("photos","readwrite",s=>s.delete(id)); await push(); queueSync(); return;
+      }
+      await run("receipts","readwrite",s=>s.delete(id));
+      await run("photos","readwrite",s=>s.delete(id)); await push();
+    }
+  };
+}
+let store = null, syncT = null;
+function queueSync(){ if (!syncOn()) return; clearTimeout(syncT); syncT = setTimeout(() => syncNow(true), 2500); }
+
+/* ---------- images ---------- */
+async function shrink(blob, w, q){
+  const bmp = await createImageBitmap(blob);
+  const scale = Math.min(1, w / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(bmp.width * scale));
+  c.height = Math.max(1, Math.round(bmp.height * scale));
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close && bmp.close();
+  return await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("encode")), "image/jpeg", q));
+}
+async function fit(blob, w, maxBytes, q){
+  for (let i = 0; i < 7; i++){
+    const out = await shrink(blob, w, q);
+    if (out.size <= maxBytes) return out;
+    if (q > 0.45) q -= 0.15; else w = Math.round(w * 0.8);
+  }
+  return await shrink(blob, Math.round(w * 0.6), 0.4);
+}
+const dataUrl = blob => new Promise((res, rej) => {
+  const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error("read")); r.readAsDataURL(blob);
+});
+function blobFromDataUrl(u){
+  const [meta, b64] = String(u).split(",");
+  const bin = atob(b64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type:(meta.match(/:(.*?);/) || [,"image/jpeg"])[1] });
+}
+
+/* ---------- adding ---------- */
+$("#file").onchange = async e => {
+  const files = [...e.target.files]; e.target.value = "";
+  if (files.length) await addLetter(files);
+};
+
+async function addLetter(files){
+  let pages = [], thumb;
+  try {
+    for (const f of files) pages.push(await fit(f, 1600, 400000, 0.82));
+    thumb = await fit(pages[0], 220, 22000, 0.6);
+  } catch(err){ flash("Couldn't open those files as images."); return; }
+
+  const tmp = { url: URL.createObjectURL(thumb),
+    label: (hasKey() ? "Reading" : "Filing") + (pages.length > 1 ? " " + pages.length + " pages…" : " the letter…") };
+  state.pending.push(tmp); render();
+
+  const id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  let info = { sender: hasKey() ? "Unread letter" : "New letter", subject:"" };
+  if (hasKey()){
+    try { info = await readLetter(pages); }
+    catch(err){ flash("Filed, but couldn't be read: " + ((err && err.message) || err)); }
+  }
+  try {
+    for (let i = 0; i < pages.length; i++) await store.putPhoto(id + ":" + i, await dataUrl(pages[i]));
+    await store.put(id, clean(info, await dataUrl(thumb), pages.length));
+  } catch(err){ flash("Couldn't file that letter: " + ((err && err.message) || err)); }
+
+  URL.revokeObjectURL(tmp.url);
+  state.pending = state.pending.filter(p => p !== tmp);
+  render();
+}
+
+async function addPages(d, files, say){
+  try {
+    const start = d.pages || 1;
+    for (let i = 0; i < files.length; i++){
+      const b = await fit(files[i], 1600, 400000, 0.82);
+      await store.putPhoto(d.id + ":" + (start + i), await dataUrl(b));
+    }
+    await store.patch(d.id, { pages: start + files.length, remotePhoto: false });
+    d.pages = start + files.length;
+    say("Pages added — tap Read again");
+    if (state.slipOpen === d.id) openSlip(d);
+  } catch(e){ flash("Couldn't add those pages."); }
+}
+
+function clean(i, thumb, pages){
+  const arr = v => Array.isArray(v) ? v.map(String).slice(0,30) : [];
+  const date = v => /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : null;
+  const rec = {
+    sender: String(i.sender || "Unknown").slice(0,90),
+    date: date(i.date),
+    subject: String(i.subject || "").slice(0,160),
+    plain: String(i.plain || "").slice(0,900),
+    action: i.action ? String(i.action).slice(0,300) : "",
+    deadline: date(i.deadline),
+    amount: typeof i.amount === "number" && isFinite(i.amount) ? i.amount : null,
+    currency: String(i.currency || "EUR").slice(0,5),
+    refs: arr(i.refs),
+    keywords: arr(i.keywords).map(x => x.toLowerCase()),
+    note: "", done: false, addedAt: new Date().toISOString()
+  };
+  if (thumb) rec.thumb = thumb;
+  if (typeof pages === "number") rec.pages = pages;
+  return rec;
+}
+
+async function reread(d, say){
+  if (!hasKey()){ flash("Add your API key in Settings first."); return; }
+  say("Reading…");
+  try {
+    const pages = [];
+    for (let i = 0; i < (d.pages || 1); i++){
+      let u = await store.photo(d.id + ":" + i);
+      if (!u) u = await fetchPhoto(d.id + ":" + i);
+      if (u) pages.push(blobFromDataUrl(u));
+    }
+    if (!pages.length){ say("No pages stored."); return; }
+    const info = await readLetter(pages);
+    const patch = clean(info);
+    delete patch.note; delete patch.addedAt; delete patch.done;
+    await store.patch(d.id, patch);
+    Object.assign(d, patch);
+    say("Read again"); render();
+    if (state.slipOpen === d.id) openSlip(d);
+  } catch(err){ say("Read again"); flash("Couldn't read that one: " + ((err && err.message) || err)); }
+}
+
+async function readAll(list){
+  state.reading = true;
+  const ub = $("#unread"); ub.style.display = "block";
+  for (let i = 0; i < list.length; i++){
+    ub.textContent = "Reading receipt " + (i+1) + " of " + list.length + "…";
+    await reread(list[i], () => {});
+  }
+  state.reading = false; render();
+}
+
+/* ---------- searching ---------- */
+function unread(d){ return !(d.keywords||[]).length && !d.plain; }
+function hay(d){ return [d.sender, d.subject, d.plain, d.action, d.note, (d.refs||[]).join(" "),
+  (d.keywords||[]).join(" "), d.date, d.deadline].filter(Boolean).join(" ").toLowerCase(); }
+
+const today = () => new Date().toISOString().slice(0,10);
+function due(d){
+  if (!d.deadline || d.done) return null;
+  const days = Math.round((new Date(d.deadline) - new Date(today())) / 86400000);
+  if (isNaN(days)) return null;
+  return { days, text: days < 0 ? "Overdue by " + (-days) + (days === -1 ? " day" : " days")
+                    : days === 0 ? "Due today" : days === 1 ? "Due tomorrow" : "Due in " + days + " days" };
+}
+function order(a,b){
+  const da = due(a), db = due(b);
+  if (da && db) return da.days - db.days;
+  if (da) return -1;
+  if (db) return 1;
+  if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+  return String(b.date||b.addedAt||"").localeCompare(String(a.date||a.addedAt||""));
+}
+const byDate = order;
+
+function matches(){
+  const q = state.query.trim().toLowerCase();
+  if (!q) return state.docs.slice().sort(order);
+  if (state.aiHits) return state.docs.filter(d => state.aiHits.includes(d.id)).sort(order);
+  const words = q.split(/\s+/).filter(w => w.length > 1);
+  return state.docs
+    .map(d => { const h = hay(d); return { d, n: words.filter(w => h.includes(w)).length }; })
+    .filter(x => x.n > 0)
+    .sort((a,b) => b.n - a.n || order(a.d, b.d))
+    .map(x => x.d);
+}
+
+$("#q").oninput = e => {
+  state.query = e.target.value; state.aiHits = null; state.answer = ""; $("#asknote").textContent = ""; render();
+  clearTimeout(state.autoT);
+  const q = state.query.trim();
+  const asks = /\?\s*$/.test(q) ||
+    /^(how|what|when|where|which|who|why|did|do|does|is|are|was|were|have|has|can|could|show|tell|list)\b/i.test(q);
+  const worth = q.length > 2 && hasKey() && state.docs.length && (matches().length === 0 || (asks && q.split(/\s+/).length > 2));
+  if (worth) state.autoT = setTimeout(() => { if (state.query.trim() === q && !state.aiHits) deepSearch(); }, asks ? 1200 : 900);
+};
+$("#clear").onclick = () => { $("#q").value = ""; state.query = ""; state.aiHits = null; state.answer = ""; render(); $("#q").focus(); };
+$("#askbtn").onclick = () => deepSearch();
+
+async function deepSearch(){
+  if (!hasKey() || state.asking) return;
+  const q = state.query.trim(); if (!q) return;
+  state.asking = true;
+  $("#asknote").textContent = "Claude is looking…";
+  state.answer = ""; render();
+  const index = state.docs.slice(0,400).map(d =>
+    [d.id, d.sender, d.date, d.deadline ? "deadline " + d.deadline : "", d.done ? "dealt with" : "",
+     (typeof d.amount === "number" ? d.amount.toFixed(2) + " " + (d.currency||"EUR") : ""),
+     d.subject, d.plain, d.action ? "action: " + d.action : "", (d.refs||[]).join("; "),
+     (d.keywords||[]).join(" "), d.note].join(" | "));
+  try {
+    const out = await claudeCall([{ type:"text", text:
+      'Each line below is one receipt: id | shop | date | total | summary | items with prices | keywords | note.\n' +
+      'The person asked: "' + q + '"\n' +
+      'The letters are in German while the person asks in English, so match on meaning: a Mahnung is a payment reminder, ' +
+      'a Bescheid is an official decision, a Widerspruchsfrist is the window for appealing.\n' +
+      'Reply with ONLY a JSON object: {"answer": string or null, "ids": array of matching receipt ids, best first, at most 8}.\n' +
+      'If they asked a question — what a letter demands, when something is due, what a reference number is, whether anything is ' +
+      'outstanding, how much is owed — answer it in one or two short plain sentences, naming the sender and the date. Today is ' +
+      new Date().toISOString().slice(0,10) + '. If the letters do not contain the answer, say so plainly rather than guessing. ' +
+      'If they were just searching for a thing rather than asking a question, set answer to null.\n\n' +
+      index.join("\n").slice(0, 60000) }], 500);
+    const got = parseJson(out);
+    const ids = Array.isArray(got) ? got : (got && got.ids) || [];
+    state.aiHits = ids.map(String);
+    state.answer = (got && !Array.isArray(got) && got.answer) ? String(got.answer) : "";
+    $("#asknote").textContent = state.answer ? "" : (state.aiHits.length ? "Claude's pick" : "Claude found nothing either.");
+  } catch(err){ state.answer = ""; $("#asknote").textContent = "Couldn't ask: " + ((err && err.message) || err); }
+  state.asking = false; render();
+}
+
+/* ---------- rendering ---------- */
+function money(n, c){
+  if (typeof n !== "number") return "";
+  try { return new Intl.NumberFormat("de-DE",{style:"currency",currency:c||"EUR"}).format(n); }
+  catch(e){ return n.toFixed(2); }
+}
+function render(){
+  const rows = matches();
+  const list = $("#list"); list.innerHTML = "";
+
+  for (const p of state.pending){
+    const li = document.createElement("li");
+    li.innerHTML = '<div class="row working"><div class="thumb"></div><div class="meat"><div class="vend"></div></div></div>';
+    li.querySelector(".thumb").style.backgroundImage = "url('" + p.url + "')";
+    li.querySelector(".vend").textContent = p.label;
+    list.appendChild(li);
+  }
+  for (const d of rows){
+    const li = document.createElement("li");
+    const b = document.createElement("button"); b.className = "row";
+    const t = document.createElement("div"); t.className = "thumb";
+    if (d.thumb) t.style.backgroundImage = "url('" + d.thumb + "')";
+    const m = document.createElement("div"); m.className = "meat";
+    const v = document.createElement("div"); v.className = "vend"; v.textContent = d.sender || "Unknown";
+    if (d.done) v.style.opacity = ".55";
+    const sm = document.createElement("div"); sm.className = "summ";
+    sm.textContent = d.subject || d.note || (unread(d) ? "Not read — open it and tap Read again" : "");
+    const f = document.createElement("div"); f.className = "figs";
+    const dd = due(d);
+    if (dd){
+      const chip = document.createElement("span");
+      chip.textContent = dd.text;
+      chip.style.cssText = "color:" + (dd.days < 3 ? "var(--alarm)" : "var(--stamp)") + ";font-weight:500";
+      f.appendChild(chip);
+      if (d.date) f.appendChild(document.createTextNode("  ·  " + d.date));
+    } else f.textContent = (d.done ? "Done  ·  " : "") + (d.date || "");
+    m.append(v, sm, f);
+    const a = document.createElement("div"); a.className = "amt"; a.textContent = money(d.amount, d.currency);
+    b.append(t, m, a); b.onclick = () => openSlip(d);
+    li.appendChild(b); list.appendChild(li);
+  }
+
+  const ans = $("#answer");
+  if (state.answer){
+    ans.style.display = "block"; ans.innerHTML = "";
+    ans.appendChild(document.createTextNode(state.answer));
+    const w = document.createElement("span"); w.className = "who";
+    w.textContent = state.asking ? "" : "from " + rows.length + (rows.length === 1 ? " receipt" : " receipts") + " below";
+    ans.appendChild(w);
+  } else if (state.asking){ ans.style.display = "block"; ans.textContent = "Reading through your receipts…"; }
+  else ans.style.display = "none";
+
+  const open = state.docs.filter(d => !d.done && (d.action || d.deadline)).length;
+  $("#count").textContent = state.docs.length ? rows.length + (open ? " · " + open + " to do" : "") : "";
+  $("#clear").style.display = state.query ? "block" : "none";
+  $("#deep").style.display = (state.query.trim() && hasKey()) ? "flex" : "none";
+
+  const pend = state.docs.filter(unread);
+  const ub = $("#unread");
+  if (!state.reading){
+    if (pend.length && hasKey()){
+      ub.style.display = "block"; ub.innerHTML = "";
+      const btn = document.createElement("button"); btn.textContent = "Read them now";
+      btn.onclick = () => readAll(pend);
+      ub.append(document.createTextNode(pend.length + (pend.length === 1 ? " letter hasn't" : " letters haven't") + " been read yet. "), btn);
+    } else if (!hasKey() && state.docs.length){
+      ub.style.display = "block"; ub.innerHTML = "";
+      const btn = document.createElement("button"); btn.textContent = "Settings";
+      btn.onclick = openSettings;
+      ub.append(document.createTextNode("Letters aren't being read — add your Claude API key in "), btn, document.createTextNode("."));
+    } else ub.style.display = "none";
+  }
+
+  const e = $("#empty");
+  if (rows.length || state.pending.length) e.textContent = "";
+  else if (state.query) e.innerHTML = "Nothing matching <b>" + esc(state.query) + "</b> yet.";
+  else e.innerHTML = "<b>Nothing filed yet.</b><br>Photograph a letter — all its pages at once — and it gets read, filed and made searchable. Deadlines are picked out and shown at the top.";
+}
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function flash(msg){
+  const w = $("#flash"); w.style.display = "block"; w.textContent = msg;
+  clearTimeout(flash.t); flash.t = setTimeout(() => { w.style.display = "none"; }, 12000);
+}
+function warn(msg){ const w = $("#warn"); w.style.display = "block"; w.textContent = msg; }
+
+/* ---------- one receipt ---------- */
+async function openSlip(d){
+  const s = $("#slip"); s.innerHTML = "";
+  const img = document.createElement("img"); img.src = d.thumb || ""; img.alt = "Letter from " + (d.sender || "");
+  s.appendChild(img);
+
+  const pager = document.createElement("div");
+  pager.style.cssText = "display:flex;gap:8px;justify-content:center;padding:8px 0 0;flex-wrap:wrap";
+  s.appendChild(pager);
+  $("#sheet").classList.add("on"); $("#sheet").scrollTop = 0; state.slipOpen = d.id;
+
+  const body = document.createElement("div"); body.className = "body";
+  const h = document.createElement("h2");
+  h.contentEditable = "true"; h.spellcheck = false; h.textContent = d.sender || "Unknown";
+  h.onblur = () => save({ sender: h.textContent.trim().slice(0,90) });
+  const sub = document.createElement("div"); sub.className = "sub";
+  sub.contentEditable = "true"; sub.spellcheck = false; sub.dataset.ph = "What is it?";
+  sub.textContent = d.subject || "";
+  sub.onblur = () => save({ subject: sub.textContent.trim().slice(0,160) });
+  body.append(h, sub);
+
+  if (d.plain){
+    const pl = document.createElement("div");
+    pl.style.cssText = "font-size:15px;line-height:1.5;margin:4px 0 14px;padding:12px 13px;background:var(--paper);border-radius:8px";
+    pl.textContent = d.plain;
+    body.appendChild(pl);
+  }
+  if (d.action && !d.done){
+    const ac = document.createElement("div");
+    ac.style.cssText = "font-size:15px;line-height:1.5;margin:0 0 14px;padding:12px 13px;border-left:3px solid var(--alarm);background:var(--paper);border-radius:0 8px 8px 0";
+    ac.textContent = "You need to: " + d.action;
+    body.appendChild(ac);
+  }
+
+  const kv = (k, v) => { if (!v) return; const r = document.createElement("div"); r.className = "kv";
+    const x = document.createElement("span"); x.textContent = k;
+    const y = document.createElement("span"); y.textContent = v; r.append(x,y); body.appendChild(r); };
+  const dd = due(d);
+  kv("Deadline", d.deadline ? d.deadline + (dd ? "  (" + dd.text.toLowerCase() + ")" : "") : "—");
+  kv("Letter dated", d.date || "—");
+  kv("Amount", money(d.amount, d.currency) || "—");
+  if ((d.refs||[]).length) kv("References", d.refs.join("\n"));
+  kv("Pages", String(d.pages || 1));
+  kv("Searchable words", (d.keywords||[]).length ? d.keywords.join(", ") : "none stored");
+
+  const ta = document.createElement("textarea");
+  ta.placeholder = "Your own note — what you did about it, who you rang, where the paper is.";
+  ta.value = d.note || "";
+  ta.onchange = () => save({ note: ta.value.slice(0,600) });
+  body.appendChild(ta);
+  s.appendChild(body);
+
+  const acts = document.createElement("div"); acts.className = "acts";
+  const doneBtn = document.createElement("button");
+  doneBtn.textContent = d.done ? "Not done after all" : "Mark dealt with";
+  doneBtn.onclick = () => { save({ done: !d.done }); doneBtn.textContent = d.done ? "Not done after all" : "Mark dealt with"; };
+  const again = document.createElement("button"); again.textContent = "Read again";
+  again.onclick = () => reread(d, t => { again.textContent = t; again.disabled = t === "Reading…"; });
+  if (!hasKey()) again.style.display = "none";
+  const addp = document.createElement("label"); addp.className = ""; addp.textContent = "Add page";
+  addp.style.cssText = "flex:1;min-width:90px;font:inherit;font-size:15px;padding:11px;border-radius:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;text-align:center;position:relative;overflow:hidden";
+  const pinp = document.createElement("input"); pinp.type = "file"; pinp.accept = "image/*"; pinp.multiple = true;
+  pinp.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;font-size:200px;cursor:pointer";
+  pinp.onchange = () => { const f = [...pinp.files]; pinp.value = ""; if (f.length) addPages(d, f, t => addp.textContent = t); };
+  addp.appendChild(pinp);
+  const close = document.createElement("button"); close.textContent = "Close"; close.onclick = closeSlip;
+  const del = document.createElement("button"); del.className = "danger"; del.textContent = "Delete";
+  del.onclick = async () => {
+    if (!confirm("Delete this letter for good?")) return;
+    try { await store.del(d.id); } catch(e){ flash("Couldn't delete that one."); }
+    closeSlip();
+  };
+  acts.append(doneBtn, again, addp, close, del); s.appendChild(acts);
+
+  async function save(patch){
+    try { await store.patch(d.id, patch); Object.assign(d, patch); render(); }
+    catch(e){ flash("Couldn't save that change."); }
+  }
+
+  // pages
+  const n = d.pages || 1;
+  const showPage = async i => {
+    let u = await store.photo(d.id + ":" + i);
+    if (!u) u = await fetchPhoto(d.id + ":" + i);
+    if (u) img.src = u;
+    [...pager.children].forEach((b, j) => b.style.fontWeight = j === i ? "600" : "400");
+  };
+  if (n > 1){
+    for (let i = 0; i < n; i++){
+      const b = document.createElement("button");
+      b.textContent = "Page " + (i + 1);
+      b.style.cssText = "font:inherit;font-size:13px;color:var(--stamp);background:none;border:0;cursor:pointer;padding:2px 6px";
+      b.onclick = () => showPage(i);
+      pager.appendChild(b);
+    }
+  }
+  showPage(0);
+}
+
+function closeSlip(){ $("#sheet").classList.remove("on"); state.slipOpen = null; }
+$("#sheet").onclick = e => { if (e.target.id === "sheet") closeSlip(); };
+
+/* ---------- settings ---------- */
+$("#cog").onclick = openSettings;
+function openSettings(){
+  const box = $("#setbox"); box.innerHTML = "";
+  const h = document.createElement("h2"); h.textContent = "Settings";
+  const p = document.createElement("p");
+  p.textContent = "Your Claude API key is kept in this browser only. It is never part of the page, so it is safe on a public site — but anyone using this device can see it.";
+  const l1 = document.createElement("label"); l1.textContent = "Claude API key";
+  const key = document.createElement("input"); key.type = "password"; key.placeholder = "sk-ant-…"; key.value = cfg.key;
+  const l3 = document.createElement("label"); l3.textContent = "Shared store — private GitHub repo (owner/name)";
+  const repo = document.createElement("input"); repo.type = "text"; repo.placeholder = "Jeff-Lynn-SC/belege-data"; repo.value = cfg.ghRepo;
+  const l4 = document.createElement("label"); l4.textContent = "GitHub token (Contents: read and write on that repo)";
+  const tok = document.createElement("input"); tok.type = "password"; tok.placeholder = "github_pat_… or ghp_…"; tok.value = cfg.ghToken;
+  const syncnote = document.createElement("p"); syncnote.id = "syncnote";
+  syncnote.textContent = state.syncNote || (syncOn() ? "Sharing is on." : "Not shared — this device only.");
+
+  const l2 = document.createElement("label"); l2.textContent = "Model";
+  const sel = document.createElement("select");
+  [["claude-haiku-4-5-20251001","Haiku 4.5 — fast and cheap"],["claude-sonnet-5","Sonnet 5 — better on bad photos"]]
+    .forEach(([v,t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); });
+  sel.value = cfg.model;
+  box.append(h, p, l1, key, l2, sel, l3, repo, l4, tok, syncnote);
+
+  const acts = document.createElement("div"); acts.className = "acts"; acts.style.padding = "16px 0 0";
+  const save = document.createElement("button"); save.textContent = "Save";
+  save.onclick = async () => {
+    cfg.key = key.value.trim(); cfg.model = sel.value;
+    cfg.ghRepo = repo.value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "");
+    cfg.ghToken = tok.value.trim();
+    $("#settings").classList.remove("on"); render();
+    if (syncOn()) await syncNow();
+  };
+  const sync = document.createElement("button"); sync.textContent = "Sync now";
+  sync.onclick = async () => {
+    cfg.ghRepo = repo.value.trim(); cfg.ghToken = tok.value.trim();
+    sync.disabled = true; await syncNow(); sync.disabled = false;
+    syncnote.textContent = state.syncNote || "";
+  };
+  const exp = document.createElement("button"); exp.textContent = "Export";
+  exp.onclick = () => exportAll();
+  const imp = document.createElement("button"); imp.textContent = "Import";
+  imp.onclick = () => importPick();
+  const close = document.createElement("button"); close.textContent = "Close";
+  close.onclick = () => $("#settings").classList.remove("on");
+  acts.append(save, sync, exp, imp, close); box.appendChild(acts);
+
+  const ver = document.createElement("p");
+  ver.textContent = "Version: " + BUILD;
+  box.appendChild(ver);
+  const note = document.createElement("p");
+  note.textContent = "With a private repo set, every device holding the same token shares one filing cabinet. Export still writes everything to a single file as a backup.";
+  box.appendChild(note);
+  $("#settings").classList.add("on");
+}
+$("#settings").onclick = e => { if (e.target.id === "settings") $("#settings").classList.remove("on"); };
+
+async function exportAll(){
+  const out = [];
+  for (const d of state.docs) out.push(Object.assign({}, d, { image: await store.photo(d.id) }));
+  const blob = new Blob([JSON.stringify({ belege:1, exported:new Date().toISOString(), receipts:out })], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "belege-" + new Date().toISOString().slice(0,10) + ".json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function importPick(){
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = "application/json";
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      let n = 0;
+      for (const r of (data.receipts || [])){
+        const { image, id, ...rest } = r;
+        const newId = id || ("r" + Date.now().toString(36) + Math.random().toString(36).slice(2,5));
+        if (image) await store.putPhoto(newId, image);
+        await store.put(newId, rest); n++;
+      }
+      flash("Brought in " + n + (n === 1 ? " receipt." : " receipts."));
+    } catch(e){ flash("That file couldn't be read: " + ((e && e.message) || e)); }
+  };
+  inp.click();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeSlip(); $("#settings").classList.remove("on");
+});
+
+/* ---------- start ---------- */
+(function start(){
+  try { store = deviceStore(); }
+  catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
+  store.watch(docs => { state.docs = docs; render(); });
+  render();
+  if (syncOn()) syncNow(true);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && syncOn()) syncNow(true); });
+})();
+</script>
+</body>
+</html>
