@@ -151,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "8";
+const BUILD = "9";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -691,7 +691,7 @@ function openSettings(){
   const l1 = document.createElement("label"); l1.textContent = "Claude API key";
   const key = document.createElement("input"); key.type = "password"; key.placeholder = "sk-ant-…"; key.value = cfg.key;
   const l3 = document.createElement("label"); l3.textContent = "Shared store — private GitHub repo (owner/name)";
-  const repo = document.createElement("input"); repo.type = "text"; repo.placeholder = "Jeff-Lynn-SC/belege-data"; repo.value = cfg.ghRepo;
+  const repo = document.createElement("input"); repo.type = "text"; repo.value = cfg.ghRepo || "Jeff-Lynn-SC/belege-data";
   const l4 = document.createElement("label"); l4.textContent = "GitHub token (Contents: read and write on that repo)";
   const tok = document.createElement("input"); tok.type = "password"; tok.placeholder = "github_pat_… or ghp_…"; tok.value = cfg.ghToken;
   const reveal = document.createElement("button");
