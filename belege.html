@@ -131,6 +131,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
   <div class="answer" id="answer" style="display:none"></div>
   <ul class="list" id="list"></ul>
   <div class="empty" id="empty"></div>
+  <div class="warn" id="syncline" style="display:none"></div>
   <div class="warn" id="unread" style="display:none"></div>
   <div class="warn" id="warn" style="display:none"></div>
   <div class="warn" id="flash" style="display:none"></div>
@@ -234,7 +235,11 @@ async function gh(path, opts){
   const r = await fetch("https://api.github.com/repos/" + cfg.ghRepo + "/contents/" + path, Object.assign({
     headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json" }
   }, opts || {}));
-  if (r.status === 404) return null;
+  const method = (opts && opts.method) || "GET";
+  if (r.status === 404){
+    if (method === "GET") return null;
+    throw new Error("repo or token not accepted — check the owner/name and that the token can write to it");
+  }
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((d && d.message) || ("GitHub said " + r.status));
   return d;
@@ -302,7 +307,20 @@ async function fetchPhoto(id){
     return url;
   } catch(e){ return null; }
 }
-function setSyncNote(t){ const el = $("#syncnote"); if (el) el.textContent = t; state.syncNote = t; }
+function setSyncNote(t){
+  state.syncNote = t;
+  const el = $("#syncnote"); if (el) el.textContent = t;
+  const line = $("#syncline");
+  if (!line) return;
+  const bad = /failed|not accepted|error/i.test(t);
+  if (!syncOn() && !bad){ line.style.display = "none"; return; }
+  line.style.display = "block"; line.innerHTML = "";
+  line.appendChild(document.createTextNode(t + "  "));
+  const b = document.createElement("button");
+  b.textContent = "Sync now"; b.onclick = () => syncNow();
+  line.appendChild(b);
+  line.style.color = bad ? "var(--alarm)" : "var(--soft)";
+}
 
 /* ---------- storage, local copy ---------- */
 function deviceStore(){
@@ -749,6 +767,7 @@ document.addEventListener("keydown", e => {
   catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
   store.watch(docs => { state.docs = docs; render(); });
   render();
+  setSyncNote(syncOn() ? "Sharing is on." : "Not shared — this device only.");
   if (syncOn()) syncNow(true);
   document.addEventListener("visibilitychange", () => { if (!document.hidden && syncOn()) syncNow(true); });
 })();
