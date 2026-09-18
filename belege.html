@@ -50,6 +50,9 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 .deep button{font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:4px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .deep .note{font-size:13px;color:var(--soft)}
 
+.answer{margin:16px 0 0;padding:14px 15px;border-left:3px solid var(--stamp);background:var(--card);
+  border-radius:0 8px 8px 0;font-size:15.5px;line-height:1.5;box-shadow:var(--shadow)}
+.answer .who{display:block;font-size:12px;color:var(--soft);margin-top:7px;font-family:"Spline Sans Mono",ui-monospace,monospace}
 .list{margin:16px 0 0;padding:0;list-style:none}
 .row{display:flex;gap:13px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;
   border-top:1px dotted var(--rule);padding:13px 2px;font:inherit;color:inherit;cursor:pointer}
@@ -125,6 +128,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
     <span class="note" id="asknote"></span>
   </div>
 
+  <div class="answer" id="answer" style="display:none"></div>
   <ul class="list" id="list"></ul>
   <div class="empty" id="empty"></div>
   <div class="warn" id="unread" style="display:none"></div>
@@ -190,7 +194,7 @@ const READ_PROMPT =
  ' "total": number or null (the amount actually paid),\n' +
  ' "currency": string like "EUR",\n' +
  ' "summary": string, at most 10 words of plain English naming what was bought,\n' +
- ' "items": array of strings — each line item as printed, with a plain-English gloss in brackets,\n' +
+ ' "items": array of strings — each line item EXACTLY as printed INCLUDING its price, then a plain-English gloss in brackets, e.g. "OATLY HAFERDRINK 1,99 (oat milk)",\n' +
  ' "keywords": array of 15-30 lowercase search terms}\n' +
  'The keywords decide whether the buyer finds this again months later, in whatever words come to mind. For EVERY item include: ' +
  'the German word as printed; its parts if compound; the literal English translation; the ordinary English name a British or ' +
@@ -366,13 +370,15 @@ function matches(){
 }
 
 $("#q").oninput = e => {
-  state.query = e.target.value; state.aiHits = null; $("#asknote").textContent = ""; render();
+  state.query = e.target.value; state.aiHits = null; state.answer = ""; $("#asknote").textContent = ""; render();
   clearTimeout(state.autoT);
   const q = state.query.trim();
-  if (q.length > 2 && hasKey() && state.docs.length && matches().length === 0)
-    state.autoT = setTimeout(() => { if (state.query.trim() === q && !state.aiHits) deepSearch(); }, 900);
+  const asks = /\?\s*$/.test(q) ||
+    /^(how|what|when|where|which|who|why|did|do|does|is|are|was|were|have|has|can|could|show|tell|list)\b/i.test(q);
+  const worth = q.length > 2 && hasKey() && state.docs.length && (matches().length === 0 || (asks && q.split(/\s+/).length > 2));
+  if (worth) state.autoT = setTimeout(() => { if (state.query.trim() === q && !state.aiHits) deepSearch(); }, asks ? 1200 : 900);
 };
-$("#clear").onclick = () => { $("#q").value = ""; state.query = ""; state.aiHits = null; render(); $("#q").focus(); };
+$("#clear").onclick = () => { $("#q").value = ""; state.query = ""; state.aiHits = null; state.answer = ""; render(); $("#q").focus(); };
 $("#askbtn").onclick = () => deepSearch();
 
 async function deepSearch(){
@@ -380,21 +386,28 @@ async function deepSearch(){
   const q = state.query.trim(); if (!q) return;
   state.asking = true;
   $("#asknote").textContent = "Claude is looking…";
-  $("#empty").textContent = "Claude is looking through them…";
+  state.answer = ""; render();
   const index = state.docs.slice(0,400).map(d =>
-    [d.id, d.vendor, d.date, d.summary, (d.items||[]).join("; "), (d.keywords||[]).join(" "), d.note].join(" | "));
+    [d.id, d.vendor, d.date, (typeof d.total === "number" ? d.total.toFixed(2) + " " + (d.currency||"EUR") : ""),
+     d.summary, (d.items||[]).join("; "), (d.keywords||[]).join(" "), d.note].join(" | "));
   try {
     const out = await claudeCall([{ type:"text", text:
-      'Each line below is one receipt: id | shop | date | summary | items | keywords | note.\n' +
-      'Someone is looking for: "' + q + '"\n' +
-      'The wording is often German and abbreviated while the person asks in English, so match on meaning: an item printed ' +
-      'AUSPRESSE-PISTOLE is what someone would call a caulking gun or cartridge gun. Consider what a thing is used for too.\n' +
-      'Reply with ONLY a JSON array of the ids that plausibly match, best first, at most 8. Empty array if none.\n\n' +
+      'Each line below is one receipt: id | shop | date | total | summary | items with prices | keywords | note.\n' +
+      'The person asked: "' + q + '"\n' +
+      'The wording on the receipts is often German and abbreviated while the person asks in English, so match on meaning: an item ' +
+      'printed AUSPRESSE-PISTOLE is what someone would call a caulking gun or cartridge gun. Consider what a thing is used for too.\n' +
+      'Reply with ONLY a JSON object: {"answer": string or null, "ids": array of matching receipt ids, best first, at most 8}.\n' +
+      'If they asked a question — a price, a date, a shop, how much was spent on something, when something was bought — answer it ' +
+      'in one or two short plain sentences, giving the figure and where and when it came from. Add up across receipts if the ' +
+      'question calls for it. If the receipts do not contain the answer, say so plainly in the answer field rather than guessing. ' +
+      'If they were just searching for a thing rather than asking a question, set answer to null.\n\n' +
       index.join("\n").slice(0, 60000) }], 500);
-    const ids = parseJson(out);
-    state.aiHits = Array.isArray(ids) ? ids.map(String) : [];
-    $("#asknote").textContent = state.aiHits.length ? "Claude's pick" : "Claude found nothing either.";
-  } catch(err){ $("#asknote").textContent = "Couldn't ask: " + ((err && err.message) || err); }
+    const got = parseJson(out);
+    const ids = Array.isArray(got) ? got : (got && got.ids) || [];
+    state.aiHits = ids.map(String);
+    state.answer = (got && !Array.isArray(got) && got.answer) ? String(got.answer) : "";
+    $("#asknote").textContent = state.answer ? "" : (state.aiHits.length ? "Claude's pick" : "Claude found nothing either.");
+  } catch(err){ state.answer = ""; $("#asknote").textContent = "Couldn't ask: " + ((err && err.message) || err); }
   state.asking = false; render();
 }
 
@@ -430,6 +443,16 @@ function render(){
     b.append(t, m, a); b.onclick = () => openSlip(d);
     li.appendChild(b); list.appendChild(li);
   }
+
+  const ans = $("#answer");
+  if (state.answer){
+    ans.style.display = "block"; ans.innerHTML = "";
+    ans.appendChild(document.createTextNode(state.answer));
+    const w = document.createElement("span"); w.className = "who";
+    w.textContent = state.asking ? "" : "from " + rows.length + (rows.length === 1 ? " receipt" : " receipts") + " below";
+    ans.appendChild(w);
+  } else if (state.asking){ ans.style.display = "block"; ans.textContent = "Reading through your receipts…"; }
+  else ans.style.display = "none";
 
   const sum = rows.reduce((n,d) => n + (typeof d.total === "number" ? d.total : 0), 0);
   $("#count").textContent = state.docs.length ? rows.length + " · " + money(sum, (rows[0]||{}).currency) : "";
