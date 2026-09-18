@@ -151,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "6";
+const BUILD = "7";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -259,8 +259,10 @@ async function ghPut(path, contentB64, sha, message){
 
 let syncing = false;
 async function syncNow(quiet){
-  if (!syncOn() || syncing) return;
-  syncing = true; setSyncNote("Syncing…");
+  if (!syncOn()){ setSyncNote(syncState()); return; }
+  if (syncing && Date.now() - (syncing.at || 0) < 120000) return;
+  syncing = { at: Date.now() };
+  setSyncNote("Syncing…");
   try {
     const remote = await gh(INDEX_PATH);
     const theirs = remote ? JSON.parse(unb64(remote.content)) : { receipts: [] };
@@ -314,6 +316,13 @@ async function fetchPhoto(id){
     await store.putPhoto(id, url);
     return url;
   } catch(e){ return null; }
+}
+function syncState(){
+  if (syncOn()) return "Sharing is on.";
+  const r = cfg.ghRepo, k = cfg.ghToken;
+  if (!r && !k) return "Not shared — no repo or token saved.";
+  if (!r) return "Not shared — token saved, repo field is empty.";
+  return "Not shared — repo " + r + " saved, but no token saved.";
 }
 function setSyncNote(t){
   state.syncNote = t;
@@ -809,7 +818,9 @@ function openSettings(){
     cfg.ghRepo = repo.value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "");
     cfg.ghToken = tok.value.trim();
     $("#settings").classList.remove("on"); render();
+    setSyncNote(syncState());
     if (syncOn()) await syncNow();
+    else flash("Saved, but sharing is off — " + syncState().replace("Not shared — ", ""));
   };
   const sync = document.createElement("button"); sync.textContent = "Sync now";
   sync.onclick = async () => {
@@ -877,7 +888,7 @@ $("#build").textContent = "Post · build " + BUILD;
   catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
   store.watch(docs => { state.docs = docs; render(); });
   render();
-  setSyncNote(syncOn() ? "Sharing is on." : "Not shared — this device only.");
+  setSyncNote(syncState());
   if (syncOn()) syncNow(true);
   document.addEventListener("visibilitychange", () => { if (!document.hidden && syncOn()) syncNow(true); });
 })();
