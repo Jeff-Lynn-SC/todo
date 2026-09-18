@@ -149,6 +149,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
+const BUILD = "18 Sep 2026 · answers questions";
 const KEY = "belege.apikey", MODEL = "belege.model";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -568,6 +569,9 @@ function openSettings(){
   close.onclick = () => $("#settings").classList.remove("on");
   acts.append(save, exp, imp, close); box.appendChild(acts);
 
+  const ver = document.createElement("p");
+  ver.textContent = "Version: " + BUILD;
+  box.appendChild(ver);
   const note = document.createElement("p");
   note.textContent = "Export writes everything — receipts and photos — to one file you can keep or move to another device.";
   box.appendChild(note);
