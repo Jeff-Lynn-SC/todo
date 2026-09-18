@@ -151,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "7";
+const BUILD = "8";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -694,6 +694,23 @@ function openSettings(){
   const repo = document.createElement("input"); repo.type = "text"; repo.placeholder = "Jeff-Lynn-SC/belege-data"; repo.value = cfg.ghRepo;
   const l4 = document.createElement("label"); l4.textContent = "GitHub token (Contents: read and write on that repo)";
   const tok = document.createElement("input"); tok.type = "password"; tok.placeholder = "github_pat_… or ghp_…"; tok.value = cfg.ghToken;
+  const reveal = document.createElement("button");
+  reveal.textContent = "Show keys";
+  reveal.style.cssText = "font:inherit;font-size:13.5px;color:var(--stamp);background:none;border:0;padding:6px 0 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px";
+  reveal.onclick = () => {
+    const showing = key.type === "text";
+    key.type = tok.type = showing ? "password" : "text";
+    reveal.textContent = showing ? "Show keys" : "Hide keys";
+    stored.style.display = showing ? "none" : "block";
+  };
+  const stored = document.createElement("p");
+  stored.style.cssText = "display:none;font-family:'Spline Sans Mono',ui-monospace,monospace;font-size:12px;white-space:pre-wrap;word-break:break-all";
+  const shown = v => v ? v + "  (" + v.length + " characters)" : "— nothing saved —";
+  stored.textContent = "Currently saved on this device:\n" +
+    "Claude key:  " + shown(cfg.key) + "\n" +
+    "Repo:        " + shown(cfg.ghRepo) + "\n" +
+    "GitHub token:" + shown(cfg.ghToken);
+
   const syncnote = document.createElement("p"); syncnote.id = "syncnote";
   syncnote.textContent = state.syncNote || (syncOn() ? "Sharing is on." : "Not shared — this device only.");
 
@@ -702,7 +719,7 @@ function openSettings(){
   [["claude-haiku-4-5-20251001","Haiku 4.5 — fast and cheap"],["claude-sonnet-5","Sonnet 5 — better on bad photos"]]
     .forEach(([v,t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); });
   sel.value = cfg.model;
-  box.append(h, p, l1, key, l2, sel, l3, repo, l4, tok, syncnote);
+  box.append(h, p, l1, key, l2, sel, l3, repo, l4, tok, reveal, stored, syncnote);
 
   const acts = document.createElement("div"); acts.className = "acts"; acts.style.padding = "16px 0 0";
   const save = document.createElement("button"); save.textContent = "Save";
@@ -711,6 +728,10 @@ function openSettings(){
     cfg.ghRepo = repo.value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "");
     cfg.ghToken = tok.value.trim();
     $("#settings").classList.remove("on"); render();
+    stored.textContent = "Currently saved on this device:\n" +
+      "Claude key:  " + shown(cfg.key) + "\n" +
+      "Repo:        " + shown(cfg.ghRepo) + "\n" +
+      "GitHub token:" + shown(cfg.ghToken);
     setSyncNote(syncState());
     if (syncOn()) await syncNow();
     else flash("Saved, but sharing is off — " + syncState().replace("Not shared — ", ""));
