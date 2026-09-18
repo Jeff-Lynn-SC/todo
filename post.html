@@ -151,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "9";
+const BUILD = "10";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -264,6 +264,14 @@ async function syncNow(quiet){
   syncing = { at: Date.now() };
   setSyncNote("Syncing…");
   try {
+    // check the token can actually see and write this repo before doing anything
+    const who = await fetch("https://api.github.com/repos/" + cfg.ghRepo, {
+      headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json" } });
+    if (who.status === 404) throw new Error("this token can't see " + cfg.ghRepo + " — if it's a fine-grained token, add that repo to it");
+    if (who.status === 401) throw new Error("GitHub rejected the token — it may be expired or revoked");
+    const info = await who.json().catch(() => ({}));
+    if (!who.ok) throw new Error((info && info.message) || ("GitHub said " + who.status));
+    if (info.permissions && !info.permissions.push) throw new Error("this token can read " + cfg.ghRepo + " but not write — it needs Contents: read and write");
     const remote = await gh(INDEX_PATH);
     const theirs = remote ? JSON.parse(unb64(remote.content)) : { receipts: [] };
     const mine = (await store.all()) || [];   // tombstones included, or deletes never travel
