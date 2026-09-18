@@ -149,14 +149,19 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "18 Sep 2026 · answers questions";
-const KEY = "belege.apikey", MODEL = "belege.model";
+const BUILD = "18 Sep 2026 · shared across devices";
+const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
   set key(v){ try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch(e){} },
   get model(){ try { return localStorage.getItem(MODEL) || "claude-haiku-4-5-20251001"; } catch(e){ return "claude-haiku-4-5-20251001"; } },
-  set model(v){ try { localStorage.setItem(MODEL, v); } catch(e){} }
+  set model(v){ try { localStorage.setItem(MODEL, v); } catch(e){} },
+  get ghToken(){ try { return localStorage.getItem(GHT) || ""; } catch(e){ return ""; } },
+  set ghToken(v){ try { v ? localStorage.setItem(GHT, v) : localStorage.removeItem(GHT); } catch(e){} },
+  get ghRepo(){ try { return localStorage.getItem(GHR) || ""; } catch(e){ return ""; } },
+  set ghRepo(v){ try { v ? localStorage.setItem(GHR, v) : localStorage.removeItem(GHR); } catch(e){} }
 };
+const syncOn = () => !!(cfg.ghToken && cfg.ghRepo);
 const hasKey = () => !!cfg.key;
 
 /* ---------- Claude, called straight from this page with your own key ---------- */
@@ -214,7 +219,92 @@ async function readReceipt(blob){
   return parseJson(text);
 }
 
-/* ---------- storage, on this device ---------- */
+
+/* ---------- sharing the shoebox between devices, through a private repo ---------- */
+function b64(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin);
+}
+function unb64(s){
+  const bin = atob(String(s).replace(/\s/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+}
+async function gh(path, opts){
+  const r = await fetch("https://api.github.com/repos/" + cfg.ghRepo + "/contents/" + path, Object.assign({
+    headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json" }
+  }, opts || {}));
+  if (r.status === 404) return null;
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((d && d.message) || ("GitHub said " + r.status));
+  return d;
+}
+async function ghPut(path, contentB64, sha, message){
+  const body = { message: message || "belege", content: contentB64, branch: "main" };
+  if (sha) body.sha = sha;
+  return await gh(path, { method: "PUT", body: JSON.stringify(body),
+    headers: { "Authorization": "Bearer " + cfg.ghToken, "Accept": "application/vnd.github+json", "content-type": "application/json" } });
+}
+
+let syncing = false;
+async function syncNow(quiet){
+  if (!syncOn() || syncing) return;
+  syncing = true; setSyncNote("Syncing…");
+  try {
+    const remote = await gh("index.json");
+    const theirs = remote ? JSON.parse(unb64(remote.content)) : { receipts: [] };
+    const mine = (await store.all()) || [];   // tombstones included, or deletes never travel
+
+    // merge by id, newest change wins
+    const map = new Map();
+    for (const r of (theirs.receipts || [])) map.set(r.id, r);
+    for (const r of mine){
+      const t = map.get(r.id);
+      if (!t || String(r.updatedAt || r.addedAt || "") > String(t.updatedAt || t.addedAt || "")) map.set(r.id, r);
+    }
+    const merged = [...map.values()];
+
+    // anything new to us goes into local storage; anything deleted elsewhere goes out
+    for (const r of merged){
+      const local = mine.find(m => m.id === r.id);
+      if (r.deleted){ if (local) await store.del(r.id, true); continue; }
+      if (!local || String(r.updatedAt||"") !== String(local.updatedAt||"")) await store.put(r.id, r, true);
+    }
+
+    // push photos this device has but the repo doesn't
+    for (const r of merged){
+      if (r.deleted || r.remotePhoto) continue;
+      const img = await store.photo(r.id);
+      if (!img) continue;
+      try {
+        await ghPut("photos/" + r.id + ".jpg", img.split(",")[1], null, "belege photo " + r.id);
+        r.remotePhoto = true;
+      } catch(e){ if (/sha|exists/i.test(e.message)) r.remotePhoto = true; }
+    }
+
+    await ghPut("index.json", b64(JSON.stringify({ belege: 1, updated: new Date().toISOString(), receipts: merged }, null, 1)),
+                remote && remote.sha, "belege index");
+    setSyncNote("Synced " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+  } catch(err){
+    setSyncNote("Sync failed: " + ((err && err.message) || err));
+    if (!quiet) flash("Sync failed: " + ((err && err.message) || err));
+  }
+  syncing = false;
+  render();
+}
+async function fetchPhoto(id){
+  if (!syncOn()) return null;
+  try {
+    const f = await gh("photos/" + id + ".jpg");
+    if (!f || !f.content) return null;
+    const url = "data:image/jpeg;base64," + String(f.content).replace(/\s/g, "");
+    await store.putPhoto(id, url);
+    return url;
+  } catch(e){ return null; }
+}
+function setSyncNote(t){ const el = $("#syncnote"); if (el) el.textContent = t; state.syncNote = t; }
+
+/* ---------- storage, local copy ---------- */
 function deviceStore(){
   const open = new Promise((res, rej) => {
     const r = indexedDB.open("belege", 1);
@@ -235,22 +325,39 @@ function deviceStore(){
   };
   let notify = null;
   const push = async () => {
-    try { if (notify) notify((await run("receipts","readonly",s=>s.getAll())) || []); }
+    try { if (notify) notify(((await run("receipts","readonly",s=>s.getAll())) || []).filter(r => !r.deleted)); }
     catch(e){ warn("Couldn't list your receipts. [" + ((e && e.name)||"") + ": " + ((e && e.message)||e) + "]"); }
   };
   return {
     watch(cb){ notify = cb; push(); },
-    async put(id, rec){ await run("receipts","readwrite",s=>s.put(Object.assign({id}, rec))); await push(); },
-    async patch(id, p){
+    all(){ return run("receipts","readonly",s=>s.getAll()); },
+    async put(id, rec, fromSync){
+      const stamped = Object.assign({id}, rec, fromSync ? {} : { updatedAt: new Date().toISOString() });
+      await run("receipts","readwrite",s=>s.put(stamped)); await push();
+      if (!fromSync) queueSync();
+    },
+    async patch(id, p, fromSync){
       const cur = await run("receipts","readonly",s=>s.get(id));
-      await run("receipts","readwrite",s=>s.put(Object.assign({id}, cur||{}, p))); await push();
+      const stamped = Object.assign({id}, cur||{}, p, fromSync ? {} : { updatedAt: new Date().toISOString() });
+      await run("receipts","readwrite",s=>s.put(stamped)); await push();
+      if (!fromSync) queueSync();
     },
     photo: id => run("photos","readonly",s=>s.get(id)),
     putPhoto: (id, url) => run("photos","readwrite",s=>s.put(url, id)),
-    async del(id){ await run("receipts","readwrite",s=>s.delete(id)); await run("photos","readwrite",s=>s.delete(id)); await push(); }
+    async del(id, fromSync){
+      if (!fromSync && syncOn()){
+        const cur = await run("receipts","readonly",s=>s.get(id));
+        await run("receipts","readwrite",s=>s.put({ id, deleted:true, updatedAt:new Date().toISOString(),
+          thumb:null, keywords:[], items:[], vendor:(cur&&cur.vendor)||"" }));
+        await run("photos","readwrite",s=>s.delete(id)); await push(); queueSync(); return;
+      }
+      await run("receipts","readwrite",s=>s.delete(id));
+      await run("photos","readwrite",s=>s.delete(id)); await push();
+    }
   };
 }
-let store = null;
+let store = null, syncT = null;
+function queueSync(){ if (!syncOn()) return; clearTimeout(syncT); syncT = setTimeout(() => syncNow(true), 2500); }
 
 /* ---------- images ---------- */
 async function shrink(blob, w, q){
@@ -537,7 +644,11 @@ async function openSlip(d){
     try { await store.patch(d.id, patch); Object.assign(d, patch); render(); }
     catch(e){ flash("Couldn't save that change."); }
   }
-  try { const full = await store.photo(d.id); if (full) img.src = full; } catch(e){}
+  try {
+    let full = await store.photo(d.id);
+    if (!full) full = await fetchPhoto(d.id);
+    if (full) img.src = full;
+  } catch(e){}
 }
 function closeSlip(){ $("#sheet").classList.remove("on"); state.slipOpen = null; }
 $("#sheet").onclick = e => { if (e.target.id === "sheet") closeSlip(); };
@@ -551,29 +662,48 @@ function openSettings(){
   p.textContent = "Your Claude API key is kept in this browser only. It is never part of the page, so it is safe on a public site — but anyone using this device can see it.";
   const l1 = document.createElement("label"); l1.textContent = "Claude API key";
   const key = document.createElement("input"); key.type = "password"; key.placeholder = "sk-ant-…"; key.value = cfg.key;
+  const l3 = document.createElement("label"); l3.textContent = "Shared store — private GitHub repo (owner/name)";
+  const repo = document.createElement("input"); repo.type = "text"; repo.placeholder = "Jeff-Lynn-SC/belege-data"; repo.value = cfg.ghRepo;
+  const l4 = document.createElement("label"); l4.textContent = "GitHub token (Contents: read and write on that repo)";
+  const tok = document.createElement("input"); tok.type = "password"; tok.placeholder = "github_pat_… or ghp_…"; tok.value = cfg.ghToken;
+  const syncnote = document.createElement("p"); syncnote.id = "syncnote";
+  syncnote.textContent = state.syncNote || (syncOn() ? "Sharing is on." : "Not shared — this device only.");
+
   const l2 = document.createElement("label"); l2.textContent = "Model";
   const sel = document.createElement("select");
   [["claude-haiku-4-5-20251001","Haiku 4.5 — fast and cheap"],["claude-sonnet-5","Sonnet 5 — better on bad photos"]]
     .forEach(([v,t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); });
   sel.value = cfg.model;
-  box.append(h, p, l1, key, l2, sel);
+  box.append(h, p, l1, key, l2, sel, l3, repo, l4, tok, syncnote);
 
   const acts = document.createElement("div"); acts.className = "acts"; acts.style.padding = "16px 0 0";
   const save = document.createElement("button"); save.textContent = "Save";
-  save.onclick = () => { cfg.key = key.value.trim(); cfg.model = sel.value; $("#settings").classList.remove("on"); render(); };
+  save.onclick = async () => {
+    cfg.key = key.value.trim(); cfg.model = sel.value;
+    cfg.ghRepo = repo.value.trim().replace(/^https?:\/\/github\.com\//, "").replace(/\.git$/, "");
+    cfg.ghToken = tok.value.trim();
+    $("#settings").classList.remove("on"); render();
+    if (syncOn()) await syncNow();
+  };
+  const sync = document.createElement("button"); sync.textContent = "Sync now";
+  sync.onclick = async () => {
+    cfg.ghRepo = repo.value.trim(); cfg.ghToken = tok.value.trim();
+    sync.disabled = true; await syncNow(); sync.disabled = false;
+    syncnote.textContent = state.syncNote || "";
+  };
   const exp = document.createElement("button"); exp.textContent = "Export";
   exp.onclick = () => exportAll();
   const imp = document.createElement("button"); imp.textContent = "Import";
   imp.onclick = () => importPick();
   const close = document.createElement("button"); close.textContent = "Close";
   close.onclick = () => $("#settings").classList.remove("on");
-  acts.append(save, exp, imp, close); box.appendChild(acts);
+  acts.append(save, sync, exp, imp, close); box.appendChild(acts);
 
   const ver = document.createElement("p");
   ver.textContent = "Version: " + BUILD;
   box.appendChild(ver);
   const note = document.createElement("p");
-  note.textContent = "Export writes everything — receipts and photos — to one file you can keep or move to another device.";
+  note.textContent = "With a private repo set, every device holding the same token shares one shoebox. Export still writes everything to a single file as a backup.";
   box.appendChild(note);
   $("#settings").classList.add("on");
 }
@@ -619,6 +749,8 @@ document.addEventListener("keydown", e => {
   catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
   store.watch(docs => { state.docs = docs; render(); });
   render();
+  if (syncOn()) syncNow(true);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && syncOn()) syncNow(true); });
 })();
 </script>
 </body>
