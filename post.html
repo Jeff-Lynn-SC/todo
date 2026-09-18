@@ -151,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "5";
+const BUILD = "6";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -321,11 +321,11 @@ function setSyncNote(t){
   const line = $("#syncline");
   if (!line) return;
   const bad = /failed|not accepted|error/i.test(t);
-  if (!syncOn() && !bad){ line.style.display = "none"; return; }
   line.style.display = "block"; line.innerHTML = "";
   line.appendChild(document.createTextNode(t + "  "));
   const b = document.createElement("button");
-  b.textContent = "Sync now"; b.onclick = () => syncNow();
+  if (syncOn()){ b.textContent = "Sync now"; b.onclick = () => syncNow(); }
+  else { b.textContent = "Set up sharing"; b.onclick = openSettings; }
   line.appendChild(b);
   line.style.color = bad ? "var(--alarm)" : "var(--soft)";
 }
