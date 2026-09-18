@@ -135,6 +135,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
   <div class="warn" id="unread" style="display:none"></div>
   <div class="warn" id="warn" style="display:none"></div>
   <div class="warn" id="flash" style="display:none"></div>
+  <div id="build" style="color:var(--soft);font-size:11.5px;font-family:'Spline Sans Mono',ui-monospace,monospace;padding:22px 2px 6px;text-align:center;opacity:.7"></div>
 </div>
 
 <div class="addbar"><div class="inner">
@@ -150,7 +151,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "18 Sep 2026 · shared across devices";
+const BUILD = "5";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -762,6 +763,8 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- start ---------- */
+$("#build").textContent = "Belege · build " + BUILD;
+
 (function start(){
   try { store = deviceStore(); }
   catch(e){ warn("This browser won't let the app store anything (" + ((e && e.message) || e) + ")."); render(); return; }
