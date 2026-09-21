@@ -462,6 +462,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "walk_eve": {
+          "status": "done",
+          "at": "20:00",
+          "unplanned": false
         }
       }
     }
