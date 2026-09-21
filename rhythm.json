@@ -483,6 +483,11 @@
           "status": "done",
           "at": "20:00",
           "unplanned": false
+        },
+        "walk_pm": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
