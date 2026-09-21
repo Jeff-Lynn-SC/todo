@@ -468,7 +468,8 @@
           "at": "20:00",
           "unplanned": false
         }
-      }
+      },
+      "note": "SPen"
     }
   }
 }
