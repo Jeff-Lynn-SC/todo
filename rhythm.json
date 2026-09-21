@@ -257,9 +257,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "lots_of_coincidental_wor",
+        "label": "lots of Coincidental work",
+        "start": "12:00",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-21",
+        "text": "Logged lots of Coincidental work for the first time"
+      },
       {
         "at": "2026-09-11",
         "text": "Logged Staring coincidental work for the first time"
@@ -488,6 +501,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "lots_of_coincidental_wor": {
+          "status": "done",
+          "at": "12:00",
+          "unplanned": true
         }
       }
     }
