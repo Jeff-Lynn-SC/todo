@@ -508,6 +508,16 @@
           "unplanned": true
         }
       }
+    },
+    "2026-09-20": {
+      "date": "2026-09-20",
+      "entries": {
+        "hike": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
+        }
+      }
     }
   }
 }
