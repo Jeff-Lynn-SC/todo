@@ -257,35 +257,9 @@
         "days": [],
         "kind": "logged",
         "track": true
-      },
-      {
-        "id": "did_a_bunch_of_darrin_st",
-        "label": "Did a bunch of Darrin stuff in the morning",
-        "start": "15:45",
-        "dur": 0,
-        "days": [],
-        "kind": "logged",
-        "track": true
-      },
-      {
-        "id": "lots_of_darrin_stuff",
-        "label": "Lots of Darrin stuff",
-        "start": "18:25",
-        "dur": 0,
-        "days": [],
-        "kind": "logged",
-        "track": true
       }
     ],
     "history": [
-      {
-        "at": "2026-09-16",
-        "text": "Logged Lots of Darrin stuff for the first time"
-      },
-      {
-        "at": "2026-09-15",
-        "text": "Logged Did a bunch of Darrin stuff in the morning for the first time"
-      },
       {
         "at": "2026-09-11",
         "text": "Logged Staring coincidental work for the first time"
@@ -465,82 +439,11 @@
       "date": "2026-09-15",
       "entries": {
         "walk_am": {
-          "status": "done",
-          "at": "15:45",
-          "unplanned": false
-        },
-        "stretch": {
-          "status": "done",
-          "at": "15:45",
-          "unplanned": false
-        },
-        "did_a_bunch_of_darrin_st": {
-          "status": "done",
-          "at": "15:45",
-          "unplanned": true
-        }
-      }
-    },
-    "2026-09-16": {
-      "date": "2026-09-16",
-      "entries": {
-        "walk_pm": {
           "status": "skipped",
           "at": null,
           "unplanned": false
-        },
-        "walk_am": {
-          "status": "done",
-          "at": "18:25",
-          "unplanned": false
-        },
-        "clean": {
-          "status": "skipped",
-          "at": null,
-          "unplanned": false
-        },
-        "lots_of_darrin_stuff": {
-          "status": "done",
-          "at": "18:25",
-          "unplanned": true
-        },
-        "cook": {
-          "status": "done",
-          "at": "22:25",
-          "unplanned": false
-        },
-        "walk_eve": {
-          "status": "done",
-          "at": "22:25",
-          "unplanned": false
         }
       }
-    },
-    "2026-09-17": {
-      "date": "2026-09-17",
-      "entries": {
-        "walk_am": {
-          "status": "done",
-          "at": "23:30",
-          "unplanned": false
-        },
-        "stretch": {
-          "status": "done",
-          "at": "23:30",
-          "unplanned": false
-        },
-        "cook": {
-          "status": "done",
-          "at": "23:30",
-          "unplanned": false
-        },
-        "walk_eve": {
-          "status": "done",
-          "at": "23:30",
-          "unplanned": false
-        }
-      },
-      "note": "Again lots of Darrin work. Also bread making and an hour of admin before coincidental "
     }
   }
 }
