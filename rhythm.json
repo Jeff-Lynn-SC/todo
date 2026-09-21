@@ -478,6 +478,11 @@
           "status": "done",
           "at": "08:00",
           "unplanned": false
+        },
+        "walk_eve": {
+          "status": "done",
+          "at": "20:00",
+          "unplanned": false
         }
       }
     }
