@@ -598,6 +598,11 @@
           "status": "done",
           "at": "10:00",
           "unplanned": false
+        },
+        "walk_pm": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
