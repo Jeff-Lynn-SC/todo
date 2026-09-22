@@ -30,7 +30,7 @@ body{
   background:var(--paper); color:var(--ink);
   font-family:"Instrument Sans",system-ui,-apple-system,sans-serif;
   font-size:16px; line-height:1.45; -webkit-text-size-adjust:100%;
-  padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  padding-bottom:calc(116px + env(safe-area-inset-bottom));
 }
 .wrap{max-width:640px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 18px 0}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px}
@@ -106,6 +106,40 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 .setbox h2{margin:0 0 4px;font-size:19px}
 .setbox p{color:var(--soft);font-size:14px;margin:8px 0 0}
 .setbox label{display:block;font-size:13.5px;color:var(--soft);margin-top:14px}
+
+.pick{position:relative;display:block;text-align:center;font-size:13.5px;color:var(--soft);
+  margin-top:9px;padding:4px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;overflow:hidden}
+.pick input[type=file]{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+
+/* ---- live camera, one tap a page ---- */
+.cam{position:fixed;inset:0;background:#0B0A09;z-index:20;display:none;flex-direction:column}
+.cam.on{display:flex}
+.cam video{flex:1 1 auto;width:100%;min-height:0;object-fit:contain;background:#0B0A09}
+.cam .top{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;color:#F7F5F1}
+.cam .top button{font:inherit;font-size:15.5px;color:#F7F5F1;background:none;border:0;padding:6px 2px;cursor:pointer}
+.cam .who{font-size:13px;opacity:.78;font-family:"Spline Sans Mono",ui-monospace,monospace;color:#F7F5F1}
+.cam .strip{display:flex;gap:10px;overflow-x:auto;padding:12px 16px 2px;flex:0 0 auto}
+.cam .strip .sh{position:relative;flex:0 0 auto;padding:6px 6px 0 0}
+.cam .strip img{display:block;width:44px;height:56px;object-fit:cover;border-radius:4px;border:1px solid rgba(247,245,241,.4)}
+.cam .strip .x{position:absolute;top:0;right:0;width:22px;height:22px;border-radius:50%;border:0;
+  background:#F7F5F1;color:#2A2724;font:inherit;font-size:14px;line-height:22px;padding:0;cursor:pointer}
+.cam .bottom{display:flex;align-items:center;gap:14px;padding:10px 16px calc(14px + env(safe-area-inset-bottom));flex:0 0 auto}
+.cam .side{flex:1 1 0;display:flex;justify-content:flex-end}
+.cam .side.left{justify-content:flex-start}
+.cam .shutter{width:72px;height:72px;border-radius:50%;flex:0 0 72px;cursor:pointer;
+  background:#F7F5F1;border:4px solid rgba(247,245,241,.4);background-clip:padding-box;-webkit-tap-highlight-color:transparent}
+.cam .shutter:active{transform:scale(.93)}
+.cam .done{font:inherit;font-size:15px;font-weight:500;color:#0B0A09;background:#F7F5F1;
+  border:0;border-radius:9px;padding:12px 15px;cursor:pointer;min-width:98px}
+.cam .done[disabled]{opacity:.3;cursor:default}
+.camflash{position:fixed;inset:0;background:#fff;z-index:21;pointer-events:none;opacity:0;transition:opacity .2s}
+
+.pagerow{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 0 0}
+.pagerow button{font:inherit;font-size:14px;color:var(--stamp);background:none;border:0;cursor:pointer;padding:4px 12px}
+.pagerow button[disabled]{opacity:.3;cursor:default}
+.pagerow .n{font-family:"Spline Sans Mono",ui-monospace,monospace;font-size:12.5px;color:var(--soft);min-width:72px;text-align:center}
+.slip img.big{max-height:none}
 </style>
 </head>
 <body>
@@ -139,10 +173,26 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 </div>
 
 <div class="addbar"><div class="inner">
-  <label class="add" id="add">Add a letter
+  <button class="add" id="add">Add a letter</button>
+  <label class="pick" id="pick">or choose photos
     <input type="file" id="file" accept="image/*" multiple>
   </label>
 </div></div>
+
+<div class="cam" id="cam">
+  <div class="top">
+    <button id="camcancel">Cancel</button>
+    <span class="who" id="camwho">New letter</span>
+  </div>
+  <video id="camvid" playsinline autoplay muted></video>
+  <div class="strip" id="camstrip"></div>
+  <div class="bottom">
+    <div class="side left"><span class="who" id="camcount"></span></div>
+    <button class="shutter" id="camshoot" aria-label="Photograph this page"></button>
+    <div class="side"><button class="done" id="camdone" disabled>Done</button></div>
+  </div>
+</div>
+<div class="camflash" id="camflash"></div>
 
 <div class="sheet" id="sheet"><div class="slip" id="slip"></div></div>
 <div class="sheet" id="settings"><div class="slip"><div class="setbox" id="setbox"></div></div></div>
@@ -151,7 +201,7 @@ h1{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
 const $ = s => document.querySelector(s);
 const state = { docs:[], pending:[], query:"", aiHits:null, slipOpen:null, reading:false };
 
-const BUILD = "10";
+const BUILD = "11";
 const KEY = "belege.apikey", MODEL = "belege.model", GHT = "belege.ghtoken", GHR = "belege.ghrepo";
 const cfg = {
   get key(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } },
@@ -219,7 +269,7 @@ const READ_PROMPT =
 
 async function readLetter(blobs){
   const content = [];
-  for (const bl of blobs.slice(0, 5)){
+  for (const bl of blobs.slice(0, 10)){
     const small = await fit(bl, 1400, 900000, 0.8);
     content.push({ type:"image", source:{ type:"base64", media_type:"image/jpeg", data:(await dataUrl(small)).split(",")[1] } });
   }
@@ -293,21 +343,35 @@ async function syncNow(quiet){
     }
 
     // push photos this device has but the repo doesn't
+    let photoErr = "", missing = 0, sent = 0;
     for (const r of merged){
       if (r.deleted || r.remotePhoto) continue;
       let all = true;
       for (let i = 0; i < (r.pages || 1); i++){
         const img = await store.photo(r.id + ":" + i);
-        if (!img){ all = false; continue; }
-        try { await ghPut(PHOTO_DIR + r.id + "-" + i + ".jpg", img.split(",")[1], null, "post page " + r.id + " " + i); }
-        catch(e){ if (!/sha|exists/i.test(e.message)) all = false; }
+        if (!img){ all = false; missing++; continue; }
+        try { await ghPut(PHOTO_DIR + r.id + "-" + i + ".jpg", img.split(",")[1], null, "post page " + r.id + " " + i); sent++; }
+        catch(e){
+          const m = (e && e.message) || String(e);
+          if (/sha|exists/i.test(m)) continue;
+          all = false; if (!photoErr) photoErr = m;
+        }
       }
       r.remotePhoto = all;
     }
 
     await ghPut(INDEX_PATH, b64(JSON.stringify({ belege: 1, updated: new Date().toISOString(), receipts: merged }, null, 1)),
                 remote && remote.sha, "belege index");
-    setSyncNote("Synced " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+    const when = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    if (photoErr){
+      setSyncNote("Synced " + when + ", but page images wouldn't upload: " + photoErr);
+      if (!quiet) flash("The text synced, but the page images wouldn't upload: " + photoErr);
+    } else if (missing){
+      setSyncNote("Synced " + when + " · " + missing + (missing === 1 ? " page image is" : " page images are") +
+                  " only on the device that shot it");
+    } else {
+      setSyncNote("Synced " + when + (sent ? " · " + sent + (sent === 1 ? " page image sent" : " page images sent") : ""));
+    }
   } catch(err){
     setSyncNote("Sync failed: " + ((err && err.message) || err));
     if (!quiet) flash("Sync failed: " + ((err && err.message) || err));
@@ -388,14 +452,19 @@ function deviceStore(){
     photo: id => run("photos","readonly",s=>s.get(id)),
     putPhoto: (id, url) => run("photos","readwrite",s=>s.put(url, id)),
     async del(id, fromSync){
+      const cur = await run("receipts","readonly",s=>s.get(id));
+      const n = Math.max(1, (cur && cur.pages) || 1);
+      const dropPhotos = () => run("photos","readwrite", s => {
+        s.delete(id);
+        for (let i = 0; i < n + 3; i++) s.delete(id + ":" + i);
+      });
       if (!fromSync && syncOn()){
-        const cur = await run("receipts","readonly",s=>s.get(id));
         await run("receipts","readwrite",s=>s.put({ id, deleted:true, updatedAt:new Date().toISOString(),
           thumb:null, keywords:[], items:[], vendor:(cur&&cur.vendor)||"" }));
-        await run("photos","readwrite",s=>s.delete(id)); await push(); queueSync(); return;
+        await dropPhotos(); await push(); queueSync(); return;
       }
       await run("receipts","readwrite",s=>s.delete(id));
-      await run("photos","readwrite",s=>s.delete(id)); await push();
+      await dropPhotos(); await push();
     }
   };
 }
@@ -431,6 +500,88 @@ function blobFromDataUrl(u){
   return new Blob([bytes], { type:(meta.match(/:(.*?);/) || [,"image/jpeg"])[1] });
 }
 
+/* ---------- the camera: one tap a page ---------- */
+let camStream = null, camShots = [], camTarget = null;
+const camOk = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext);
+
+async function openCamera(target){
+  if (!camOk()){ flash("This browser won't open the camera here — use “or choose photos”."); return; }
+  camTarget = target || null; camShots = [];
+  $("#camwho").textContent = camTarget ? "Adding to " + (camTarget.sender || "this letter") : "New letter";
+  drawShots();
+  $("#cam").classList.add("on");
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" }, width: { ideal: 3000 }, height: { ideal: 3000 } },
+      audio: false
+    });
+  } catch(err){
+    closeCamera();
+    flash("Couldn't open the camera (" + ((err && err.message) || err) + ") — use “or choose photos” instead.");
+    return;
+  }
+  const v = $("#camvid");
+  v.srcObject = camStream; v.muted = true; v.playsInline = true;
+  try { await v.play(); } catch(e){}
+}
+
+function closeCamera(){
+  $("#cam").classList.remove("on");
+  const v = $("#camvid");
+  try { v.pause(); v.srcObject = null; } catch(e){}
+  if (camStream){ camStream.getTracks().forEach(t => { try { t.stop(); } catch(e){} }); camStream = null; }
+  for (const s of camShots) if (s.url) URL.revokeObjectURL(s.url);
+  camShots = []; camTarget = null;
+  drawShots();
+}
+
+function drawShots(){
+  const strip = $("#camstrip"); strip.innerHTML = "";
+  camShots.forEach((s, i) => {
+    const w = document.createElement("div"); w.className = "sh";
+    const im = document.createElement("img"); im.src = s.url; im.alt = "Page " + (i + 1);
+    const x = document.createElement("button"); x.className = "x"; x.textContent = "×";
+    x.setAttribute("aria-label", "Drop page " + (i + 1));
+    x.onclick = () => { URL.revokeObjectURL(s.url); camShots.splice(i, 1); drawShots(); };
+    w.append(im, x); strip.appendChild(w);
+  });
+  strip.scrollLeft = strip.scrollWidth;
+  const n = camShots.length;
+  $("#camcount").textContent = n ? n + (n === 1 ? " page" : " pages") : "Line up page 1";
+  const done = $("#camdone");
+  done.disabled = !n;
+  done.textContent = n ? "Done · " + n : "Done";
+}
+
+async function shoot(){
+  const v = $("#camvid");
+  if (!v.videoWidth){ flash("Camera isn't ready yet."); return; }
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+  const blob = await new Promise(res => c.toBlob(res, "image/jpeg", 0.92));
+  if (!blob){ flash("That shot didn't take — try again."); return; }
+  camShots.push({ blob, url: URL.createObjectURL(blob) });
+  const f = $("#camflash");
+  f.style.opacity = ".85";
+  setTimeout(() => { f.style.opacity = "0"; }, 90);
+  if (navigator.vibrate) { try { navigator.vibrate(12); } catch(e){} }
+  drawShots();
+}
+
+async function finishCamera(){
+  const pages = camShots.map(s => s.blob), target = camTarget;
+  closeCamera();
+  if (!pages.length) return;
+  if (target) await addPages(target, pages, () => {});
+  else await addLetter(pages);
+}
+
+$("#add").onclick = () => openCamera(null);
+$("#camshoot").onclick = shoot;
+$("#camdone").onclick = finishCamera;
+$("#camcancel").onclick = closeCamera;
+
 /* ---------- adding ---------- */
 $("#file").onchange = async e => {
   const files = [...e.target.files]; e.target.value = "";
@@ -465,6 +616,7 @@ async function addLetter(files){
 }
 
 async function addPages(d, files, say){
+  say = say || (() => {});
   try {
     const start = d.pages || 1;
     for (let i = 0; i < files.length; i++){
@@ -473,8 +625,12 @@ async function addPages(d, files, say){
     }
     await store.patch(d.id, { pages: start + files.length, remotePhoto: false });
     d.pages = start + files.length;
-    say("Pages added — tap Read again");
+    say("Added");
+    flash(files.length + (files.length === 1 ? " page added" : " pages added") +
+          (hasKey() ? " — reading the whole letter again…" : "."));
     if (state.slipOpen === d.id) openSlip(d);
+    if (hasKey()) await reread(d, () => {});
+    render();
   } catch(e){ flash("Couldn't add those pages."); }
 }
 
@@ -645,6 +801,7 @@ function render(){
       f.appendChild(chip);
       if (d.date) f.appendChild(document.createTextNode("  ·  " + d.date));
     } else f.textContent = (d.done ? "Done  ·  " : "") + (d.date || "");
+    if ((d.pages || 1) > 1) f.appendChild(document.createTextNode((f.textContent ? "  ·  " : "") + d.pages + " pages"));
     m.append(v, sm, f);
     const a = document.createElement("div"); a.className = "amt"; a.textContent = money(d.amount, d.currency);
     b.append(t, m, a); b.onclick = () => openSlip(d);
@@ -685,7 +842,7 @@ function render(){
   const e = $("#empty");
   if (rows.length || state.pending.length) e.textContent = "";
   else if (state.query) e.innerHTML = "Nothing matching <b>" + esc(state.query) + "</b> yet.";
-  else e.innerHTML = "<b>Nothing filed yet.</b><br>Photograph a letter — all its pages at once — and it gets read, filed and made searchable. Deadlines are picked out and shown at the top.";
+  else e.innerHTML = "<b>Nothing filed yet.</b><br>Tap <b>Add a letter</b> and shoot page after page — one tap each, then Done. The whole letter gets read, filed and made searchable, and any deadline is picked out and shown at the top.";
 }
 function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 function flash(msg){
@@ -698,10 +855,10 @@ function warn(msg){ const w = $("#warn"); w.style.display = "block"; w.textConte
 async function openSlip(d){
   const s = $("#slip"); s.innerHTML = "";
   const img = document.createElement("img"); img.src = d.thumb || ""; img.alt = "Letter from " + (d.sender || "");
+  img.onclick = () => img.classList.toggle("big");
   s.appendChild(img);
 
-  const pager = document.createElement("div");
-  pager.style.cssText = "display:flex;gap:8px;justify-content:center;padding:8px 0 0;flex-wrap:wrap";
+  const pager = document.createElement("div"); pager.className = "pagerow";
   s.appendChild(pager);
   $("#sheet").classList.add("on"); $("#sheet").scrollTop = 0; state.slipOpen = d.id;
 
@@ -753,12 +910,8 @@ async function openSlip(d){
   const again = document.createElement("button"); again.textContent = "Read again";
   again.onclick = () => reread(d, t => { again.textContent = t; again.disabled = t === "Reading…"; });
   if (!hasKey()) again.style.display = "none";
-  const addp = document.createElement("label"); addp.className = ""; addp.textContent = "Add page";
-  addp.style.cssText = "flex:1;min-width:90px;font:inherit;font-size:15px;padding:11px;border-radius:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;text-align:center;position:relative;overflow:hidden";
-  const pinp = document.createElement("input"); pinp.type = "file"; pinp.accept = "image/*"; pinp.multiple = true;
-  pinp.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;font-size:200px;cursor:pointer";
-  pinp.onchange = () => { const f = [...pinp.files]; pinp.value = ""; if (f.length) addPages(d, f, t => addp.textContent = t); };
-  addp.appendChild(pinp);
+  const addp = document.createElement("button"); addp.textContent = "Add pages";
+  addp.onclick = () => openCamera(d);
   const close = document.createElement("button"); close.textContent = "Close"; close.onclick = closeSlip;
   const del = document.createElement("button"); del.className = "danger"; del.textContent = "Delete";
   del.onclick = async () => {
@@ -773,23 +926,35 @@ async function openSlip(d){
     catch(e){ flash("Couldn't save that change."); }
   }
 
-  // pages
+  // pages — swipe the image or use the arrows
   const n = d.pages || 1;
+  let cur = 0;
+  const prev = document.createElement("button"); prev.textContent = "‹"; prev.setAttribute("aria-label","Previous page");
+  const num = document.createElement("span"); num.className = "n";
+  const next = document.createElement("button"); next.textContent = "›"; next.setAttribute("aria-label","Next page");
+  pager.append(prev, num, next);
+  pager.style.display = n > 1 ? "flex" : "none";
+
   const showPage = async i => {
-    let u = await store.photo(d.id + ":" + i);
-    if (!u) u = await fetchPhoto(d.id + ":" + i);
+    cur = Math.max(0, Math.min(n - 1, i));
+    num.textContent = "Page " + (cur + 1) + " of " + n;
+    prev.disabled = cur === 0; next.disabled = cur === n - 1;
+    let u = await store.photo(d.id + ":" + cur);
+    if (!u) u = await fetchPhoto(d.id + ":" + cur);
     if (u) img.src = u;
-    [...pager.children].forEach((b, j) => b.style.fontWeight = j === i ? "600" : "400");
+    else if (cur === 0 && d.thumb) img.src = d.thumb;
   };
-  if (n > 1){
-    for (let i = 0; i < n; i++){
-      const b = document.createElement("button");
-      b.textContent = "Page " + (i + 1);
-      b.style.cssText = "font:inherit;font-size:13px;color:var(--stamp);background:none;border:0;cursor:pointer;padding:2px 6px";
-      b.onclick = () => showPage(i);
-      pager.appendChild(b);
-    }
-  }
+  prev.onclick = () => showPage(cur - 1);
+  next.onclick = () => showPage(cur + 1);
+
+  let sx = null;
+  img.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive:true });
+  img.addEventListener("touchend", e => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) > 45) showPage(cur + (dx < 0 ? 1 : -1));
+  }, { passive:true });
+
   showPage(0);
 }
 
@@ -877,7 +1042,15 @@ $("#settings").onclick = e => { if (e.target.id === "settings") $("#settings").c
 
 async function exportAll(){
   const out = [];
-  for (const d of state.docs) out.push(Object.assign({}, d, { image: await store.photo(d.id) }));
+  for (const d of state.docs){
+    const images = [];
+    for (let i = 0; i < (d.pages || 1); i++){
+      let u = await store.photo(d.id + ":" + i);
+      if (!u) u = await fetchPhoto(d.id + ":" + i);
+      if (u) images.push(u);
+    }
+    out.push(Object.assign({}, d, { images, image: images[0] || null }));
+  }
   const blob = new Blob([JSON.stringify({ belege:1, exported:new Date().toISOString(), receipts:out })], { type:"application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -893,9 +1066,11 @@ function importPick(){
       const data = JSON.parse(await f.text());
       let n = 0;
       for (const r of (data.receipts || [])){
-        const { image, id, ...rest } = r;
+        const { image, images, id, ...rest } = r;
         const newId = id || ("r" + Date.now().toString(36) + Math.random().toString(36).slice(2,5));
-        if (image) await store.putPhoto(newId, image);
+        const pics = Array.isArray(images) && images.length ? images : (image ? [image] : []);
+        for (let i = 0; i < pics.length; i++) await store.putPhoto(newId + ":" + i, pics[i]);
+        if (pics.length) rest.pages = pics.length;
         await store.put(newId, rest); n++;
       }
       flash("Brought in " + n + (n === 1 ? " receipt." : " receipts."));
@@ -906,6 +1081,7 @@ function importPick(){
 
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape") return;
+  if ($("#cam").classList.contains("on")){ closeCamera(); return; }
   closeSlip(); $("#settings").classList.remove("on");
 });
 
