@@ -598,11 +598,6 @@
           "status": "done",
           "at": "10:00",
           "unplanned": false
-        },
-        "walk_pm": {
-          "status": "skipped",
-          "at": null,
-          "unplanned": false
         }
       },
       "note": "Spent most of the morning on my tax return and TJ payments"
