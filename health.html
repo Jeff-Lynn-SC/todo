@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Health</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:#1a1a1a; --paper:#fffef9; --bg:#f5f0e8; --muted:#888; --border:#d8d4cc;
+  --acc:#2d6a5a; --acc-bg:#e3eee9; --acc-dk:#1d4a3e;
+  --tape:#e8c547; --tape-dk:#8a6d0b; --warn:#c0392b; --ok:#4a7c59;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Mono',monospace;color:var(--ink);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page{padding:calc(var(--safe-t) + .75rem) 1rem calc(var(--safe-b) + 2.5rem);max-width:500px;margin:0 auto}
+.page-hdr{padding:1rem 0;border-bottom:2px solid var(--ink);margin-bottom:1.25rem}
+.page-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.35rem}
+.page-meta{display:flex;gap:.6rem;flex-wrap:wrap;font-size:.68rem;color:var(--muted)}
+
+/* tape: the one bold element */
+.tape-card{background:var(--paper);border:1.5px solid var(--border);padding:.9rem 1rem 1rem;margin-bottom:.85rem}
+.tape-big{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.tape-num{font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1}
+.tape-unit{font-size:.8rem;color:var(--muted)}
+.tape-sub{font-size:.68rem;color:var(--muted);margin-top:.35rem;line-height:1.5}
+.tape{position:relative;height:46px;margin-top:.9rem;background:var(--tape);border-radius:2px;overflow:hidden}
+.tape svg{position:absolute;inset:0;width:100%;height:100%}
+
+.card{background:var(--paper);border:1.5px solid var(--border);border-left:4px solid var(--acc);margin-bottom:.85rem;padding:.9rem 1rem}
+.card-title-row{font-size:.72rem;font-weight:500;color:var(--acc-dk);margin-bottom:.75rem}
+.field-group{display:flex;flex-direction:column;gap:3px}
+.field-lbl{font-size:.62rem;color:var(--muted)}
+.field-inp{font-family:'DM Mono',monospace;font-size:.85rem;border:none;border-bottom:1.5px solid var(--border);background:transparent;outline:none;color:var(--ink);padding:3px 0;width:100%}
+.field-inp:focus{border-bottom-color:var(--acc)}
+.field-row{display:flex;gap:.75rem}
+.field-row .field-group{flex:1}
+.field-error{font-size:.62rem;color:var(--warn);min-height:1em;margin-top:.25rem}
+.save-btn{width:100%;margin-top:.85rem;background:var(--acc);color:#fff;border:none;font-family:'DM Mono',monospace;font-size:.8rem;padding:.7rem 1rem;cursor:pointer;border-radius:2px}
+.save-btn:active{opacity:.85}
+
+.tab-bar{display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:.25rem 0 1rem}
+.tab-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);padding:.55rem 0;cursor:pointer}
+.tab-btn.active{color:var(--acc-dk);border-bottom-color:var(--acc);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.range-toggle{display:flex;margin-bottom:.85rem}
+.range-btn{background:none;border:1.5px solid var(--border);border-right:none;font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);padding:.3rem .75rem;cursor:pointer}
+.range-btn:last-child{border-right:1.5px solid var(--border)}
+.range-btn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chart-wrap{background:var(--paper);border:1.5px solid var(--border);padding:.75rem;margin-bottom:.85rem}
+.chart-head{font-size:.68rem;color:var(--acc-dk);margin-bottom:.35rem}
+.chart-svg{width:100%;height:auto;display:block}
+.chart-empty{text-align:center;font-size:.72rem;color:var(--muted);padding:1.5rem 0}
+.chart-note{font-size:.6rem;color:var(--muted);margin-top:.35rem}
+
+.hist-row{background:var(--paper);border:1.5px solid var(--border);border-left:4px solid var(--border);padding:.6rem .85rem;margin-bottom:.5rem}
+.hist-row.waist{border-left-color:var(--tape)}
+.hist-main{display:flex;align-items:center;gap:.5rem}
+.hist-date{font-size:.68rem;color:var(--muted);flex:1}
+.hist-vals{font-size:.8rem;font-weight:500;white-space:nowrap}
+.hist-del{background:none;border:none;color:#bbb;cursor:pointer;font-size:1rem;padding:0 .2rem}
+.hist-del:hover{color:var(--warn)}
+.hist-notes{font-size:.65rem;color:var(--muted);font-style:italic;margin-top:.3rem}
+
+.tool-btn{background:none;border:1.5px solid var(--acc);color:var(--acc-dk);font-family:'DM Mono',monospace;font-size:.72rem;padding:.45rem 1rem;cursor:pointer;border-radius:2px;margin:.25rem .4rem 0 0;position:relative;overflow:hidden;display:inline-block}
+.tool-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px}
+.help{font-size:.65rem;color:var(--muted);line-height:1.6;margin-top:.6rem}
+.save-indicator{font-size:.62rem;color:var(--muted);min-height:1.2em;text-align:right;padding-top:.25rem}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(245,240,232,.96);align-items:center;justify-content:center;z-index:9999;padding:1.5rem}
+.modal.show{display:flex}
+.modal-box{background:var(--paper);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:1.75rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:.85rem}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.4rem}
+.modal-msg{font-size:.72rem;color:var(--warn);min-height:1em}
+.modal-inp{font-family:'DM Mono',monospace;font-size:.82rem;border:2px solid var(--ink);background:var(--bg);padding:.5rem .65rem;outline:none;width:100%}
+.modal-hint{font-size:.65rem;color:var(--muted);line-height:1.5}
+.modal-save{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--ink);color:var(--paper);border:none;padding:.6rem 1.2rem;cursor:pointer;align-self:flex-start;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div id="pat-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">GitHub Token</div>
+    <div class="modal-msg" id="pat-msg"></div>
+    <input id="pat-input" class="modal-inp" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+    <div class="modal-hint">Same token as the main Home app.</div>
+    <button id="pat-save" class="modal-save">Save token</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-hdr">
+    <div class="page-title">Health</div>
+    <div class="page-meta"><span id="todayMeta">—</span><span style="font-size:.58rem">v1.0</span></div>
+  </div>
+
+  <div class="tape-card">
+    <div class="tape-big"><span class="tape-num" id="waistNow">—</span><span class="tape-unit">cm waist</span></div>
+    <div class="tape-sub" id="waistSub">Add your first measurement below.</div>
+    <div class="tape" id="tape"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title-row">New entry</div>
+    <div style="display:flex;flex-direction:column;gap:.7rem">
+      <div class="field-group">
+        <div class="field-lbl">Date</div>
+        <input id="inp-date" class="field-inp" type="date">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-lbl">Waist (cm)</div>
+          <input id="inp-waist" class="field-inp" type="number" inputmode="decimal" step="0.5" min="50" max="160" placeholder="94">
+        </div>
+        <div class="field-group">
+          <div class="field-lbl">Weight (kg, optional)</div>
+          <input id="inp-weight" class="field-inp" type="number" inputmode="decimal" step="0.1" min="40" max="200" placeholder="84.4">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">Notes (optional)</div>
+        <input id="inp-notes" class="field-inp" type="text" placeholder="Morning, before breakfast">
+      </div>
+      <div class="field-error" id="form-error"></div>
+      <button class="save-btn" id="save-btn">Save entry</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="graph">Graph</button>
+    <button class="tab-btn" data-tab="history">History</button>
+    <button class="tab-btn" data-tab="tools">Settings</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-graph">
+    <div class="range-toggle">
+      <button class="range-btn" data-range="30">30d</button>
+      <button class="range-btn active" data-range="90">90d</button>
+      <button class="range-btn" data-range="all">All</button>
+    </div>
+    <div class="chart-wrap"><div class="chart-head">Waist (cm)</div><div id="chart-waist"></div></div>
+    <div class="chart-wrap"><div class="chart-head">Weight (kg)</div><div id="chart-weight"></div>
+      <div class="chart-note">Dots are single weigh-ins; the line is the 7-day average.</div></div>
+  </div>
+
+  <div class="tab-panel" id="tab-history"><div id="history-list"></div></div>
+
+  <div class="tab-panel" id="tab-tools">
+    <div class="card">
+      <div class="card-title-row">Height</div>
+      <div class="field-group">
+        <div class="field-lbl">Height (cm), for the waist-to-height ratio</div>
+        <input id="inp-height" class="field-inp" type="number" min="120" max="220" step="1">
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title-row">Import from Soehnle</div>
+      <span class="tool-btn">Choose CSV export<input type="file" id="csv-inp" accept=".csv,text/csv"></span>
+      <div class="help" id="import-msg">Adds the weights from a Soehnle app export. Readings already here are skipped, so you can import the full export each time.</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row">How to measure</div>
+      <div class="help" style="margin-top:0">Halfway between your lowest rib and the top of your hip bone. Stand relaxed, tape level and snug, read it at the end of a normal breath out. Same time of day each time, every week or two.</div>
+    </div>
+  </div>
+
+  <div class="save-indicator" id="saveIndicator"></div>
+</div>
+
+<script>
+const REPO = 'Jeff-Lynn-SC/todo';
+const FILE = 'health.json';
+const CACHE_KEY = 'health_data';
+const HEIGHT_KEY = 'health_height';
+const ghUrl = p => `https://api.github.com/repos/${REPO}/contents/${p}`;
+const NS = 'http://www.w3.org/2000/svg';
+
+// ── token (shared with the rest of Home) ──
+const getPat = () => localStorage.getItem('gh_pat');
+function showPat(msg){
+  document.getElementById('pat-modal').classList.add('show');
+  document.getElementById('pat-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('pat-input').focus(), 120);
+}
+document.getElementById('pat-save').addEventListener('click', () => {
+  const v = document.getElementById('pat-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('gh_pat', v);
+  document.getElementById('pat-modal').classList.remove('show');
+  loadData();
+});
+document.getElementById('pat-input').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pat-save').click(); });
+
+// ── GitHub ──
+async function ghGet(path){
+  const pat = getPat();
+  if (!pat){ showPat(); return null; }
+  const res = await fetch(ghUrl(path) + '?t=' + Date.now(), { headers:{ Authorization:`token ${pat}`, Accept:'application/vnd.github.v3+json' }, cache:'no-store' });
+  if (res.status === 401){ localStorage.removeItem('gh_pat'); showPat('Token rejected. Enter it again.'); return null; }
+  if (res.status === 404) return null;
+  if (!res.ok){ setInd(`GitHub error ${res.status}`); return null; }
+  return res.json();
+}
+async function ghPut(path, data, msg, sha){
+  const pat = getPat(); if (!pat) return null;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 1))));
+  const body = { message: msg, content, branch: 'main' };
+  if (sha) body.sha = sha;
+  const res = await fetch(ghUrl(path), { method:'PUT',
+    headers:{ Authorization:`token ${pat}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+    body: JSON.stringify(body) });
+  return res.ok ? res.json() : null;
+}
+const decode = c => JSON.parse(decodeURIComponent(escape(atob(c.replace(/\s/g, '')))));
+
+// ── store: entries carry updatedAt; deletes are tombstones so they travel between devices ──
+let entries = [];
+let saveTimer = null;
+function setInd(t){ document.getElementById('saveIndicator').textContent = t; }
+function saveLocal(){ try { localStorage.setItem(CACHE_KEY, JSON.stringify(entries)); } catch(e){} }
+function live(){ return entries.filter(e => !e.deleted).sort((a,b) => (a.date + (a.time||'')).localeCompare(b.date + (b.time||''))); }
+
+function merge(a, b){
+  const m = new Map();
+  for (const e of a) m.set(e.id, e);
+  for (const e of b){
+    const t = m.get(e.id);
+    if (!t || String(e.updatedAt||'') > String(t.updatedAt||'')) m.set(e.id, e);
+  }
+  return [...m.values()];
+}
+
+function scheduleSave(){
+  if (saveTimer) clearTimeout(saveTimer);
+  setInd('…');
+  saveTimer = setTimeout(doSave, 1200);
+}
+async function doSave(){
+  saveLocal();
+  try {
+    const meta = await ghGet(FILE);
+    if (meta && meta.content){
+      try { const remote = decode(meta.content); if (Array.isArray(remote.entries)) entries = merge(entries, remote.entries); } catch(e){}
+    }
+    const ok = await ghPut(FILE, { v:1, updated:new Date().toISOString(), entries }, 'update health', meta && meta.sha);
+    saveLocal(); render();
+    setInd(ok ? 'saved ✓' : 'save failed, kept on this device');
+  } catch(e){ setInd('save failed, kept on this device'); }
+  setTimeout(() => setInd(''), 2500);
+}
+
+async function loadData(){
+  try { entries = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e){ entries = []; }
+  render();
+  if (!getPat()){ showPat(); return; }
+  const meta = await ghGet(FILE);
+  if (meta && meta.content){
+    try {
+      const remote = decode(meta.content);
+      if (Array.isArray(remote.entries)){ entries = merge(entries, remote.entries); saveLocal(); render(); }
+    } catch(e){}
+  }
+}
+
+// ── helpers ──
+const pad = n => String(n).padStart(2,'0');
+function todayStr(){ const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function nowTime(){ const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function fmtDate(s){ const [y,m,d] = s.split('-'); return `${+d}.${+m}.${y.slice(2)}`; }
+function dayMs(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d).getTime(); }
+function height(){ return parseFloat(localStorage.getItem(HEIGHT_KEY)) || 178; }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+let activeTab = 'graph', activeRange = '90';
+function inRange(list){
+  if (activeRange === 'all') return list;
+  const cut = Date.now() - parseInt(activeRange) * 864e5;
+  return list.filter(e => dayMs(e.date) >= cut);
+}
+
+// ── render ──
+function render(){
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('todayMeta').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+  renderTape();
+  if (activeTab === 'graph') renderGraphs();
+  if (activeTab === 'history') renderHistory();
+}
+
+function renderTape(){
+  const w = live().filter(e => e.waist != null);
+  const tapeEl = document.getElementById('tape');
+  const h = height(), target = Math.round(h * 0.5);
+  if (!w.length){
+    document.getElementById('waistNow').textContent = '—';
+    document.getElementById('waistSub').textContent = `Add your first measurement below. Aim: under ${target} cm (half your height).`;
+    drawTape(tapeEl, null, null, target);
+    return;
+  }
+  const last = w[w.length-1], first = w[0];
+  const ratio = (last.waist / h).toFixed(2);
+  let sub = `Ratio to height ${ratio} · aim under 0.50 (${target} cm)`;
+  if (w.length > 1){
+    const diff = +(last.waist - first.waist).toFixed(1);
+    sub += `\n${diff === 0 ? 'No change' : (diff < 0 ? diff : '+' + diff) + ' cm'} since ${fmtDate(first.date)}`;
+  } else sub += `\nMeasured ${fmtDate(last.date)}`;
+  document.getElementById('waistNow').textContent = last.waist;
+  const subEl = document.getElementById('waistSub');
+  subEl.textContent = '';
+  sub.split('\n').forEach((line, i) => { if (i) subEl.appendChild(document.createElement('br')); subEl.appendChild(document.createTextNode(line)); });
+  drawTape(tapeEl, last.waist, w.length > 1 ? first.waist : null, target);
+}
+
+function el(tag, attrs){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+// a strip of tape measure centred on the current reading
+function drawTape(box, now, start, target){
+  box.textContent = '';
+  const W = 360, H = 46, pxPerCm = 12;
+  const centre = now != null ? now : target;
+  const lo = centre - W / 2 / pxPerCm, hi = centre + W / 2 / pxPerCm;
+  const x = v => (v - lo) * pxPerCm;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, preserveAspectRatio:'none' });
+  for (let c = Math.ceil(lo); c <= hi; c++){
+    const big = c % 5 === 0;
+    svg.appendChild(el('line', { x1:x(c), y1:0, x2:x(c), y2: big ? 16 : 9, stroke:'#5a4708', 'stroke-width': big ? 1.2 : .8 }));
+    if (big){ const t = el('text', { x:x(c), y:28, 'text-anchor':'middle', 'font-size':9, fill:'#5a4708', 'font-family':'DM Mono, monospace' }); t.textContent = c; svg.appendChild(t); }
+    for (let h = 1; h < 10; h++){
+      const mx = x(c + h/10); if (mx > W) break;
+      svg.appendChild(el('line', { x1:mx, y1:0, x2:mx, y2: h === 5 ? 6 : 3.5, stroke:'#5a4708', 'stroke-width':.4 }));
+    }
+  }
+  const mark = (v, colour, label, up) => {
+    if (v == null || v < lo || v > hi) return;
+    svg.appendChild(el('line', { x1:x(v), y1:0, x2:x(v), y2:H, stroke:colour, 'stroke-width':2 }));
+    const t = el('text', { x:x(v) + 4, y: up ? 40 : 42, 'font-size':8, fill:colour, 'font-family':'DM Mono, monospace' });
+    t.textContent = label; svg.appendChild(t);
+  };
+  mark(target, '#2d6a5a', 'aim', true);
+  if (start != null && start !== now) mark(start, '#8a8a8a', 'start');
+  if (now != null) mark(now, '#c0392b', 'now');
+  box.appendChild(svg);
+}
+
+function drawChart(box, pts, opts){
+  box.textContent = '';
+  if (!pts.length){ const e = document.createElement('div'); e.className = 'chart-empty'; e.textContent = opts.empty; box.appendChild(e); return; }
+  const W = 360, H = 180, ML = 34, MR = 8, MT = 10, MB = 24;
+  const pw = W - ML - MR, ph = H - MT - MB;
+  const ts = pts.map(p => p.t), vs = pts.map(p => p.v).concat(opts.ref != null ? [opts.ref] : []);
+  let t0 = Math.min(...ts), t1 = Math.max(...ts); if (t1 === t0){ t0 -= 864e5 * 3; t1 += 864e5 * 3; }
+  const step = opts.step;
+  const yMin = Math.floor(Math.min(...vs) / step) * step - step, yMax = Math.ceil(Math.max(...vs) / step) * step + step;
+  const X = t => ML + (t - t0) / (t1 - t0) * pw, Y = v => MT + ph - (v - yMin) / (yMax - yMin) * ph;
+  const svg = el('svg', { viewBox:`0 0 ${W} ${H}`, class:'chart-svg' });
+  for (let v = yMin; v <= yMax + 1e-9; v += step){
+    svg.appendChild(el('line', { x1:ML, y1:Y(v), x2:W-MR, y2:Y(v), stroke:'#eee', 'stroke-width':1 }));
+    const t = el('text', { x:ML-4, y:Y(v)+3, 'text-anchor':'end', 'font-size':8, fill:'#aaa', 'font-family':'DM Mono, monospace' });
+    t.textContent = +v.toFixed(1); svg.appendChild(t);
+  }
+  if (opts.ref != null){
+    svg.appendChild(el('line', { x1:ML, y1:Y(opts.ref), x2:W-MR, y2:Y(opts.ref), stroke:'#2d6a5a', 'stroke-dasharray':'4 3', 'stroke-width':1 }));
+    const t = el('text', { x:W-MR, y:Y(opts.ref)-3, 'text-anchor':'end', 'font-size':8, fill:'#2d6a5a', 'font-family':'DM Mono, monospace' });
+    t.textContent = opts.refLabel; svg.appendChild(t);
+  }
+  [t0, (t0+t1)/2, t1].forEach((t, i) => {
+    const d = new Date(t);
+    const lab = el('text', { x:X(t), y:H-6, 'text-anchor': i === 0 ? 'start' : i === 2 ? 'end' : 'middle', 'font-size':8, fill:'#aaa', 'font-family':'DM Mono, monospace' });
+    lab.textContent = `${d.getDate()}.${d.getMonth()+1}.`; svg.appendChild(lab);
+  });
+  const line = opts.line || pts;
+  if (line.length > 1) svg.appendChild(el('polyline', { points: line.map(p => `${X(p.t)},${Y(p.v)}`).join(' '), fill:'none', stroke:opts.colour, 'stroke-width':1.8, 'stroke-linejoin':'round' }));
+  pts.forEach(p => svg.appendChild(el('circle', { cx:X(p.t), cy:Y(p.v), r: opts.line ? 2.2 : 3.2, fill: opts.line ? '#bbb' : opts.colour })));
+  box.appendChild(svg);
+}
+
+function renderGraphs(){
+  const all = live();
+  const w = inRange(all.filter(e => e.waist != null)).map(e => ({ t: dayMs(e.date), v: e.waist }));
+  drawChart(document.getElementById('chart-waist'), w, { step:2, colour:'#c0392b', ref: Math.round(height()*0.5), refLabel:'aim', empty:'No waist measurements yet' });
+
+  const allW = all.filter(e => e.weight != null).map(e => ({ t: dayMs(e.date), v: e.weight }));
+  const avg = allW.map(p => {
+    const win = allW.filter(q => q.t <= p.t && q.t > p.t - 7 * 864e5);
+    return { t:p.t, v: win.reduce((s,q) => s + q.v, 0) / win.length };
+  });
+  const cut = activeRange === 'all' ? -Infinity : Date.now() - parseInt(activeRange) * 864e5;
+  drawChart(document.getElementById('chart-weight'), allW.filter(p => p.t >= cut),
+    { step:1, colour:'#2d6a5a', line: avg.filter(p => p.t >= cut), empty:'No weights yet. Add one above or import from Soehnle in Settings.' });
+}
+
+function renderHistory(){
+  const list = document.getElementById('history-list');
+  list.textContent = '';
+  const rows = live().reverse();
+  if (!rows.length){ const e = document.createElement('div'); e.className = 'chart-empty'; e.textContent = 'Nothing recorded yet'; list.appendChild(e); return; }
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'hist-row' + (r.waist != null ? ' waist' : '');
+    const main = document.createElement('div'); main.className = 'hist-main';
+    const dt = document.createElement('div'); dt.className = 'hist-date';
+    dt.textContent = fmtDate(r.date) + (r.time ? ' ' + r.time : '') + (r.src === 'soehnle' ? ' · scale' : '');
+    const vals = document.createElement('div'); vals.className = 'hist-vals';
+    vals.textContent = [r.waist != null ? r.waist + ' cm' : '', r.weight != null ? r.weight + ' kg' : ''].filter(Boolean).join('   ');
+    const del = document.createElement('button'); del.className = 'hist-del'; del.textContent = '×'; del.setAttribute('aria-label', 'Delete entry');
+    del.addEventListener('click', () => { if (confirm('Delete this entry?')) deleteEntry(r.id); });
+    main.append(dt, vals, del); row.appendChild(main);
+    if (r.notes){ const n = document.createElement('div'); n.className = 'hist-notes'; n.textContent = r.notes; row.appendChild(n); }
+    list.appendChild(row);
+  });
+}
+
+// ── actions ──
+document.getElementById('save-btn').addEventListener('click', () => {
+  const err = document.getElementById('form-error');
+  const date = document.getElementById('inp-date').value || todayStr();
+  const wv = document.getElementById('inp-waist').value, kv = document.getElementById('inp-weight').value;
+  const waist = wv ? Math.round(parseFloat(wv.replace(',', '.')) * 10) / 10 : null;
+  const weight = kv ? Math.round(parseFloat(kv.replace(',', '.')) * 10) / 10 : null;
+  if (waist == null && weight == null){ err.textContent = 'Enter a waist or a weight.'; return; }
+  if (waist != null && (isNaN(waist) || waist < 50 || waist > 160)){ err.textContent = 'Waist should be between 50 and 160 cm.'; return; }
+  if (weight != null && (isNaN(weight) || weight < 40 || weight > 200)){ err.textContent = 'Weight should be between 40 and 200 kg.'; return; }
+  err.textContent = '';
+  entries.push({ id: uid(), date, time: date === todayStr() ? nowTime() : '', waist, weight,
+    notes: document.getElementById('inp-notes').value.trim(), src:'manual', updatedAt: new Date().toISOString() });
+  saveLocal(); scheduleSave();
+  ['inp-waist','inp-weight','inp-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-date').value = todayStr();
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Saved ✓'; setTimeout(() => btn.textContent = 'Save entry', 1600);
+  render();
+});
+
+function deleteEntry(id){
+  const e = entries.find(x => x.id === id); if (!e) return;
+  e.deleted = true; e.updatedAt = new Date().toISOString();
+  saveLocal(); scheduleSave(); render();
+}
+
+document.getElementById('csv-inp').addEventListener('change', async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const msg = document.getElementById('import-msg');
+  const text = await f.text();
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex(l => /^Date,Time,Weight/i.test(l.trim()));
+  if (start < 0){ msg.textContent = "That file doesn't look like a Soehnle export: no Date,Time,Weight header found."; ev.target.value = ''; return; }
+  const have = new Set(entries.map(e => e.id));
+  let added = 0, skipped = 0;
+  for (const l of lines.slice(start + 1)){
+    const c = l.split(','); if (c.length < 3) continue;
+    const m = c[0].trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/); const kg = parseFloat(c[2]);
+    if (!m || !kg) continue;
+    const date = `${m[3]}-${m[2]}-${m[1]}`, time = (c[1] || '').trim();
+    const id = 'soehnle-' + date + '-' + time.replace(':', '');
+    if (have.has(id)){ skipped++; continue; }
+    have.add(id);
+    entries.push({ id, date, time, waist:null, weight:kg, notes:'', src:'soehnle', updatedAt:new Date().toISOString() });
+    added++;
+  }
+  msg.textContent = `Added ${added} weigh-in${added === 1 ? '' : 's'}` + (skipped ? `, skipped ${skipped} already here.` : '.');
+  ev.target.value = '';
+  if (added){ saveLocal(); scheduleSave(); render(); }
+});
+
+const hInp = document.getElementById('inp-height');
+hInp.value = height();
+hInp.addEventListener('change', () => {
+  const v = parseFloat(hInp.value);
+  if (v >= 120 && v <= 220){ localStorage.setItem(HEIGHT_KEY, String(v)); render(); }
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab = btn.dataset.tab;
+  document.getElementById('tab-' + activeTab).classList.add('active');
+  render();
+}));
+document.querySelectorAll('.range-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); activeRange = btn.dataset.range; renderGraphs();
+}));
+
+document.getElementById('inp-date').value = todayStr();
+loadData();
+</script>
+</body>
+</html>
