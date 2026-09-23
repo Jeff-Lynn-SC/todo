@@ -236,6 +236,7 @@ button:focus-visible,.cell:focus-visible{outline:2px solid var(--accent);outline
     <button id="new">New puzzle</button>
     <button id="sharetoggle">Share or load</button>
     <button id="print">Print this grid</button>
+    <button id="checktoggle" aria-pressed="false">Show mistakes: off</button>
   </div>
 
   <div class="share" id="share">
@@ -677,6 +678,7 @@ const S = {
   player: store.get('nf:player',0),
   names: store.get('nf:names',['Jeff','Maryam']),
   best: store.get('nf:best',{}),
+  check: store.get('nf:check',false),
   puzzle: null, solution: null, value: null, notes: null, grade: 1,
   sel: -1, noting: false, hints: 0, hintStep: 0, seconds: 0, running: false, finished: false, paused: false
 };
@@ -921,7 +923,7 @@ function paint(){
     if(S.sel>=0 && i!==S.sel && (r===sr||c===sc||b===sb)) el.classList.add('peer');
     if(selV && v===selV) el.classList.add('same');
     if(i===S.sel) el.classList.add('sel');
-    if(bad.has(i)) el.classList.add('bad');
+    if(bad.has(i) || (S.check && v && !S.puzzle[i] && S.solution && v!==S.solution[i])) el.classList.add('bad');
     if(v){
       el.textContent = v;
       el.classList.add(S.puzzle[i]!==0 ? 'given' : 'entry');
@@ -1028,6 +1030,10 @@ document.getElementById('loadbtn').addEventListener('click',()=>{
 document.getElementById('erase').addEventListener('click',erase);
 document.getElementById('undo').addEventListener('click',undo);
 document.getElementById('hint').addEventListener('click',nudge);
+const checkBtn=document.getElementById('checktoggle');
+function paintCheck(){ checkBtn.textContent='Show mistakes: '+(S.check?'on':'off'); checkBtn.setAttribute('aria-pressed',S.check?'true':'false'); }
+checkBtn.addEventListener('click',()=>{ S.check=!S.check; store.set('nf:check',S.check); paintCheck(); paint(); });
+paintCheck();
 pauseBtn.addEventListener('click',togglePause);
 notesBtn.addEventListener('click',()=>{
   S.noting=!S.noting;
