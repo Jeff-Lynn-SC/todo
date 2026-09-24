@@ -749,6 +749,19 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
       <span class="hs-label">Health</span>
     </div>
 
+    <div class="hs-icon" onclick="openApp('upkeep')">
+      <div class="hs-icon-bg" style="--ic:#8a5a1e">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M20 12a8 8 0 0 1-13.7 5.6"/>
+          <path d="M4 12a8 8 0 0 1 13.7-5.6"/>
+          <polyline points="18,3 18,7 14,7" stroke-width="1.6"/>
+          <polyline points="6,21 6,17 10,17" stroke-width="1.6"/>
+          <polyline points="9,12 11,14 15,10" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <span class="hs-label">Upkeep</span>
+    </div>
+
   </div>
 </div>
 
@@ -835,6 +848,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); font-family:
 <!-- Blood Pressure (iframe) -->
 <div class="screen" id="screen-bp" style="overflow:hidden;padding:0">
   <iframe src="bp.html" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
+</div>
+
+<!-- Upkeep (iframe) -->
+<div class="screen" id="screen-upkeep" style="overflow:hidden;padding:0">
+  <iframe src="upkeep.html?v=1" style="width:100%;height:100%;border:none;display:block;" allowfullscreen></iframe>
 </div>
 
 <!-- Health (iframe) -->
@@ -1024,7 +1042,7 @@ function addDays(dt, n) { const d = new Date(dt); d.setDate(d.getDate()+n); retu
 // ─────────────────────────────────────────────
 //  NAVIGATION
 // ─────────────────────────────────────────────
-const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", rhythm:'Rhythm', comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough', deutsch:'Deutsch', sudoku:'Sudoku', ninefold:'Ninefold', belege:'Belege', post:'Post', bp:'Blood Pressure', health:'Health' };
+const APP_TITLES = { cal:'Calendar', jeff:"Jeff's List", maryam:"Maryam's List", rhythm:'Rhythm', comehome:'Coming Home', train:'Train Alert', travel:'Travel Checklist', sourdough:'Sourdough', deutsch:'Deutsch', sudoku:'Sudoku', ninefold:'Ninefold', belege:'Belege', post:'Post', bp:'Blood Pressure', health:'Health', upkeep:'Upkeep' };
 
 // Screens that draw their own header, and their own way back to the launcher.
 const SELF_HEADED = { rhythm: true };
