@@ -266,9 +266,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "mbna_bill_tk_income_decl",
+        "label": "MBNA bill, tk income declaration, some shopping, some Heggenstaller stuff. Achim",
+        "start": "12:10",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-24",
+        "text": "Logged MBNA bill, tk income declaration, some shopping, some Heggenstaller stuff. Achim for the first time"
+      },
       {
         "at": "2026-09-21",
         "text": "Logged lots of Coincidental work for the first time"
@@ -614,6 +627,11 @@
           "status": "done",
           "at": "12:10",
           "unplanned": false
+        },
+        "mbna_bill_tk_income_decl": {
+          "status": "done",
+          "at": "12:10",
+          "unplanned": true
         }
       }
     }
