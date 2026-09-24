@@ -275,9 +275,35 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "arrange_flowers",
+        "label": "Arrange flowers",
+        "start": "12:10",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
+      },
+      {
+        "id": "topped_up_the_house_salt",
+        "label": "Topped up the house salt",
+        "start": "12:15",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-24",
+        "text": "Logged Topped up the house salt for the first time"
+      },
+      {
+        "at": "2026-09-24",
+        "text": "Logged Arrange flowers for the first time"
+      },
       {
         "at": "2026-09-24",
         "text": "Logged MBNA bill, tk income declaration, some shopping, some Heggenstaller stuff. Achim for the first time"
@@ -631,6 +657,16 @@
         "mbna_bill_tk_income_decl": {
           "status": "done",
           "at": "12:10",
+          "unplanned": true
+        },
+        "arrange_flowers": {
+          "status": "done",
+          "at": "12:10",
+          "unplanned": true
+        },
+        "topped_up_the_house_salt": {
+          "status": "done",
+          "at": "12:15",
           "unplanned": true
         }
       }
