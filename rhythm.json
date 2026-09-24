@@ -601,6 +601,16 @@
         }
       },
       "note": "Spent most of the morning on post lesson report and my tax return and Tk payments"
+    },
+    "2026-09-24": {
+      "date": "2026-09-24",
+      "entries": {
+        "walk_am": {
+          "status": "done",
+          "at": "12:00",
+          "unplanned": false
+        }
+      }
     }
   }
 }
