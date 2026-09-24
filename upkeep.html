@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Upkeep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:#1a1a1a; --paper:#fffef9; --bg:#f5f0e8; --muted:#888; --border:#d8d4cc;
+  --acc:#8a5a1e; --acc-bg:#f3e8d8; --acc-dk:#5e3d12;
+  --warn:#c0392b; --soon:#c98a1b; --ok:#4a7c59;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Mono',monospace;color:var(--ink);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page{padding:calc(var(--safe-t) + .75rem) 1rem calc(var(--safe-b) + 2.5rem);max-width:500px;margin:0 auto}
+.page-hdr{padding:1rem 0;border-bottom:2px solid var(--ink);margin-bottom:1.25rem}
+.page-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.35rem}
+.page-meta{display:flex;gap:.6rem;flex-wrap:wrap;font-size:.68rem;color:var(--muted)}
+
+.hero{background:var(--paper);border:1.5px solid var(--border);padding:.9rem 1rem 1rem;margin-bottom:.85rem}
+.hero-big{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}
+.hero-num{font-family:'Playfair Display',serif;font-size:2.6rem;line-height:1}
+.hero-unit{font-size:.8rem;color:var(--muted)}
+.hero-sub{font-size:.68rem;color:var(--muted);margin-top:.35rem;line-height:1.5}
+
+.tab-bar{display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:.25rem 0 1rem}
+.tab-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);padding:.55rem 0;cursor:pointer}
+.tab-btn.active{color:var(--acc-dk);border-bottom-color:var(--acc);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.sec-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:1rem 0 .45rem}
+.sec-lbl:first-child{margin-top:0}
+
+.job{background:var(--paper);border:1.5px solid var(--border);border-left:4px solid var(--border);padding:.65rem .85rem;margin-bottom:.5rem}
+.job.over{border-left-color:var(--warn)}
+.job.soon{border-left-color:var(--soon)}
+.job.fine{border-left-color:var(--ok)}
+.job.nodate{border-left-style:dashed;border-left-color:var(--muted)}
+.job-main{display:flex;align-items:flex-start;gap:.6rem}
+.job-body{flex:1;min-width:0;cursor:pointer}
+.job-name{font-size:.85rem;font-weight:500;line-height:1.3}
+.job-meta{font-size:.62rem;color:var(--muted);margin-top:.2rem;line-height:1.5}
+.job-when{font-size:.68rem;white-space:nowrap;text-align:right;padding-top:.1rem}
+.job.over .job-when{color:var(--warn);font-weight:500}
+.job.soon .job-when{color:var(--soon);font-weight:500}
+.tag{display:inline-block;font-size:.56rem;border:1px solid var(--border);padding:0 .3rem;margin-right:.3rem;color:var(--acc-dk);background:var(--acc-bg)}
+.job-notes{font-size:.64rem;color:var(--muted);font-style:italic;margin-top:.35rem}
+.job-acts{display:flex;gap:.4rem;margin-top:.55rem}
+.act{background:none;border:1.5px solid var(--border);color:var(--ink);font-family:'DM Mono',monospace;font-size:.66rem;padding:.35rem .7rem;cursor:pointer;border-radius:2px}
+.act.done{background:var(--acc);border-color:var(--acc);color:#fff}
+.act:active{opacity:.8}
+
+.empty{text-align:center;font-size:.72rem;color:var(--muted);padding:1.25rem 0;line-height:1.6}
+
+.card{background:var(--paper);border:1.5px solid var(--border);border-left:4px solid var(--acc);margin-bottom:.85rem;padding:.9rem 1rem}
+.card-title-row{font-size:.72rem;font-weight:500;color:var(--acc-dk);margin-bottom:.75rem}
+.field-group{display:flex;flex-direction:column;gap:3px}
+.field-lbl{font-size:.62rem;color:var(--muted)}
+.field-inp{font-family:'DM Mono',monospace;font-size:.85rem;border:none;border-bottom:1.5px solid var(--border);background:transparent;outline:none;color:var(--ink);padding:3px 0;width:100%;border-radius:0}
+.field-inp:focus{border-bottom-color:var(--acc)}
+.field-row{display:flex;gap:.75rem}
+.field-row .field-group{flex:1}
+.field-error{font-size:.62rem;color:var(--warn);min-height:1em;margin-top:.25rem}
+.save-btn{width:100%;margin-top:.85rem;background:var(--acc);color:#fff;border:none;font-family:'DM Mono',monospace;font-size:.8rem;padding:.7rem 1rem;cursor:pointer;border-radius:2px}
+.save-btn:active{opacity:.85}
+.ghost-btn{background:none;border:1.5px solid var(--acc);color:var(--acc-dk);font-family:'DM Mono',monospace;font-size:.72rem;padding:.45rem 1rem;cursor:pointer;border-radius:2px}
+.del-btn{background:none;border:none;color:var(--warn);font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;margin-top:.7rem;padding:0}
+.help{font-size:.65rem;color:var(--muted);line-height:1.6;margin-top:.6rem}
+
+.starter{display:flex;align-items:flex-start;gap:.55rem;padding:.4rem 0;border-bottom:1px dashed var(--border);font-size:.74rem}
+.starter:last-of-type{border-bottom:none}
+.starter input{margin-top:.15rem;accent-color:var(--acc)}
+.starter small{display:block;font-size:.6rem;color:var(--muted)}
+
+.hist{font-size:.64rem;color:var(--muted);line-height:1.7;margin-top:.5rem}
+
+.save-indicator{font-size:.62rem;color:var(--muted);min-height:1.2em;text-align:right;padding-top:.25rem}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(245,240,232,.96);align-items:center;justify-content:center;z-index:9999;padding:1.5rem;overflow-y:auto}
+.modal.show{display:flex}
+.modal-box{background:var(--paper);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:1.5rem;width:100%;max-width:380px;display:flex;flex-direction:column;gap:.85rem;margin:auto}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.4rem}
+.modal-msg{font-size:.72rem;color:var(--warn);min-height:1em}
+.modal-inp{font-family:'DM Mono',monospace;font-size:.82rem;border:2px solid var(--ink);background:var(--bg);padding:.5rem .65rem;outline:none;width:100%}
+.modal-hint{font-size:.65rem;color:var(--muted);line-height:1.5}
+.modal-save{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--ink);color:var(--paper);border:none;padding:.6rem 1.2rem;cursor:pointer;align-self:flex-start;border-radius:2px}
+.modal-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.modal-cancel{background:none;border:none;font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="pat-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title">GitHub Token</div>
+    <div class="modal-msg" id="pat-msg"></div>
+    <input id="pat-input" class="modal-inp" type="password" placeholder="ghp_…" autocomplete="off" spellcheck="false">
+    <div class="modal-hint">Same token as the main Home app.</div>
+    <button id="pat-save" class="modal-save">Save token</button>
+  </div>
+</div>
+
+<!-- edit / add job -->
+<div id="job-modal" class="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="jm-title">New job</div>
+    <div class="field-group">
+      <div class="field-lbl">What</div>
+      <input id="jm-name" class="field-inp" type="text" placeholder="Top up salt in water softener">
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <div class="field-lbl">Every</div>
+        <input id="jm-every" class="field-inp" type="number" inputmode="numeric" min="1" max="999" value="1">
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">&nbsp;</div>
+        <select id="jm-unit" class="field-inp">
+          <option value="d">days</option><option value="w">weeks</option>
+          <option value="m" selected>months</option><option value="y">years</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <div class="field-lbl">Last done</div>
+        <input id="jm-last" class="field-inp" type="date">
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">or next due</div>
+        <input id="jm-due" class="field-inp" type="date">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field-group">
+        <div class="field-lbl">Area</div>
+        <select id="jm-area" class="field-inp"></select>
+      </div>
+      <div class="field-group">
+        <div class="field-lbl">Warn days ahead</div>
+        <input id="jm-lead" class="field-inp" type="number" inputmode="numeric" min="0" max="120" value="7">
+      </div>
+    </div>
+    <div class="field-group">
+      <div class="field-lbl">Notes (how, where, what to buy)</div>
+      <input id="jm-notes" class="field-inp" type="text" placeholder="Regeneriersalz, 25 kg bag, OBI">
+    </div>
+    <div class="field-error" id="jm-err"></div>
+    <div class="modal-row">
+      <button id="jm-save" class="modal-save">Save</button>
+      <button id="jm-cancel" class="modal-cancel">Cancel</button>
+    </div>
+    <div id="jm-hist" class="hist"></div>
+    <button id="jm-del" class="del-btn" style="align-self:flex-start">Delete this job</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-hdr">
+    <div class="page-title">Upkeep</div>
+    <div class="page-meta"><span id="todayMeta">—</span><span style="font-size:.58rem">v1.0</span></div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-big"><span class="hero-num" id="dueNum">—</span><span class="hero-unit" id="dueUnit">due now</span></div>
+    <div class="hero-sub" id="dueSub">Everything else is on the list. You don't need to hold it in your head.</div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="due">Due</button>
+    <button class="tab-btn" data-tab="all">All jobs</button>
+    <button class="tab-btn" data-tab="add">Add</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-due"><div id="due-list"></div></div>
+  <div class="tab-panel" id="tab-all"><div id="all-list"></div></div>
+
+  <div class="tab-panel" id="tab-add">
+    <div class="card">
+      <div class="card-title-row">New recurring job</div>
+      <button class="save-btn" id="open-add" style="margin-top:0">+ Add a job</button>
+      <div class="help">Anything that comes round again: salt, filters, services, renewals, tax. Give it an interval and roughly when you last did it. If you don't know, leave it blank; it'll sit under "Needs a date" until you set one.</div>
+    </div>
+    <div class="card" id="starter-card">
+      <div class="card-title-row">Starter list</div>
+      <div id="starter-list"></div>
+      <button class="ghost-btn" id="starter-add" style="margin-top:.75rem">Add ticked</button>
+      <div class="help" id="starter-msg">Tick the ones that apply. Intervals are sensible defaults; tap a job later to change it.</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row">How to use it</div>
+      <div class="help" style="margin-top:0">Look at <b>Due</b> once a day, or just on your weekly review. When something new occurs to you, add it straight away. Once it's in here, your head can let it go.</div>
+    </div>
+  </div>
+
+  <div class="save-indicator" id="saveIndicator"></div>
+</div>
+
+<script>
+const REPO = 'Jeff-Lynn-SC/todo';
+const FILE = 'upkeep.json';
+const CACHE_KEY = 'upkeep_data';
+const ghUrl = p => `https://api.github.com/repos/${REPO}/contents/${p}`;
+const AREAS = ['Home', 'Admin & tax', 'Vespa', 'Brewery', 'Health', 'Garden', 'Other'];
+
+const STARTERS = [
+  { name:'Top up salt in water softener', every:6, unit:'w', area:'Home', lead:5 },
+  { name:'Dishwasher salt & rinse aid', every:2, unit:'m', area:'Home', lead:3 },
+  { name:'Descale kettle', every:2, unit:'m', area:'Home', lead:3 },
+  { name:'Clean extractor hood filter', every:3, unit:'m', area:'Home', lead:7 },
+  { name:'Test smoke alarms', every:1, unit:'y', area:'Home', lead:14 },
+  { name:'Bleed radiators', every:1, unit:'y', area:'Home', lead:14, notes:'Before heating season' },
+  { name:'Heating / boiler service', every:1, unit:'y', area:'Home', lead:30 },
+  { name:'Income tax return (Einkommensteuer)', every:1, unit:'y', area:'Admin & tax', lead:45 },
+  { name:'Check Rundfunkbeitrag & insurances', every:1, unit:'y', area:'Admin & tax', lead:30 },
+  { name:'Vespa service', every:1, unit:'y', area:'Vespa', lead:21 },
+  { name:'Vespa insurance / plate renewal', every:1, unit:'y', area:'Vespa', lead:30 },
+  { name:'Vespa tyre pressure', every:1, unit:'m', area:'Vespa', lead:3 },
+  { name:'Brewery: walk-round check', every:1, unit:'w', area:'Brewery', lead:1 },
+  { name:'Dentist check-up', every:6, unit:'m', area:'Health', lead:21 },
+  { name:'Renew prescriptions', every:3, unit:'m', area:'Health', lead:10 },
+];
+
+// ── token (shared with the rest of Home) ──
+const getPat = () => localStorage.getItem('gh_pat');
+function showPat(msg){
+  document.getElementById('pat-modal').classList.add('show');
+  document.getElementById('pat-msg').textContent = msg || '';
+  setTimeout(() => document.getElementById('pat-input').focus(), 120);
+}
+document.getElementById('pat-save').addEventListener('click', () => {
+  const v = document.getElementById('pat-input').value.trim();
+  if (!v) return;
+  localStorage.setItem('gh_pat', v);
+  document.getElementById('pat-modal').classList.remove('show');
+  loadData();
+});
+document.getElementById('pat-input').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('pat-save').click(); });
+
+// ── GitHub ──
+async function ghGet(path){
+  const pat = getPat();
+  if (!pat){ showPat(); return null; }
+  const res = await fetch(ghUrl(path) + '?t=' + Date.now(), { headers:{ Authorization:`token ${pat}`, Accept:'application/vnd.github.v3+json' }, cache:'no-store' });
+  if (res.status === 401){ localStorage.removeItem('gh_pat'); showPat('Token rejected. Enter it again.'); return null; }
+  if (res.status === 404) return null;
+  if (!res.ok){ setInd(`GitHub error ${res.status}`); return null; }
+  return res.json();
+}
+async function ghPut(path, data, msg, sha){
+  const pat = getPat(); if (!pat) return null;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 1))));
+  const body = { message: msg, content, branch: 'main' };
+  if (sha) body.sha = sha;
+  const res = await fetch(ghUrl(path), { method:'PUT',
+    headers:{ Authorization:`token ${pat}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+    body: JSON.stringify(body) });
+  return res.ok ? res.json() : null;
+}
+const decode = c => JSON.parse(decodeURIComponent(escape(atob(c.replace(/\s/g, '')))));
+
+// ── store: jobs carry updatedAt; deletes are tombstones so they travel between devices ──
+let jobs = [];
+let saveTimer = null;
+function setInd(t){ document.getElementById('saveIndicator').textContent = t; }
+function saveLocal(){ try { localStorage.setItem(CACHE_KEY, JSON.stringify(jobs)); } catch(e){} }
+const live = () => jobs.filter(j => !j.deleted);
+
+function merge(a, b){
+  const m = new Map();
+  for (const j of a) m.set(j.id, j);
+  for (const j of b){
+    const t = m.get(j.id);
+    if (!t || String(j.updatedAt||'') > String(t.updatedAt||'')) m.set(j.id, j);
+  }
+  return [...m.values()];
+}
+function scheduleSave(){
+  if (saveTimer) clearTimeout(saveTimer);
+  setInd('…');
+  saveTimer = setTimeout(doSave, 1200);
+}
+async function doSave(){
+  saveLocal();
+  try {
+    const meta = await ghGet(FILE);
+    if (meta && meta.content){
+      try { const remote = decode(meta.content); if (Array.isArray(remote.jobs)) jobs = merge(jobs, remote.jobs); } catch(e){}
+    }
+    const ok = await ghPut(FILE, { v:1, updated:new Date().toISOString(), jobs }, 'update upkeep', meta && meta.sha);
+    saveLocal(); render();
+    setInd(ok ? 'saved ✓' : 'save failed, kept on this device');
+  } catch(e){ setInd('save failed, kept on this device'); }
+  setTimeout(() => setInd(''), 2500);
+}
+async function loadData(){
+  try { jobs = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e){ jobs = []; }
+  render();
+  if (!getPat()){ showPat(); return; }
+  const meta = await ghGet(FILE);
+  if (meta && meta.content){
+    try {
+      const remote = decode(meta.content);
+      if (Array.isArray(remote.jobs)){ jobs = merge(jobs, remote.jobs); saveLocal(); render(); }
+    } catch(e){}
+  }
+}
+
+// ── dates ──
+const pad = n => String(n).padStart(2,'0');
+const toStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const todayStr = () => toStr(new Date());
+function parse(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function fmtDate(s){ const d = parse(s); return `${d.getDate()}.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}`; }
+function addInterval(s, n, unit){
+  const d = parse(s);
+  if (unit === 'd') d.setDate(d.getDate() + n);
+  else if (unit === 'w') d.setDate(d.getDate() + n*7);
+  else {
+    const months = unit === 'y' ? n*12 : n, day = d.getDate();
+    d.setDate(1); d.setMonth(d.getMonth() + months);
+    const last = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+    d.setDate(Math.min(day, last));
+  }
+  return toStr(d);
+}
+const daysBetween = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const UNIT_WORD = { d:['day','days'], w:['week','weeks'], m:['month','months'], y:['year','years'] };
+const everyText = j => j.every === 1 ? `every ${UNIT_WORD[j.unit][0]}` : `every ${j.every} ${UNIT_WORD[j.unit][1]}`;
+
+function nextDue(j){
+  if (j.due) return j.due;
+  if (j.last) return addInterval(j.last, j.every, j.unit);
+  return null;
+}
+function status(j){
+  const due = nextDue(j);
+  if (!due) return { cls:'nodate', days:null, due:null };
+  const days = daysBetween(todayStr(), due);
+  const lead = j.lead != null ? j.lead : 7;
+  return { cls: days < 0 ? 'over' : days <= lead ? 'soon' : 'fine', days, due };
+}
+function whenText(s){
+  if (s.days == null) return 'set date';
+  if (s.days < -1) return `${-s.days} days late`;
+  if (s.days === -1) return '1 day late';
+  if (s.days === 0) return 'today';
+  if (s.days === 1) return 'tomorrow';
+  if (s.days < 14) return `in ${s.days} days`;
+  if (s.days < 60) return `in ${Math.round(s.days/7)} weeks`;
+  return fmtDate(s.due);
+}
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+// ── render ──
+let activeTab = 'due';
+function render(){
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('todayMeta').textContent = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
+
+  const withS = live().map(j => ({ j, s: status(j) }));
+  const over = withS.filter(x => x.s.cls === 'over');
+  const soon = withS.filter(x => x.s.cls === 'soon');
+  const nodate = withS.filter(x => x.s.cls === 'nodate');
+  const n = over.length + soon.length;
+
+  document.getElementById('dueNum').textContent = live().length ? n : '—';
+  document.getElementById('dueUnit').textContent = n === 1 ? 'job due' : 'jobs due';
+  let sub;
+  if (!live().length) sub = 'Nothing on the list yet. Start under Add.';
+  else if (!n) sub = `Nothing due. ${withS.length - nodate.length} job${withS.length - nodate.length === 1 ? '' : 's'} ticking over quietly — you can stop thinking about them.`;
+  else sub = (over.length ? `${over.length} late. ` : '') + `Everything else (${withS.length - n}) is on the list. You don't need to hold it in your head.`;
+  document.getElementById('dueSub').textContent = sub;
+
+  renderDue(over, soon, nodate, withS);
+  renderAll(withS);
+  renderStarters();
+}
+
+function jobCard(x, withActions){
+  const { j, s } = x;
+  const card = document.createElement('div');
+  card.className = 'job ' + s.cls;
+  const main = document.createElement('div'); main.className = 'job-main';
+  const body = document.createElement('div'); body.className = 'job-body';
+  const name = document.createElement('div'); name.className = 'job-name'; name.textContent = j.name;
+  const meta = document.createElement('div'); meta.className = 'job-meta';
+  const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = j.area || 'Other';
+  meta.appendChild(tag);
+  meta.appendChild(document.createTextNode(everyText(j) + (j.last ? ` · last ${fmtDate(j.last)}` : '')));
+  body.append(name, meta);
+  if (j.notes){ const nt = document.createElement('div'); nt.className = 'job-notes'; nt.textContent = j.notes; body.appendChild(nt); }
+  body.addEventListener('click', () => openJob(j.id));
+  const when = document.createElement('div'); when.className = 'job-when'; when.textContent = whenText(s);
+  main.append(body, when); card.appendChild(main);
+
+  if (withActions){
+    const acts = document.createElement('div'); acts.className = 'job-acts';
+    const done = document.createElement('button'); done.className = 'act done'; done.textContent = 'Done ✓';
+    done.addEventListener('click', () => markDone(j.id));
+    const snooze = document.createElement('button'); snooze.className = 'act'; snooze.textContent = '+1 week';
+    snooze.addEventListener('click', () => snoozeJob(j.id, 7));
+    acts.append(done, snooze); card.appendChild(acts);
+  }
+  return card;
+}
+
+function section(box, label){ const l = document.createElement('div'); l.className = 'sec-lbl'; l.textContent = label; box.appendChild(l); }
+function emptyMsg(box, t){ const e = document.createElement('div'); e.className = 'empty'; e.textContent = t; box.appendChild(e); }
+const byDays = (a, b) => a.s.days - b.s.days;
+
+function renderDue(over, soon, nodate, withS){
+  const box = document.getElementById('due-list'); box.textContent = '';
+  if (!withS.length){ emptyMsg(box, 'No jobs yet. Tap Add to put in the first few.'); return; }
+  if (over.length){ section(box, 'Late'); over.sort(byDays).forEach(x => box.appendChild(jobCard(x, true))); }
+  if (soon.length){ section(box, 'Coming up'); soon.sort(byDays).forEach(x => box.appendChild(jobCard(x, true))); }
+  if (!over.length && !soon.length){
+    emptyMsg(box, 'Clear. Nothing needs you right now.');
+    const next = withS.filter(x => x.s.cls === 'fine').sort(byDays)[0];
+    if (next){ section(box, 'Next up'); box.appendChild(jobCard(next, false)); }
+  }
+  if (nodate.length){ section(box, 'Needs a date'); nodate.forEach(x => box.appendChild(jobCard(x, false))); }
+}
+
+function renderAll(withS){
+  const box = document.getElementById('all-list'); box.textContent = '';
+  if (!withS.length){ emptyMsg(box, 'No jobs yet.'); return; }
+  AREAS.forEach(area => {
+    const inArea = withS.filter(x => (x.j.area || 'Other') === area);
+    if (!inArea.length) return;
+    section(box, area);
+    inArea.sort((a, b) => (a.s.days ?? 1e9) - (b.s.days ?? 1e9)).forEach(x => box.appendChild(jobCard(x, false)));
+  });
+}
+
+function renderStarters(){
+  const have = new Set(live().map(j => j.name.toLowerCase()));
+  const box = document.getElementById('starter-list'); box.textContent = '';
+  const left = STARTERS.filter(s => !have.has(s.name.toLowerCase()));
+  document.getElementById('starter-card').style.display = left.length ? '' : 'none';
+  left.forEach((s, i) => {
+    const row = document.createElement('label'); row.className = 'starter';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.dataset.name = s.name;
+    const txt = document.createElement('span'); txt.textContent = s.name;
+    const sm = document.createElement('small'); sm.textContent = `${s.area} · ${everyText(s)}`;
+    txt.appendChild(sm); row.append(cb, txt); box.appendChild(row);
+  });
+}
+
+// ── actions ──
+function touch(j){ j.updatedAt = new Date().toISOString(); saveLocal(); scheduleSave(); render(); }
+
+function markDone(id){
+  const j = jobs.find(x => x.id === id); if (!j) return;
+  const t = todayStr();
+  j.history = (j.history || []).concat(t).slice(-20);
+  j.last = t; j.due = null;
+  touch(j);
+}
+function snoozeJob(id, days){
+  const j = jobs.find(x => x.id === id); if (!j) return;
+  const base = nextDue(j) && nextDue(j) > todayStr() ? nextDue(j) : todayStr();
+  j.due = addInterval(base, days, 'd');
+  touch(j);
+}
+
+document.getElementById('starter-add').addEventListener('click', () => {
+  const ticked = [...document.querySelectorAll('#starter-list input:checked')].map(cb => cb.dataset.name);
+  if (!ticked.length){ document.getElementById('starter-msg').textContent = 'Tick at least one first.'; return; }
+  const now = new Date().toISOString();
+  ticked.forEach(name => {
+    const s = STARTERS.find(x => x.name === name);
+    jobs.push({ id: uid(), name: s.name, every: s.every, unit: s.unit, area: s.area, lead: s.lead, notes: s.notes || '', last: null, due: null, history: [], updatedAt: now });
+  });
+  document.getElementById('starter-msg').textContent = `Added ${ticked.length}. They're under "Needs a date" on Due — tap each to say when you last did it.`;
+  saveLocal(); scheduleSave(); render();
+});
+
+// ── job modal ──
+const areaSel = document.getElementById('jm-area');
+AREAS.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; areaSel.appendChild(o); });
+let editingId = null;
+const $ = id => document.getElementById(id);
+
+function openJob(id){
+  editingId = id || null;
+  const j = id ? jobs.find(x => x.id === id) : null;
+  $('jm-title').textContent = j ? 'Edit job' : 'New job';
+  $('jm-name').value = j ? j.name : '';
+  $('jm-every').value = j ? j.every : 1;
+  $('jm-unit').value = j ? j.unit : 'm';
+  $('jm-last').value = j && j.last ? j.last : '';
+  $('jm-due').value = j && j.due ? j.due : '';
+  $('jm-area').value = j ? (j.area || 'Other') : 'Home';
+  $('jm-lead').value = j && j.lead != null ? j.lead : 7;
+  $('jm-notes').value = j ? (j.notes || '') : '';
+  $('jm-err').textContent = '';
+  $('jm-del').style.display = j ? '' : 'none';
+  const h = j && j.history && j.history.length ? 'Done on: ' + j.history.slice().reverse().map(fmtDate).join(', ') : '';
+  $('jm-hist').textContent = h;
+  $('job-modal').classList.add('show');
+  if (!j) setTimeout(() => $('jm-name').focus(), 120);
+}
+function closeJob(){ $('job-modal').classList.remove('show'); editingId = null; }
+
+$('open-add').addEventListener('click', () => openJob(null));
+$('jm-cancel').addEventListener('click', closeJob);
+$('jm-save').addEventListener('click', () => {
+  const name = $('jm-name').value.trim();
+  const every = parseInt($('jm-every').value, 10);
+  const lead = parseInt($('jm-lead').value, 10);
+  if (!name){ $('jm-err').textContent = 'Give it a name.'; return; }
+  if (!(every >= 1)){ $('jm-err').textContent = 'Interval must be at least 1.'; return; }
+  let j = editingId ? jobs.find(x => x.id === editingId) : null;
+  if (!j){ j = { id: uid(), history: [] }; jobs.push(j); }
+  Object.assign(j, { name, every, unit: $('jm-unit').value, area: $('jm-area').value,
+    lead: isNaN(lead) ? 7 : lead, notes: $('jm-notes').value.trim(),
+    last: $('jm-last').value || null, due: $('jm-due').value || null });
+  closeJob(); touch(j);
+});
+$('jm-del').addEventListener('click', () => {
+  const j = jobs.find(x => x.id === editingId); if (!j) return;
+  if (!confirm(`Delete "${j.name}"?`)) return;
+  j.deleted = true; closeJob(); touch(j);
+});
+// picking a last-done date clears an explicit due date, and vice versa isn't forced
+$('jm-last').addEventListener('change', () => { if ($('jm-last').value) $('jm-due').value = ''; });
+
+document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab = btn.dataset.tab;
+  document.getElementById('tab-' + activeTab).classList.add('active');
+}));
+
+loadData();
+</script>
+</body>
+</html>
