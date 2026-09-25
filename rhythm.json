@@ -296,7 +296,7 @@
       },
       {
         "id": "cleared_the_kitchen_u_be",
-        "label": "Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz",
+        "label": "Cleared the kitchen u-bend. Invoiced dlr.  Sorting training and pub quiz",
         "start": "10:10",
         "dur": 0,
         "days": [],
@@ -305,6 +305,10 @@
       }
     ],
     "history": [
+      {
+        "at": "2026-09-25",
+        "text": "Renamed Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz to Cleared the kitchen u-bend. Invoiced dlr.  Sorting training and pub quiz"
+      },
       {
         "at": "2026-09-25",
         "text": "Logged Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz for the first time"
