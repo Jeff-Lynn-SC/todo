@@ -293,9 +293,22 @@
         "days": [],
         "kind": "logged",
         "track": true
+      },
+      {
+        "id": "cleared_the_kitchen_u_be",
+        "label": "Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz",
+        "start": "10:10",
+        "dur": 0,
+        "days": [],
+        "kind": "logged",
+        "track": true
       }
     ],
     "history": [
+      {
+        "at": "2026-09-25",
+        "text": "Logged Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz for the first time"
+      },
       {
         "at": "2026-09-24",
         "text": "Logged Topped up the house salt for the first time"
@@ -693,6 +706,11 @@
           "status": "done",
           "at": "10:10",
           "unplanned": false
+        },
+        "cleared_the_kitchen_u_be": {
+          "status": "done",
+          "at": "10:10",
+          "unplanned": true
         }
       }
     }
