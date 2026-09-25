@@ -1,6 +1,6 @@
 {
  "v": 1,
- "updated": "2026-09-25T16:54:19.898Z",
+ "updated": "2026-09-25T17:02:24.727Z",
  "jobs": [
   {
    "id": "muh7amiq5gwox",
@@ -40,6 +40,19 @@
    "due": null,
    "history": [],
    "updatedAt": "2026-09-25T16:54:18.242Z"
+  },
+  {
+   "id": "muh7l0p6ey0v8",
+   "name": "Check Rundfunkbeitrag & insurances",
+   "every": 1,
+   "unit": "y",
+   "area": "Admin & tax",
+   "lead": 30,
+   "notes": "",
+   "last": null,
+   "due": null,
+   "history": [],
+   "updatedAt": "2026-09-25T17:02:23.178Z"
   }
  ]
 }
