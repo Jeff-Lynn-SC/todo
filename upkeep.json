@@ -1,0 +1,45 @@
+{
+ "v": 1,
+ "updated": "2026-09-25T16:54:19.898Z",
+ "jobs": [
+  {
+   "id": "muh7amiq5gwox",
+   "name": "Top up salt in water softener",
+   "every": 6,
+   "unit": "w",
+   "area": "Home",
+   "lead": 5,
+   "notes": "",
+   "last": null,
+   "due": null,
+   "history": [],
+   "updatedAt": "2026-09-25T16:54:18.242Z"
+  },
+  {
+   "id": "muh7amiq8t2sn",
+   "name": "Income tax return (Einkommensteuer)",
+   "every": 1,
+   "unit": "y",
+   "area": "Admin & tax",
+   "lead": 45,
+   "notes": "",
+   "last": null,
+   "due": null,
+   "history": [],
+   "updatedAt": "2026-09-25T16:54:18.242Z"
+  },
+  {
+   "id": "muh7amiqltup8",
+   "name": "Vespa insurance / plate renewal",
+   "every": 1,
+   "unit": "y",
+   "area": "Vespa",
+   "lead": 30,
+   "notes": "",
+   "last": null,
+   "due": null,
+   "history": [],
+   "updatedAt": "2026-09-25T16:54:18.242Z"
+  }
+ ]
+}
