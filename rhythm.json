@@ -12,9 +12,7 @@
           1,
           2,
           3,
-          4,
-          5,
-          6
+          4
         ],
         "kind": "meal"
       },
@@ -305,6 +303,14 @@
       }
     ],
     "history": [
+      {
+        "at": "2026-09-26",
+        "text": "Breakfast now on Mon, Tue, Wed, Thu, Fri"
+      },
+      {
+        "at": "2026-09-26",
+        "text": "Breakfast now on Mon, Tue, Wed, Thu, Fri, Sun"
+      },
       {
         "at": "2026-09-25",
         "text": "Renamed Cleared the kitchen u-bend. Invoiced dlr.  Dortig trading and pub quiz to Cleared the kitchen u-bend. Invoiced dlr.  Sorting training and pub quiz"
