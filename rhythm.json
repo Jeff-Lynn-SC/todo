@@ -14,7 +14,8 @@
           3,
           4
         ],
-        "kind": "meal"
+        "kind": "meal",
+        "track": true
       },
       {
         "id": "prep_eng",
