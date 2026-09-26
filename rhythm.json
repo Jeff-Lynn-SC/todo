@@ -25,7 +25,8 @@
         "days": [
           0
         ],
-        "kind": "fixed"
+        "kind": "fixed",
+        "track": true
       },
       {
         "id": "walk_am",
