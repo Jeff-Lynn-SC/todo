@@ -52,7 +52,8 @@
           0
         ],
         "kind": "fixed",
-        "note": "Leave 08:30, class 10:00 to 11:30, home about 12:45"
+        "note": "Leave 08:30, class 10:00 to 11:30, home about 12:45",
+        "track": true
       },
       {
         "id": "stretch",
