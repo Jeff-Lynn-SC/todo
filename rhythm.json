@@ -77,7 +77,8 @@
         "days": [
           1
         ],
-        "kind": "fixed"
+        "kind": "fixed",
+        "track": true
       },
       {
         "id": "clean",
