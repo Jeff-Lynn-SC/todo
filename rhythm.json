@@ -727,6 +727,21 @@
           "unplanned": true
         }
       }
+    },
+    "2026-09-28": {
+      "date": "2026-09-28",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "16:25",
+          "unplanned": false
+        },
+        "prep_eng": {
+          "status": "done",
+          "at": "16:25",
+          "unplanned": false
+        }
+      }
     }
   }
 }
