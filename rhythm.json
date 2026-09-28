@@ -735,11 +735,6 @@
           "status": "done",
           "at": "16:25",
           "unplanned": false
-        },
-        "prep_eng": {
-          "status": "done",
-          "at": "16:25",
-          "unplanned": false
         }
       }
     }
