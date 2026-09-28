@@ -740,11 +740,6 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
-        },
-        "teaching": {
-          "status": "skipped",
-          "at": null,
-          "unplanned": false
         }
       }
     }
