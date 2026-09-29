@@ -768,8 +768,8 @@
           "unplanned": false
         },
         "vhs_post": {
-          "status": "done",
-          "at": "15:10",
+          "status": "skipped",
+          "at": null,
           "unplanned": false
         }
       }
