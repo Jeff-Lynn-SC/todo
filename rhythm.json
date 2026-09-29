@@ -766,6 +766,11 @@
           "status": "done",
           "at": "15:10",
           "unplanned": false
+        },
+        "vhs_post": {
+          "status": "done",
+          "at": "15:10",
+          "unplanned": false
         }
       }
     }
