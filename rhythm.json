@@ -748,6 +748,21 @@
         }
       },
       "note": "Katja is on hols so no English prep or teaching. Started on the last bits of Maryam’s coving. Most of the day on coincidental. Popped into vhs to discuss the pub quiz"
+    },
+    "2026-09-29": {
+      "date": "2026-09-29",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "15:10",
+          "unplanned": false
+        },
+        "walk_am": {
+          "status": "done",
+          "at": "15:10",
+          "unplanned": false
+        }
+      }
     }
   }
 }
