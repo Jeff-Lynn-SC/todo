@@ -761,6 +761,11 @@
           "status": "done",
           "at": "15:10",
           "unplanned": false
+        },
+        "stretch": {
+          "status": "done",
+          "at": "15:10",
+          "unplanned": false
         }
       }
     }
