@@ -1,6 +1,6 @@
 {
  "v": 1,
- "updated": "2026-09-30T08:35:04.158Z",
+ "updated": "2026-09-30T08:36:00.185Z",
  "jobs": [
   {
    "id": "muh7amiq5gwox",
@@ -9,11 +9,11 @@
    "unit": "w",
    "area": "Home",
    "lead": 5,
-   "notes": "",
-   "last": null,
+   "notes": "Regeniersalz",
+   "last": "2026-09-24",
    "due": null,
    "history": [],
-   "updatedAt": "2026-09-25T16:54:18.242Z"
+   "updatedAt": "2026-09-30T08:35:58.375Z"
   },
   {
    "id": "muh7amiq8t2sn",
