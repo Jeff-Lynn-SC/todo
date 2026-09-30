@@ -1,6 +1,6 @@
 {
  "v": 1,
- "updated": "2026-09-25T17:02:24.727Z",
+ "updated": "2026-09-30T08:35:04.158Z",
  "jobs": [
   {
    "id": "muh7amiq5gwox",
@@ -21,12 +21,12 @@
    "every": 1,
    "unit": "y",
    "area": "Admin & tax",
-   "lead": 45,
+   "lead": 120,
    "notes": "",
-   "last": null,
-   "due": null,
+   "last": "2026-09-30",
+   "due": "2027-07-31",
    "history": [],
-   "updatedAt": "2026-09-25T16:54:18.242Z"
+   "updatedAt": "2026-09-30T08:35:02.321Z"
   },
   {
    "id": "muh7amiqltup8",
