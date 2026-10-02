@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Radio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+  --ink:#1a1a1a; --paper:#fffef9; --bg:#f5f0e8; --muted:#888; --border:#d8d4cc;
+  --acc:#3b4f8a; --acc-bg:#e4e8f3; --acc-dk:#26345e;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Mono',monospace;color:var(--ink)}
+.page{padding:calc(var(--safe-t) + .75rem) 1rem calc(var(--safe-b) + 2.5rem);max-width:500px;margin:0 auto}
+.page-hdr{padding:1rem 0;border-bottom:2px solid var(--ink);margin-bottom:1.25rem}
+.page-title{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:.35rem}
+.page-meta{font-size:.68rem;color:var(--muted)}
+
+.station{display:flex;align-items:center;gap:1rem;background:var(--paper);border:1.5px solid var(--border);border-left:5px solid var(--c);padding:1.1rem 1rem;margin-bottom:.75rem;text-decoration:none;color:var(--ink)}
+.station:active{opacity:.8}
+.play{flex:none;width:3rem;height:3rem;border-radius:50%;background:var(--c);display:flex;align-items:center;justify-content:center}
+.play svg{width:1.2rem;height:1.2rem;margin-left:.15rem}
+.st-name{font-family:'Playfair Display',serif;font-size:1.25rem;line-height:1.2}
+.st-sub{font-size:.64rem;color:var(--muted);margin-top:.2rem}
+.help{font-size:.65rem;color:var(--muted);line-height:1.6;margin-top:1.25rem}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-hdr">
+    <div class="page-title">Radio</div>
+    <div class="page-meta">Tap a station — it opens the station's own player</div>
+  </div>
+
+  <a class="station" style="--c:#1d1d1b" href="https://www.bbc.com/audio/play/live/bbc_radio_fourfm" target="_blank" rel="noopener">
+    <div class="play"><svg viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg></div>
+    <div><div class="st-name">BBC Radio 4</div><div class="st-sub">bbc.com</div></div>
+  </a>
+
+  <a class="station" style="--c:#c8102e" href="https://www.hellorayo.co.uk/greatest-hits/play?region=ghv" target="_blank" rel="noopener">
+    <div class="play"><svg viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg></div>
+    <div><div class="st-name">Greatest Hits Radio</div><div class="st-sub">Rayo</div></div>
+  </a>
+
+  <a class="station" style="--c:#0072ce" href="https://onicplayer.ie/play/u105" target="_blank" rel="noopener">
+    <div class="play"><svg viewBox="0 0 24 24" fill="white"><polygon points="6,4 20,12 6,20"/></svg></div>
+    <div><div class="st-name">U105</div><div class="st-sub">Belfast</div></div>
+  </a>
+
+  <p class="help">If a station opens but stays silent, tap play on its page — iPhones won't start audio without a tap.</p>
+</div>
+</body>
+</html>
