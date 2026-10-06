@@ -774,6 +774,16 @@
         }
       },
       "note": "Lots of coincidental work. Finished Maryam’s coving and tidied her room a bit including putting on a wash for her."
+    },
+    "2026-10-05": {
+      "date": "2026-10-05",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "07:30",
+          "unplanned": false
+        }
+      }
     }
   }
 }
