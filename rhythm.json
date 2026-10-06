@@ -782,6 +782,11 @@
           "status": "done",
           "at": "07:30",
           "unplanned": false
+        },
+        "prep_eng": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
