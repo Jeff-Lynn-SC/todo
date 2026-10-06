@@ -810,6 +810,21 @@
         }
       },
       "note": "Picked Susan up from the airport "
+    },
+    "2026-10-06": {
+      "date": "2026-10-06",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "14:30",
+          "unplanned": false
+        },
+        "walk_am": {
+          "status": "done",
+          "at": "14:30",
+          "unplanned": false
+        }
+      }
     }
   }
 }
