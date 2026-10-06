@@ -797,6 +797,16 @@
           "status": "done",
           "at": "13:45",
           "unplanned": false
+        },
+        "cook": {
+          "status": "done",
+          "at": "18:15",
+          "unplanned": false
+        },
+        "walk_eve": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
