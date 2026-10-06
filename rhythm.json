@@ -792,6 +792,11 @@
           "status": "skipped",
           "at": null,
           "unplanned": false
+        },
+        "walk_pm": {
+          "status": "done",
+          "at": "13:45",
+          "unplanned": false
         }
       }
     }
