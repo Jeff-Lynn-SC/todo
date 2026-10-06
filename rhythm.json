@@ -828,6 +828,11 @@
           "status": "done",
           "at": "14:30",
           "unplanned": false
+        },
+        "vhs_post": {
+          "status": "skipped",
+          "at": null,
+          "unplanned": false
         }
       }
     }
