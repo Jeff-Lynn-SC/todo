@@ -118,11 +118,6 @@
     },
     {
       "header": false,
-      "label": "Pyjamas",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Pillow",
       "done": false
     },
