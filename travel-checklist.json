@@ -25,6 +25,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "UK wallet / cash",
       "done": false
@@ -43,10 +47,6 @@
       "header": false,
       "label": "Water bottle",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
