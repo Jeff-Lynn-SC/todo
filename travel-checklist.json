@@ -137,6 +137,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Sleeping bag",
       "done": false
@@ -165,10 +169,6 @@
       "header": false,
       "label": "Saucepan",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
