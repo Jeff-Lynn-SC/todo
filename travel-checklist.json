@@ -8,12 +8,12 @@
     {
       "header": false,
       "label": "Collect tabs",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "salt in the cellar",
-      "done": true
+      "done": false
     },
     {
       "header": false,
@@ -23,17 +23,17 @@
     {
       "header": false,
       "label": "Darrin's invoice",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "basil",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Check-in with Passport details",
-      "done": true
+      "done": false
     },
     {
       "header": true,
@@ -42,47 +42,47 @@
     {
       "header": false,
       "label": "Passport",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "UK wallet / cash",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Tabs",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Books",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Water bottle",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Battery pack",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Charging cables (inc watch)",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "AirPods",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Alan's stuff",
-      "done": true
+      "done": false
     },
     {
       "header": true,
@@ -91,42 +91,42 @@
     {
       "header": false,
       "label": "windows",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Turn off bathroom water heater",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Turn off all taps",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Bin putting-out covered",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "turn off the heating",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "sort the sourdough",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "empty compost",
-      "done": true
+      "done": false
     },
     {
       "header": false,
       "label": "Turn off WiFi",
-      "done": true
+      "done": false
     },
     {
       "header": true,
