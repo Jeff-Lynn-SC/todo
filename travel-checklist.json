@@ -74,6 +74,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Turn off bathroom water heater",
       "done": false
@@ -97,10 +101,6 @@
       "header": false,
       "label": "sort the sourdough",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
