@@ -209,6 +209,11 @@
     {
       "header": true,
       "label": "Doha October 2026"
+    },
+    {
+      "header": false,
+      "label": "Sort bins",
+      "done": false
     }
   ]
 }
