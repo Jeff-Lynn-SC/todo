@@ -113,6 +113,10 @@
       "label": "Northern Ireland- I left a winter jumper, winter coat and pyjamas at Susan's in Ben's wardrobe"
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Coat",
       "done": false
@@ -135,10 +139,6 @@
       "header": false,
       "label": "Rucksack",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
