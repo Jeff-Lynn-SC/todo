@@ -45,6 +45,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Battery pack",
       "done": false
@@ -58,10 +62,6 @@
       "header": false,
       "label": "AirPods",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
