@@ -16,11 +16,6 @@
       "done": false
     },
     {
-      "header": false,
-      "label": "Check-in with Passport details",
-      "done": false
-    },
-    {
       "header": true,
       "label": "Dad"
     },
