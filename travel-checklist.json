@@ -137,36 +137,6 @@
     },
     {
       "header": false,
-      "label": "Rucksack",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Sleeping bag",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Air mattress",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Bivvy (no hammock)",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Lighter",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Cooker and gas",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Pillow",
       "done": false
     },
