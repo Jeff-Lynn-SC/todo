@@ -64,22 +64,12 @@
       "done": false
     },
     {
-      "header": false,
-      "label": "Alan's stuff",
-      "done": false
-    },
-    {
       "header": true,
       "label": "Leaving the flat"
     },
     {
       "header": false,
       "label": "windows",
-      "done": false
-    },
-    {
-      "header": false,
-      "label": "Turn off bathroom water heater",
       "done": false
     },
     {
