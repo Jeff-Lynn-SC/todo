@@ -207,11 +207,6 @@
     },
     {
       "header": false,
-      "label": "Fleece top",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Sort bins",
       "done": false
     }
