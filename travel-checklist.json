@@ -84,11 +84,6 @@
     },
     {
       "header": false,
-      "label": "Turn off all taps",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Bin putting-out covered",
       "done": false
     },
