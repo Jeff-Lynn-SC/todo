@@ -6,6 +6,10 @@
       "label": "Before leaving"
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Collect tabs",
       "done": false
@@ -23,10 +27,6 @@
       "header": false,
       "label": "Passport",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
