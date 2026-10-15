@@ -167,6 +167,10 @@
       "done": false
     },
     {
+      "header": true,
+      "label": "Doha October 2026"
+    },
+    {
       "header": false,
       "label": "Travel mug",
       "done": false
@@ -205,10 +209,6 @@
       "header": false,
       "label": "Fleece top",
       "done": false
-    },
-    {
-      "header": true,
-      "label": "Doha October 2026"
     },
     {
       "header": false,
