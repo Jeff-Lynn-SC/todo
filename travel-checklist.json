@@ -104,11 +104,6 @@
     },
     {
       "header": false,
-      "label": "empty compost",
-      "done": false
-    },
-    {
-      "header": false,
       "label": "Turn off WiFi",
       "done": false
     },
