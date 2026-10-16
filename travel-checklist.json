@@ -105,6 +105,11 @@
       "header": false,
       "label": "Swim stuff",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Bose speaker",
+      "done": false
     }
   ]
 }
