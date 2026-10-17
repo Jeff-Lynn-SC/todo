@@ -26,12 +26,12 @@
     {
       "header": false,
       "label": "Passport",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Foreign wallet",
-      "done": false
+      "done": true
     },
     {
       "header": false,
