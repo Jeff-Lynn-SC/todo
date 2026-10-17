@@ -125,6 +125,11 @@
       "header": false,
       "label": "Toiletries",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Sort bread",
+      "done": false
     }
   ]
 }
