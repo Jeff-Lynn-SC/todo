@@ -119,12 +119,12 @@
     {
       "header": false,
       "label": "Eye mask",
-      "done": false
+      "done": true
     },
     {
       "header": false,
       "label": "Toiletries",
-      "done": false
+      "done": true
     },
     {
       "header": false,
