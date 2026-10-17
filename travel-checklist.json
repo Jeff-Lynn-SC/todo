@@ -120,6 +120,11 @@
       "header": false,
       "label": "Eye mask",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Toiletries",
+      "done": false
     }
   ]
 }
