@@ -110,6 +110,11 @@
       "header": false,
       "label": "Bose speaker",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "English teaching material",
+      "done": false
     }
   ]
 }
