@@ -115,6 +115,11 @@
       "header": false,
       "label": "English teaching material",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Eye mask",
+      "done": false
     }
   ]
 }
