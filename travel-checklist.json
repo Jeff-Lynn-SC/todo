@@ -135,6 +135,11 @@
       "header": false,
       "label": "Neck cushion",
       "done": false
+    },
+    {
+      "header": false,
+      "label": "Watch",
+      "done": false
     }
   ]
 }
