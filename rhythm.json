@@ -836,6 +836,21 @@
         }
       },
       "note": "Most of the morning and early afternoon on coincidental testing"
+    },
+    "2026-10-27": {
+      "date": "2026-10-27",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "10:20",
+          "unplanned": false
+        },
+        "walk_am": {
+          "status": "done",
+          "at": "10:20",
+          "unplanned": false
+        }
+      }
     }
   }
 }
