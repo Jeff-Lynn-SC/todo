@@ -859,6 +859,11 @@
           "status": "done",
           "at": "15:35",
           "unplanned": false
+        },
+        "cook": {
+          "status": "done",
+          "at": "18:15",
+          "unplanned": false
         }
       }
     },
