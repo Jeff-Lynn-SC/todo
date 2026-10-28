@@ -861,6 +861,21 @@
           "unplanned": false
         }
       }
+    },
+    "2026-10-28": {
+      "date": "2026-10-28",
+      "entries": {
+        "breakfast": {
+          "status": "done",
+          "at": "16:45",
+          "unplanned": false
+        },
+        "walk_am": {
+          "status": "done",
+          "at": "16:45",
+          "unplanned": false
+        }
+      }
     }
   }
 }
