@@ -874,11 +874,6 @@
           "status": "done",
           "at": "16:45",
           "unplanned": false
-        },
-        "clean": {
-          "status": "skipped",
-          "at": null,
-          "unplanned": false
         }
       }
     }
