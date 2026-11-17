@@ -25,3 +25,6 @@ Toast dry 1–2 min. Add 1.5–2x hot stock, simmer covered 10–12 min, rest 5 
 
 ## Posh Heinz Baked Beans
 Passata, smoked paprika, miso, sugar, pinch of onion powder, pinch of garlic powder, chilli flakes, salt. Simmer 10 min. Add drained tin of white beans (Weiße Bohnen). Simmer 10 more min. One pan.
+
+## Crispy Chickpea Fried Rice
+Serves 2. Dry 1 tin chickpeas well, fry in 2 tbsp oil on high 8–10 min till crackling. Push aside. Add spring onion (keep tops), 1 garlic clove, ~150g veg (peas/carrot/pepper), 2–3 min. Add 300g cold leftover rice, let it catch, toss till piping hot. Scramble 2 eggs in a gap, mix through. Finish with 1 tbsp soy + 1 tsp miso loosened in 1 tbsp water. Top with spring onion tops; chilli flakes on the side (mild for Maryam).
